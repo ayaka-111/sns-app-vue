@@ -1107,9 +1107,15 @@
   "resolved" "https://registry.npmjs.org/@colors/colors/-/colors-1.5.0.tgz"
   "version" "1.5.0"
 
+<<<<<<< HEAD
 "@esbuild/darwin-arm64@0.16.17":
   "integrity" "sha512-/2agbUEfmxWHi9ARTX6OQ/KgXnOWfsNlTeLcoV7HSuSTv63E4DqtAc+2XqGw1KHxKMHGZgbVCZge7HXWX9Vn+w=="
   "resolved" "https://registry.npmjs.org/@esbuild/darwin-arm64/-/darwin-arm64-0.16.17.tgz"
+=======
+"@esbuild/darwin-x64@0.16.17":
+  "integrity" "sha512-2By45OBHulkd9Svy5IOCZt376Aa2oOkiE9QWUK9fe6Tb+WDr8hXL3dpqi+DeLiMed8tVXspzsTAvd0jUl96wmg=="
+  "resolved" "https://registry.npmjs.org/@esbuild/darwin-x64/-/darwin-x64-0.16.17.tgz"
+>>>>>>> 0a2e7ae237ff483bf49419ea92ea4424ad4f78c2
   "version" "0.16.17"
 
 "@eslint/eslintrc@^1.4.1":
