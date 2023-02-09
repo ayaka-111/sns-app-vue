@@ -1,58 +1,87 @@
-<script lang="ts">
-import { reactive } from "vue";
-import { ref } from "vue";
+<script>
+import { reactive, ref } from "vue";
+import EmailField from "@/components/atoms/EmailField.vue";
+import PasswordField from "@/components/atoms/PasswordField.vue";
+import SubmitButtonState from "@/components/atoms/SubmitBtnState";
+import formValidation from "@/components/molecules/formValidation";
 import {
   getAuth,
   onAuthStateChanged,
-  EmailAuthProvider,
-  reauthenticateWithCredential,
-  updatePassword as firebaseUpdatePassword,
   signInWithEmailAndPassword,
 } from "firebase/auth";
-import { auth, storage, db } from "../../firebase";
+import { auth } from "../../firebase.ts";
+import { useRouter } from "vue-router";
 
-const message = ref("ログイン");
-const inputEmail = ref("");
-const inputPassword = ref("");
 export default {
+  components: {
+    EmailField,
+    PasswordField,
+  },
   setup() {
-    const handleSubmit: () => Promise<void> = async () => {
-  try {
-    await signInWithEmailAndPassword(
-      auth,
-      inputEmail.value,
-      inputPassword.value
-    );
-    console.log("ログイン成功");
-    // $router.push("/");
-  } catch (error) {
-    alert("メールアドレスまたはパスワードが間違っています");
-    console.log(error);
-  }
-};
+    let user = reactive({
+      email: "",
+      password: "",
+    });
+
+    const router = useRouter();
+    const loginJudge = ref(false);
+    const currentAuth = getAuth();
+    console.log(loginJudge.value);
+
+    onAuthStateChanged(currentAuth, (currentUser) => {
+      if (currentUser) {
+        loginJudge.value = !loginJudge.value;
+      }
+
+      console.log(loginJudge.value);
+    });
+
+    const { error } = formValidation();
+    const { isSignupButtonDisabled } = SubmitButtonState(user, error);
+
+    const toTop = () => {
+      router.push("/");
+    };
+
+    const loginButtonPressed = async () => {
+      console.log(user);
+      console.log("mtouroku");
+      try {
+        await signInWithEmailAndPassword(auth, user.email, user.password).then(
+          () => {
+            router.push("/");
+          }
+        );
+      } catch (error) {
+        alert("メールアドレスまたはパスワードが間違っています");
+      }
+    };
+
+    return {
+      user,
+      isSignupButtonDisabled,
+      loginButtonPressed,
+      toTop,
+      loginJudge,
+    };
   },
 };
 </script>
-
 <template>
-  <h1>{{ message }}</h1>
-  <div>
-    <form @submit.prevent="handleSubmit">
-      <input
-        v-model="email"
-        type="email"
-        name="email"
-        placeholder="メールアドレスを入力"
-      />
-      <input
-        v-model="password"
-        type="password"
-        name="password"
-        placeholder="パスワードを入力"
-      />
-      <button type="button">ログイン</button>
+  <section v-if="loginJudge === false" class="signup-view">
+    <form @submit.prevent novalidate class="ui form">
+      <div class="ui stacked segment">
+        <EmailField v-model="user.email" />
+        <PasswordField v-model="user.password" />
+        <button
+          class="ui button red fluid"
+          :disabled="isSignupButtonDisabled"
+          @click="loginButtonPressed"
+        >
+          ログイン
+        </button>
+      </div>
     </form>
-    <p>アカウントをお持ちでないですか？</p>
-    <router-link to="/register">登録する</router-link>
-  </div>
+  </section>
+  <button @click="toTop" v-else>TOPへ</button>
 </template>

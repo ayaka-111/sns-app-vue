@@ -1,6 +1,6 @@
 import { reactive } from "vue";
 import validators from "@/components/molecules/Validators";
-const error = reactive({});
+const error:any = reactive({});
 
 export default function formValidation() {
   const { isEmpty, minLength } = validators();

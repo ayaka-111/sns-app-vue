@@ -4,7 +4,7 @@ import NameField from "@/components/atoms/NameField.vue";
 import UserNameField from "@/components/atoms/UserNameField.vue";
 import PasswordField from "@/components/atoms/PasswordField.vue";
 import { reactive } from "vue";
-import SubmitButtonState from "@/components/molecules/SubmitBtnState";
+import SubmitButtonState from "@/components/atoms/SubmitBtnState";
 import formValidation from "@/components/molecules/formValidation";
 
 export default {
@@ -21,13 +21,28 @@ export default {
       userName: "",
       password: "",
     });
-    const { errors } = formValidation();
-    const { isSignupButtonDisabled } = SubmitButtonState(user, errors);
-    const signUpButtonPressed = () => {
+
+    const { error } = formValidation();
+    const { isSignupButtonDisabled } = SubmitButtonState(user, error);
+
+    const loginButtonPressed = () => {
       console.log(user);
-      console.log("登録クリックした");
+      // const collectionMessages: any = collection(db, "users");
+      // addDoc(collectionMessages, {
+      //   userId: "53PUV5WYMoOlaJWUVDmB",
+      //   message: newMessage.value,
+      //   timestamp: serverTimestamp(),
+      //   withUserId: "53PUV5WYMoOlaJWUVDmB",
+      // }).then(() => {
+      //   console.log("a");
+      // });
     };
-    return { user, isSignupButtonDisabled, signUpButtonPressed };
+
+    return {
+      user,
+      isSignupButtonDisabled,
+      loginButtonPressed,
+    };
   },
 };
 </script>
@@ -41,6 +56,7 @@ export default {
       <PasswordField v-model="user.password" />
       <button
         :disabled="isSignupButtonDisabled"
+        @click="loginButtonPressed"
         class="ui button red fluid big"
       >
         登録する
