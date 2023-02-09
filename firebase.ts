@@ -9,13 +9,15 @@ import { getStorage } from "firebase/storage"
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
-  apiKey: import.meta.env.VUE_APP_NOT_SECRET_CODE,
-  authDomain: import.meta.env.VUE_APP_AUTHDOMAIN,
-  projectId: import.meta.env.VUE_APP_PROJECT_ID,
+  apiKey: import.meta.env.VITE_APP_NOT_SECRET_CODE,
+  authDomain: import.meta.env.VITE_APP_AUTHDOMAIN,
+  projectId: import.meta.env.VITE_APP_PROJECT_ID,
   storageBucket: "sns-app-vue.appspot.com",
   messagingSenderId: "463668609725",
   appId: "1:463668609725:web:c2d636c9eff06c43056dd4"
 };
+
+
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
