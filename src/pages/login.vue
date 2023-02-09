@@ -32,7 +32,6 @@ export default {
 };
   },
 };
-
 </script>
 
 <template>
