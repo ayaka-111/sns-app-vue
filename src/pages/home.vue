@@ -75,8 +75,8 @@ const addComment = async () => {
     </div>
 
     <div>
-      <span class="favoriteLength">{{ postData.favorites.length }}人</span
-      >が「いいね!」しました
+      <span class="favoriteLength">いいね{{ postData.favorites.length }}件</span
+      >
     </div>
 
     <div class="postContent">
