@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { collection, getDocs, query } from "@firebase/firestore";
-import { db } from "firebase";
+import { db } from "../../firebase";
 import {ref} from "vue";
 import Header from "../components/organisms/header.vue"
 
@@ -10,13 +10,16 @@ const searchResult:any=ref([]);
 
 
 // 全てのuser情報を取得
-const userQuery = query(collection(db, "user"));
+const userQuery = query(collection(db, "users"));
 getDocs(userQuery).then((data) => {
     data.forEach((docdata) => {
     const data = docdata.data();
-    allUserData.push({name:data.name,userName:data.username});
+    console.log(data)
+    allUserData.value.push({name:data.name,userName:data.userName});    
     });
     });
+
+    console.log(allUserData)
 
 // userNameにsearchText.valueが含まれている または、nameに
 // user情報を配列に格納
@@ -42,6 +45,10 @@ const search =():void => {
     <form  @submit.prevent="search" >
     <input v-model="searchText" placeholder="検索" />
     </form>
+
+    <div>
+    {{ allUserData}}
+    </div>
 
 
 </div>

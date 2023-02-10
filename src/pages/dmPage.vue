@@ -79,7 +79,7 @@ const addNewMassage =():void => {
     })
 
     // inputのところ空にする
-    
+    newMessage.value = String('')
     
 }
 
@@ -105,7 +105,7 @@ const addNewMassage =():void => {
 <p class="yourMess">{{ mess.message }}</p>
             )-->
         {{ mess.message }}
-        <p >{{ mess.timestamp }}</p>
+        <p >{{ mess.timestamp}}</p>
         </li>
     </ul>
 
