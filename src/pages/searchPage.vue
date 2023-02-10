@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { collection, getDocs, query } from "@firebase/firestore";
 import { db } from "../../firebase";
+
 import {ref} from "vue";
 import Header from "../components/organisms/header.vue"
 
@@ -9,10 +10,11 @@ const searchText:any = ref();
 const searchResult:any=ref([]);
 
 
+
 // 全てのuser情報を取得
 const userQuery = query(collection(db, "users"));
 getDocs(userQuery).then((data) => {
-    data.forEach((docdata) => {
+  data.forEach((docdata) => {
     const data = docdata.data();
     console.log(data)
     allUserData.value.push({name:data.name,userName:data.userName});    
@@ -26,45 +28,39 @@ getDocs(userQuery).then((data) => {
 
 // mapで回して、アイコンと名前を表示
 
-const search =():void => {
-    searchResult.value.push(searchText.value)
-    searchText.value = String('')
-}
-
+const search = (): void => {
+  searchResult.value.push(searchText.value);
+  searchText.value = String("");
+};
 </script>
 
 <template>
-    
-    <Header />
+  <Header />
 
-<div class="s">
-<div class="search">
-
-    <div class="text">検索</div>
-
-    <form  @submit.prevent="search" >
-    <input v-model="searchText" placeholder="検索" />
-    </form>
+  <div class="s">
+    <div class="search">
+      <div class="text">検索</div>
 
     <div>
     {{ allUserData}}
     </div>
 
-
-</div>
-</div>
-    
+      <form @submit.prevent="search">
+        <input v-model="searchText" placeholder="検索" />
+      </form>
+    </div>
+  </div>
 </template>
 
 <style>
-.s{
-    margin-left: 350px;
+.s {
+  margin-left: 350px;
 }
 /* .search{
     text-align: center;
 } */
-.text{
-    font-size:x-large;
-    font-weight:bold;
+.text {
+  font-size: x-large;
+  font-weight: bold;
 }
 </style>

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch } from "vue";
+import { reactive, ref, watch } from "vue";
 import {
   arrayUnion,
   collection,
@@ -18,6 +18,16 @@ const loginUser = ref("");
 //postデータ
 const postData: any = ref("");
 
+//timestampの表記変更
+const dateToDate = reactive({
+  year: "",
+  month: "",
+  date: "",
+  hour: "",
+  min: "",
+});
+
+//ログイン認証、uid取得
 onAuthStateChanged(auth, (currentUser: any) => {
   if (currentUser) {
     loginUser.value = currentUser.uid;
@@ -25,15 +35,24 @@ onAuthStateChanged(auth, (currentUser: any) => {
 });
 console.log(loginUser);
 
-// //コレクションへの参照を取得
+// postsコレクションへの参照を取得
 const postCollectionRef = collection(db, "posts");
 
-// //上記を元にドキュメントへの参照を取得(クリックされた投稿のpostIdを指定する)
+// 上記を元にドキュメントへの参照を取得(クリックされた投稿のpostIdを指定する)
 const postDocRefId = doc(postCollectionRef, "nxvBjxNsshrRKcsXot7j");
 
 // //上記を元にドキュメントのデータを取得
 getDoc(postDocRefId).then((data) => {
   postData.value = data.data();
+
+  //timestamp取得
+  const dataList = data.data();
+  const timestamp = dataList?.timestamp.toDate();
+  dateToDate.year = timestamp.getFullYear();
+  dateToDate.month = timestamp.getMonth() + 1;
+  dateToDate.date = timestamp.getDate();
+  dateToDate.hour = timestamp.getHours();
+  dateToDate.min = timestamp.getMinutes();
 });
 
 //コメント機能(postsのcommentsに追加)
@@ -94,7 +113,12 @@ const addComment = async () => {
       <button>🏷</button>
     </div>
     <div>
-      <span class="favoriteLength">{{ postData.favorites.length }}人</span>が「いいね!」しました
+      <span class="favoriteLength"
+        >いいね{{ postData.favorites.length }}件</span
+      >
+    </div>
+    <div>
+      {{ dateToDate.month }}月 {{ dateToDate.date }}, {{ dateToDate.year }}
     </div>
     <div>
       <input type="text" v-model="inputComment" />
