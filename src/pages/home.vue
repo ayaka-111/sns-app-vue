@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch } from "vue";
+import { reactive, ref, watch } from "vue";
 import {
   arrayUnion,
   collection,
@@ -19,73 +19,75 @@ import { onAuthStateChanged } from "@firebase/auth";
 // ログインユーザーのuid
 const loginUserUid: any = ref("");
 
+//mapで回す取得したpost全データ
+const postList: any = ref([]);
+
+//timestampの表記変更
+const dateToDate = reactive({
+  year: "",
+  month: "",
+  date: "",
+  hour: "",
+  min: "",
+});
+
+//ログイン認証、一覧で表示するデータ取得
 onAuthStateChanged(auth, (currentUser: any) => {
   if (currentUser) {
     loginUserUid.value = currentUser.uid;
+
+    //usersからログインユーザーの情報取得
+    const userCollectionRef = collection(db, "users");
+
+    const userDocRefId = doc(userCollectionRef, currentUser.uid);
+
+    //自分とfollowしているユーザーのuserId配列
+    const userList: any[] = [currentUser.uid];
+
+    getDoc(userDocRefId).then((user) => {
+      //data()の形で取得
+      const userData = user.data();
+
+      //followのみ取得し、上記配列に格納
+      const follow = userData?.follow;
+      follow.map((id: string) => userList.push(id));
+
+      //もし上記getDocの外で以下記述した場合userIdがpushされる前に処理されてしまう
+      // userIdが入っている配列をmapで回し、postsからuserIdと等しいデータを取得
+      userList.map((userId) => {
+        const postsCollectionRef = query(
+          collection(db, "posts"),
+          where("userId", "==", userId)
+        );
+
+        //data()の形で取得し、順番にpostListにpushする
+        getDocs(postsCollectionRef).then((post: any) => {
+          post.forEach((doc: any) => {
+            postList.value.push(doc.data());
+
+            //timestamp取得
+            // const dataList = doc.data();
+            // const timestamp = dataList?.timestamp.toDate();
+            // dateToDate.year = timestamp.getFullYear();
+            // dateToDate.month = timestamp.getMonth() + 1;
+            // dateToDate.date = timestamp.getDate();
+            // dateToDate.hour = timestamp.getHours();
+            // dateToDate.min = timestamp.getMinutes();
+          });
+        });
+      });
+    });
   }
 });
 
-//usersからログインユーザーの情報取得
-const loginUser: any = ref("");
-
-const userCollectionRef = collection(db, "users");
-
-const userDocRefId = doc(userCollectionRef, "n3TDdidXCSRKEOVUUUudXGVhP9y2");
-
-const userList = ref(["n3TDdidXCSRKEOVUUUudXGVhP9y2"]);
-
-const postData: any = ref([]);
-
-
-getDoc(userDocRefId).then((data) => {
-  // loginUser.value = data.data();
-  const userData = data.data();
-  const follow = userData?.follow;
-  // const userList = ["n3TDdidXCSRKEOVUUUudXGVhP9y2"];
-  follow.map((id: string) => userList.value.push(id));
-  // console.log(userList);
-})
-
-//ログインユーザーとフォローしているユーザーのuserIdのみ格納
-
-// loginUser.value.follow.map((userId: string) => {
-//   userList.value.push(userId);
+// 日付順に並び替え
+// postList.value.sort((a: any, b: any) => {
+//   return a.timestamp.toDate() > b.timestamp.toDate() ? -1 : 1;
 // });
 
-// loginUserFollow.value.map((userId: string) => {
-//   userList.value.push(userId);
-// });
+//コメント用
+const postData: any = ref("");
 
-//自分とfollowしているユーザーのpostデータ取得
-// const postData: any = ref([]);
-// console.log(postData.value)
-
-// getDoc(userDocRefId).then((data) => {
-//   // loginUser.value = data.data();
-//   const userData = data.data();
-//   const follow = userData?.follow;
-//   const userList = ["n3TDdidXCSRKEOVUUUudXGVhP9y2"];
-//   follow.map((id: string) => userList.push(id));
-//   console.log(userList);
-
-  userList.value.map((userId) => {
-    const postsCollectionRef = query(
-      collection(db, "posts"),
-      where("userId", "==", userId)
-    );
-
-    console.log(postData.value);
-    getDocs(postsCollectionRef).then((d: any) => {
-      d.forEach((doc: any) => {
-        console.log(doc.data());
-
-        postData.value.push(doc.data());
-      });
-    });
-  });
-// });
-
-//以下コメント用
 // コレクションへの参照を取得
 const postCollectionRef = collection(db, "posts");
 
@@ -113,7 +115,7 @@ const addComment = async () => {
 </script>
 
 <template>
-  <div class="wrapper" v-for="post in postData" v-bind:key="post.id">
+  <div class="wrapper" v-for="post in postList" v-bind:key="post.id">
     <div class="titleHeader">
       <a href="/profile">
         <img v-bind:src="post.icon" alt="icon" class="iconImg" />
@@ -121,6 +123,10 @@ const addComment = async () => {
       <a href="/profile">
         <p>{{ post.userName }}</p>
       </a>
+      <!-- <div>
+        {{ dateToDate.month }}月 {{ dateToDate.date }}, {{ dateToDate.year }}
+        {{ dateToDate.hour }}:{{ dateToDate.min }}
+      </div> -->
     </div>
 
     <div class="postImg">
@@ -132,9 +138,6 @@ const addComment = async () => {
       <button>📝</button>
       <button>🏷</button>
     </div>
-
-    <div>{{ loginUser }}</div>
-    <!-- <div>{{ loginUser.follow }}</div> -->
 
     <div>
       <span class="favoriteLength">いいね{{ post.favorites.length }}件</span>
