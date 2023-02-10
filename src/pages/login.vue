@@ -82,6 +82,10 @@ export default {
         </button>
       </div>
     </form>
+    <div>
+      <p>アカウントをお持ちでないですか？</p>
+      <a href="/register">登録する</a>
+    </div>
   </section>
   <button @click="toTop" v-else>TOPへ</button>
 </template>
