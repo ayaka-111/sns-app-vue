@@ -4,15 +4,11 @@ import {
   arrayRemove,
   arrayUnion,
   collection,
-  CollectionReference,
   deleteDoc,
   doc,
-  Firestore,
   getDoc,
   getDocs,
-  getFirestore,
   query,
-  serverTimestamp,
   updateDoc,
   where,
 } from "firebase/firestore";
@@ -41,6 +37,7 @@ const userCollection: any = ref("");
 const loginUserDoc: any = ref("");
 //postデータ
 const postData: any = ref("");
+const commentData: any = ref([]);
 
 //timestampの表記変更
 const dateToDate = reactive({
@@ -71,18 +68,23 @@ const postCollectionRef = collection(db, "posts");
 const postDocRefId = doc(postCollectionRef, postId);
 
 // //上記を元にドキュメントのデータを取得
-getDoc(postDocRefId).then((data) => {
-  postData.value = data.data();
+const getData = () => {
+  getDoc(postDocRefId).then((data) => {
+    postData.value = data.data();
+    commentData.value = data.data()?.comments;
 
-  //timestamp取得
-  const dataList = data.data();
-  const timestamp = dataList?.timestamp.toDate();
-  dateToDate.year = timestamp.getFullYear();
-  dateToDate.month = timestamp.getMonth() + 1;
-  dateToDate.date = timestamp.getDate();
-  dateToDate.hour = timestamp.getHours();
-  dateToDate.min = timestamp.getMinutes();
-});
+    //timestamp取得
+    const dataList = data.data();
+    const timestamp = dataList?.timestamp.toDate();
+    dateToDate.year = timestamp.getFullYear();
+    dateToDate.month = timestamp.getMonth() + 1;
+    dateToDate.date = timestamp.getDate();
+    dateToDate.hour = timestamp.getHours();
+    dateToDate.min = timestamp.getMinutes();
+  });
+};
+getData();
+watch(postData, getData);
 
 //コメント機能(postsのcommentsに追加)
 const inputComment = ref("");
@@ -106,7 +108,7 @@ const deleteButton = async (e: any) => {
   await deleteDoc(doc(db, "posts", postId));
 
   // storageから削除→0がタイプエラー
-  console.log(e)
+  console.log(e);
   // const file = e.target.files[0];
   const gsReference = storageRef(
     storage,
@@ -222,20 +224,16 @@ const deleteButton = async (e: any) => {
         </div>
 
         <div
-          v-for="commentData in postData.comments"
-          v-bind:key="commentData.id"
+          v-for="comment in postData.comments"
+          v-bind:key="comment.id"
           class="post_caption"
         >
           <div>
-            <img
-              v-bind:src="commentData.icon"
-              alt="iconImg"
-              class="post_iconImg"
-            />
+            <img v-bind:src="comment.icon" alt="iconImg" class="post_iconImg" />
           </div>
           <div>
-            <p>{{ commentData.userName }}</p>
-            <p>{{ commentData.comment }}</p>
+            <p>{{ comment.userName }}</p>
+            <p>{{ comment.comment }}</p>
           </div>
         </div>
       </div>
