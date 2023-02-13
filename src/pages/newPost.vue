@@ -3,12 +3,15 @@ import { ref } from "vue";
 import { onAuthStateChanged } from "@firebase/auth";
 import {
   addDoc,
+  arrayUnion,
   collection,
   doc,
   getDoc,
   serverTimestamp,
+  updateDoc,
 } from "@firebase/firestore";
 import {
+  deleteObject,
   getDownloadURL,
   ref as storageRef,
   uploadBytesResumable,
@@ -17,6 +20,13 @@ import { auth, db, storage } from "../../firebase";
 
 // ログインユーザー
 const loginUser: any = ref("");
+
+//ログインユーザーのドキュメント
+const loginUserDocRefId: any = ref("");
+
+const fileName = ref();
+
+const gsRef = ref();
 
 //caption入力内容
 const inputCaption = ref("");
@@ -33,6 +43,8 @@ onAuthStateChanged(auth, (currentUser: any) => {
     // 上記を元にドキュメントへの参照を取得(クリックされた投稿のpostIdを指定する)
     const userDocRefId = doc(userCollectionRef, currentUser.uid);
 
+    loginUserDocRefId.value = userDocRefId;
+
     // 上記を元にドキュメントのデータを取得
     getDoc(userDocRefId).then((data) => {
       loginUser.value = data.data();
@@ -43,24 +55,32 @@ onAuthStateChanged(auth, (currentUser: any) => {
 // 写真アップロードボタン
 const uploadButton = (e: any) => {
   const file = e.target.files[0];
-  const gsReference = storageRef(storage, "image/" + file.name);
+  fileName.value = file;
+  const gsReference = storageRef(
+    storage,
+    `${loginUser.value.userId}/post/postId/${file.name}`
+  );
+
+  gsRef.value = gsReference;
 
   uploadBytesResumable(gsReference, file).then(() => {
     console.log("追加しました");
     getDownloadURL(gsReference).then((url) => {
-      console.log(url);
+      // 画面表示で追加されたか判断するためrefに代入
       postUrl.value = url;
     });
   });
 };
 
-// postsに追加ボタン
+// シェアボタン
 const shareButton = async () => {
+  // postsコレクション取得
   const postsCollectionRef: any = collection(db, "posts");
-  await addDoc(postsCollectionRef, {
+
+  // postsに追加する内容
+  const postDoc = await addDoc(postsCollectionRef, {
     userId: loginUser.value.userId,
     userName: loginUser.value.userName,
-    imageUrl: postUrl.value,
     caption: inputCaption.value,
     timestamp: serverTimestamp(),
     favorites: [],
@@ -68,10 +88,47 @@ const shareButton = async () => {
     comments: [],
     icon: loginUser.value.icon,
   });
+
+  // storageのpath更新(postIdを指定して画像アップロードする)
+  const newGsReference = storageRef(
+    storage,
+    `${loginUser.value.userId}/post/${postDoc.id}/postImg.png`
+  );
+
+  //新しいURL取得
+  uploadBytesResumable(newGsReference, fileName.value).then(() => {
+    console.log("追加しました");
+    getDownloadURL(newGsReference).then((newUrl) => {
+      // addDocで追加した時に自動生成されたドキュメントを参照
+      const newPostDocRefId = doc(db, "posts", postDoc.id);
+      console.log(newUrl);
+      //取得したドキュメントとidとURLを元にpostIdとimageURLを追加
+      updateDoc(newPostDocRefId, {
+        postId: postDoc.id,
+        imageUrl: newUrl,
+      });
+    });
+  });
+
+  // ログインユーザーのusersデータのpostsにpostIdを追加
+  updateDoc(loginUserDocRefId.value, {
+    posts: arrayUnion(postDoc.id),
+  });
+
+  // 最初にアップロードしたstorageの画像を削除
+  await deleteObject(gsRef.value)
+    .then(() => {
+      console.log("postIdファイル削除完了");
+    })
+    .catch((err) => {
+      console.log(err);
+    });
+
   console.log("投稿完了");
-  location.href = "/home";
+
+  // home画面に遷移する
+  // location.href = "/home";
 };
-console.log(postUrl.value);
 </script>
 
 <template>

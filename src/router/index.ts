@@ -55,7 +55,7 @@ const router = createRouter({
       component: newPost,
     },
     {
-      path: "/postChange",
+      path: "/postChange/:postId",
       name: "postChange",
       component: postChange,
     },

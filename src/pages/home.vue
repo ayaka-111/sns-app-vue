@@ -16,6 +16,9 @@ import {
 import { auth, db } from "../../firebase";
 import { onAuthStateChanged } from "@firebase/auth";
 import { useRouter } from "vue-router";
+import CommentButton from "../components/atoms/button/CommentButton.vue";
+import Comment from "../components/molecules/Comment.vue";
+import AllComments from "@/components/atoms/button/AllComments.vue";
 
 // ログインユーザーのuid
 const loginUserUid: any = ref("");
@@ -113,6 +116,7 @@ const addComment = async () => {
   });
   inputComment.value = "";
 };
+console.log(postList.value)
 </script>
 
 <template>
@@ -137,7 +141,7 @@ const addComment = async () => {
 
       <div>
         <button>♡</button>
-        <button>コメント</button>
+        <CommentButton v-bind:postId="post.postId" />
         <button>🏷</button>
       </div>
 
@@ -152,27 +156,32 @@ const addComment = async () => {
         <div>{{ post.caption }}</div>
       </div>
 
-      <div>
+      <!-- <div> -->
         <!-- あとでモーダルが開くようにする -->
-        <a href="/post">
+        <!-- <a href="/post">
           <p class="commentLink">コメントをすべて見る</p>
         </a>
-      </div>
+      </div> -->
+      <AllComments v-bind:postId="post.postId" />
 
-      <div>
+      <!-- <div>
         <input
           type="text"
           v-model="inputComment"
           class="input"
           placeholder="コメントを追加..."
         />
+      -->
         <!-- inputに入力されてから表示する -->
-        <button @click="addComment">投稿する</button>
-      </div>
+        <!-- <button @click="addComment">投稿する</button> -->
+      <!-- </div> -->
+
+      <Comment v-bind:postId="post.postId" />
+
     </div>
   </section>
-  <section v-else>
-    <div>投稿がありません</div>
+  <section v-else class="noPostSection">
+    <div class="noPost">投稿がありません</div>
   </section>
 </template>
 
@@ -222,5 +231,11 @@ const addComment = async () => {
 }
 .input:focus {
   outline: none;
+}
+.noPost {
+  font-weight: bold;
+  font-size: 1.6rem;
+  margin-top: 100px;
+  margin-left: 100px;
 }
 </style>
