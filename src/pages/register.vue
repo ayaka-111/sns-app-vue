@@ -1,103 +1,128 @@
-<script>
+<script setup>
 import EmailField from "@/components/atoms/EmailField.vue";
 import NameField from "@/components/atoms/NameField.vue";
 import ProfileField from "@/components/atoms/ProfileField.vue";
 import UserNameField from "@/components/atoms/UserNameField.vue";
 import PasswordField from "@/components/atoms/PasswordField.vue";
 import CPasswordField from "@/components/atoms/CPasswordField.vue";
-import { reactive, ref } from "vue";
+import { reactive, ref as vueref } from "vue";
 import SubmitButtonState from "@/components/atoms/SubmitBtnState";
 import formValidation from "@/components/molecules/formValidation";
-import { getAuth, onAuthStateChanged } from "@firebase/auth";
+import {
+  createUserWithEmailAndPassword,
+  getAuth,
+  onAuthStateChanged,
+} from "@firebase/auth";
 import { useRouter } from "vue-router";
-import { storage } from "firebase";
-import { uploadBytesResumable } from '@firebase/storage';
+import { storage, auth, db } from "../../firebase";
+import {
+  getDownloadURL,
+  uploadBytesResumable,
+  ref,
+  getStorage,
+} from "firebase/storage";
+import { doc, getDoc, setDoc } from "@firebase/firestore";
 
-export default {
-  components: {
-    EmailField,
-    NameField,
-    ProfileField,
-    UserNameField,
-    PasswordField,
-    CPasswordField,
-  },
-  setup() {
-    let user = reactive({
-      email: "",
-      name: "",
-      profile: "",
-      userName: "",
-      password: "",
-      cPassword: "",
-    });
+let user = reactive({
+  email: "",
+  name: "",
+  profile: "",
+  userName: "",
+  password: "",
+  cPassword: "",
+});
 
-    const { error } = formValidation();
-    const { isSignupButtonDisabled } = SubmitButtonState(user, error);
-    const url = ref("");
-    const iconFileName = ref("");
-    const currentAuth = getAuth();
-    const router = useRouter();
-    onAuthStateChanged(currentAuth, (currentUser) => {
-      if (currentUser) {
-        router.push("/");
-      }
-    });
-    console.log(isSignupButtonDisabled);
+const { error } = formValidation();
+const { isSignupButtonDisabled } = SubmitButtonState(user, error);
+const iconImg = vueref("");
+const iconFileName = vueref("");
+const currentAuth = getAuth();
+const router = useRouter();
+const file = vueref(null);
 
-    const previewImage = (event) => {
-      let reader = new FileReader();
-      reader.onload = function (e) {
-        url.value = e.target.result;
-      };
-      reader.readAsDataURL(event.target.files[0]);
-      iconFileName.value = event.target.files[0].name;
-      console.log(iconFileName.value);
-    };
+// ログイン状態の場合の処理
+onAuthStateChanged(currentAuth, (currentUser) => {
+  if (currentUser) {
+    router.push("/");
+  }
+});
 
-    const loginButtonPressed = () => {
-      console.log(user.password);
-      // パスと名前で参照を作成
-      const storageRef = ref(storage, "image/" + iconFileName.value);
+// アイコン画像プレビュー処理
+const previewImage = (event) => {
+  let reader = new FileReader();
+  reader.onload = function (e) {
+    iconImg.value = e.target.result;
+  };
+  reader.readAsDataURL(event.target.files[0]);
+  file.value = event.target.files[0];
+  iconFileName.value = event.target.files[0].name;
+};
 
-      // // 画像のアップロード
-      const uploadImage = uploadBytesResumable(storageRef, url);
-      // uploadImage.on(
-      //   "state_changed",
-      //   // upload開始したらloading中になる(loadingがtrueになる)
-      //   (snapshot) => {
-      //     setLoading(true);
-      //   },
-      //   (err) => {
-      //     <></>;
-      //   },
-      //   //upload完了したらloadedになる(loadingがfalse,loadedがtrue)
-      //   () => {
-      //     setLoading(false);
-      //     setIsUploaded(true);
-
-      //     getDownloadURL(storageRef).then((url) => {
-      //       setImgSrc(url);
-      //     });
-      //   }
-      // );
-    };
-
-    return {
-      user,
-      isSignupButtonDisabled,
-      loginButtonPressed,
-      previewImage,
-      url,
-    };
-  },
+// 登録ボタンの処理
+const loginButtonPressed = async () => {
+  try {
+    // Authenticationに登録
+    createUserWithEmailAndPassword(auth, user.email, user.password)
+      .then(() => {
+        // Storageにアイコン登録
+        const auth = getAuth();
+        const currentUserId = auth.currentUser?.uid;
+        console.log(currentUserId);
+        const storageRef = ref(
+          storage,
+          `${currentUserId}/icon/${iconFileName.value}`
+        );
+        uploadBytesResumable(storageRef, file.value)
+          // StorageからアイコンURLを取得
+          .then(() => {
+            getDownloadURL(storageRef).then((url) => {
+              iconImg.value = url;
+              console.log(url);
+              console.log(iconImg.value);
+            });
+          })
+          .then(() => {
+            // Firestoreにユーザー情報登録
+            //ログイン済みユーザーのドキュメントへの参照を取得
+            const docRef = doc(db, "users", currentUserId);
+            console.log(currentUserId);
+            const userDoc = getDoc(docRef).then(() => {
+              //exists()でドキュメントの存在の有無を確認
+              if (!userDoc.exists) {
+                //FireStoreにユーザー用のドキュメントが作られていなければ新規作成
+                setDoc(docRef, {
+                  userId: currentUserId,
+                  userName: user.userName,
+                  name: user.name,
+                  icon: iconImg.value,
+                  email: user.email,
+                  password: user.password,
+                  Cpassword: user.cPassword,
+                  follow: [],
+                  follower: [],
+                  favoritePosts: [],
+                  profile: user.profile,
+                  posts: [],
+                  keepPosts: [],
+                });
+              }
+            });
+          });
+      })
+      .catch((err) => {
+        console.log(err);
+        throw err;
+      });
+  } catch (e) {
+    console.log(e);
+  }
 };
 </script>
 
 <template>
   <section class="signup-view">
     <div>
-      <img :src="url" alt="ユーザーアイコン" />
+      <img :src="iconImg" alt="ユーザーアイコン" />
     </div>
     <form @submit.prevent class="ui form">
       <input

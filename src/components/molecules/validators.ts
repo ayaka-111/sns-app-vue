@@ -12,5 +12,11 @@ export default function useValidators() {
   ) => void = (fieldName, fieldValue, min) => {
     return fieldValue.length < min ? `${min}文字以上入力してください` : "";
   };
-  return { isEmpty, minLength };
+  const isEmailType:(
+    fieldName: string,
+    fieldValue: string,
+  ) => void = (fieldName, fieldValue) => {
+    return fieldValue.includes("@") ? "" : "";
+  };
+  return { isEmpty, minLength, isEmailType };
 }

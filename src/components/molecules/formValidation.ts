@@ -3,13 +3,15 @@ import validators from "@/components/molecules/validators";
 const error: any = reactive({});
 
 export default function formValidation() {
-  const { isEmpty, minLength } = validators();
+  const { isEmpty, minLength, isEmailType } = validators();
 
   const validateEmailField: (fieldName: string, fieldValue: string) => void = (
     fieldName,
     fieldValue
   ) => {
-    error[fieldName] = !fieldValue ? isEmpty(fieldName, fieldValue) : "";
+    error[fieldName] = !fieldValue
+      ? isEmpty(fieldName, fieldValue)
+      : isEmailType(fieldName, fieldValue);
   };
 
   const validateNameField: (fieldName: string, fieldValue: string) => void = (
