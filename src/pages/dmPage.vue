@@ -9,10 +9,12 @@ import Header from "../components/organisms/header.vue"
 const newMessage:any= ref('');
 const newMessageList:any = ref([]);
 const messageList:any=ref([]);
+const uid:any=ref('');
 
 // ログイン判定
 const auth = getAuth();
   const currentUserId = auth.currentUser?.uid;
+  uid.value=auth.currentUser?.uid
 //   const userId:any=ref(currentUserId)
   console.log(currentUserId)
 //   console.log(userId)
@@ -26,7 +28,7 @@ const auth = getAuth();
           collection(db, "messages"),
         //   ログインユーザーのID
           where("userId", "==", currentUser?.uid),
-          where("withUserId", "==", "53PUV5WYMoOlaJWUVDmB"),
+          where("withUserId", "==", "W7qqpJGJrpbwdTLiIopoNJYcVjm2"),
         //   limit(5)
         );
         // const ownQSnapshot = await getDocs(ownQ);
@@ -48,7 +50,7 @@ const auth = getAuth();
 // 会話相手の情報取得(メッセージ表示のため)
 const anotherQ = query(
     collection(db, "messages"),
-    where("userId", "==", "53PUV5WYMoOlaJWUVDmB"),
+    where("userId", "==", "W7qqpJGJrpbwdTLiIopoNJYcVjm2"),
     //   ログインユーザーのID
     where("withUserId", "==", currentUser?.uid),
     // limit(5)
@@ -71,21 +73,24 @@ getDocs(anotherQ).then((ownQSnapshot)=>{
         })
 
 
+});
+
+
 // inputに入力したものをfirebaseに追加
-const addNewMassage =():void => {
+const addNewMessage =() :void=> {
     // 表示するnewMessageListに追加　これなくていいかも
-    newMessageList.value.push({ userId: "53PUV5WYMoOlaJWUVDmB", message: newMessage.value, timestamp:"" ,withUserId:''})
+    newMessageList.value.push({ userId: uid.value, message: newMessage.value, timestamp:"" ,withUserId:''})
     const now = new Date();
     const time = now.toLocaleTimeString();
     // firestoreにデータ追加
     const collectionMessages:any =collection(db, "messages");
     addDoc(collectionMessages, 
     {
-    userId: currentUser?.uid,
+    userId: uid.value,
     message:newMessage.value,
     // timestamp: serverTimestamp(),
     timestamp: time,
-    withUserId:'53PUV5WYMoOlaJWUVDmB'
+    withUserId:'W7qqpJGJrpbwdTLiIopoNJYcVjm2'
     }).then(()=>{
         console.log("a")
     })
@@ -95,7 +100,6 @@ const addNewMassage =():void => {
 
 }
 
-});
 
 </script>
 
@@ -132,7 +136,7 @@ const addNewMassage =():void => {
 
 </div>
 
-    <form  @submit.prevent="addNewMassage" class="form">
+    <form  @submit.prevent="addNewMessage" class="form">
         <div class="inputButton">
         <input class="input" v-model="newMessage" placeholder="メッセージを入力...">
         <button class="button">送信</button> 
@@ -144,7 +148,7 @@ const addNewMassage =():void => {
 </template>
 
 
-<style>
+<style scoped>
 .dm{
     margin-left: 350px;
 }

@@ -28,11 +28,13 @@
 </li>
 </router-link>
 
+<router-link to="/newPost">
 <li class="li">
 <div>
 <p>📷 作成</p>
 </div>
 </li>
+</router-link>
 
 <li class="li">
 <div>
@@ -52,7 +54,7 @@
 
 </template>
 
-<style>
+<style scoped>
 .logo{
     width: 90px;
     margin: 20px auto 0 auto;
