@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
 import { reactive, ref } from "vue";
 import EmailField from "@/components/atoms/EmailField.vue";
 import PasswordField from "@/components/atoms/PasswordField.vue";
