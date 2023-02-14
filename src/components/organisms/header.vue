@@ -52,7 +52,7 @@
 
 </template>
 
-<style>
+<style scoped>
 .logo{
     width: 90px;
     margin: 20px auto 0 auto;

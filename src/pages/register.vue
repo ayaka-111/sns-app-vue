@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 import EmailField from "@/components/atoms/EmailField.vue";
 import NameField from "@/components/atoms/NameField.vue";
 import ProfileField from "@/components/atoms/ProfileField.vue";
@@ -15,13 +15,13 @@ import {
 } from "@firebase/auth";
 import { useRouter } from "vue-router";
 import { storage, auth, db } from "../../firebase";
+import { getDownloadURL, uploadBytesResumable, ref } from "firebase/storage";
 import {
-  getDownloadURL,
-  uploadBytesResumable,
-  ref,
-  getStorage,
-} from "firebase/storage";
-import { doc, getDoc, setDoc } from "@firebase/firestore";
+  collection,
+  doc,
+  getDoc,
+  setDoc,
+} from "@firebase/firestore";
 
 let user = reactive({
   email: "",
@@ -34,11 +34,11 @@ let user = reactive({
 
 const { error } = formValidation();
 const { isSignupButtonDisabled } = SubmitButtonState(user, error);
-const iconImg = vueref("");
-const iconFileName = vueref("");
+const iconImg: any = vueref("");
+const iconFileName: any = vueref("");
 const currentAuth = getAuth();
 const router = useRouter();
-const file = vueref(null);
+const file: any = vueref();
 
 // ログイン状態の場合の処理
 onAuthStateChanged(currentAuth, (currentUser) => {
@@ -48,9 +48,9 @@ onAuthStateChanged(currentAuth, (currentUser) => {
 });
 
 // アイコン画像プレビュー処理
-const previewImage = (event) => {
+const previewImage = (event: any) => {
   let reader = new FileReader();
-  reader.onload = function (e) {
+  reader.onload = function (e: any) {
     iconImg.value = e.target.result;
   };
   reader.readAsDataURL(event.target.files[0]);
@@ -84,9 +84,13 @@ const loginButtonPressed = async () => {
           .then(() => {
             // Firestoreにユーザー情報登録
             //ログイン済みユーザーのドキュメントへの参照を取得
-            const docRef = doc(db, "users", currentUserId);
+            const loginUserCollectionRef = collection(db, "users");
+            const docRef: any= doc(
+              loginUserCollectionRef,
+              currentUserId
+            );
             console.log(currentUserId);
-            const userDoc = getDoc(docRef).then(() => {
+            const userDoc: any = getDoc(docRef).then(() => {
               //exists()でドキュメントの存在の有無を確認
               if (!userDoc.exists) {
                 //FireStoreにユーザー用のドキュメントが作られていなければ新規作成
