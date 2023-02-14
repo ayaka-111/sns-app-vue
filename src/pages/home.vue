@@ -1,5 +1,5 @@
-<script setup lang="ts">
-import { reactive, ref, watch } from "vue";
+<script lang="ts">
+import { defineComponent, reactive, ref, watch } from "vue";
 import {
   arrayUnion,
   collection,
@@ -18,8 +18,13 @@ import { onAuthStateChanged } from "@firebase/auth";
 import { useRouter } from "vue-router";
 import CommentButton from "../components/atoms/button/CommentButton.vue";
 import Comment from "../components/molecules/Comment.vue";
-import AllComments from "@/components/atoms/button/AllComments.vue";
+import AllComments from "../components/atoms/button/AllComments.vue";
 
+
+export default defineComponent({
+  name:"Home",
+  components:{CommentButton, Comment, AllComments},
+  setup: () => {
 // ログインユーザーのuid
 const loginUserUid: any = ref("");
 
@@ -39,7 +44,7 @@ const dateToDate = reactive({
 onAuthStateChanged(auth, (currentUser: any) => {
   if (currentUser) {
     loginUserUid.value = currentUser.uid;
-
+  console.log(loginUserUid.value);
     //usersからログインユーザーの情報取得
     const userCollectionRef = collection(db, "users");
 
@@ -117,6 +122,9 @@ const addComment = async () => {
   inputComment.value = "";
 };
 console.log(postList.value)
+return {postList}
+  },
+});
 </script>
 
 <template>
