@@ -1,14 +1,22 @@
-<script setup lang="ts">
+<script lang="ts">
+import { defineComponent } from "vue";
 import { useRouter } from "vue-router";
 
-//オブジェクトの形で渡される
-const postIdObj = defineProps(["postId"]);
+export default defineComponent({
+  name: "AllComments",
+  props: { postId: String },
+  setup: (props) => {
+    //オブジェクトの形で渡される
+    // const postIdObj = defineProps(["postId"]);
 
-const router = useRouter();
+    const router = useRouter();
 
-const commentBtn = () => {
-  router.push({ path: `/post/${postIdObj.postId}` });
-};
+    const commentBtn = () => {
+      router.push({ path: `/post/${props.postId}` });
+    };
+    return { commentBtn };
+  },
+});
 </script>
 
 <template>
