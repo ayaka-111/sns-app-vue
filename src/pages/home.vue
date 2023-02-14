@@ -1,5 +1,5 @@
-<script setup lang="ts">
-import { reactive, ref, watch } from "vue";
+<script lang="ts">
+import { defineComponent, reactive, ref, watch } from "vue";
 import {
   arrayUnion,
   collection,
@@ -15,7 +15,16 @@ import {
 } from "firebase/firestore";
 import { auth, db } from "../../firebase";
 import { onAuthStateChanged } from "@firebase/auth";
+import { useRouter } from "vue-router";
+import CommentButton from "../components/atoms/button/CommentButton.vue";
+import Comment from "../components/molecules/Comment.vue";
+import AllComments from "../components/atoms/button/AllComments.vue";
 
+
+export default defineComponent({
+  name:"Home",
+  components:{CommentButton, Comment, AllComments},
+  setup: () => {
 // ログインユーザーのuid
 const loginUserUid: any = ref("");
 
@@ -35,7 +44,7 @@ const dateToDate = reactive({
 onAuthStateChanged(auth, (currentUser: any) => {
   if (currentUser) {
     loginUserUid.value = currentUser.uid;
-
+  console.log(loginUserUid.value);
     //usersからログインユーザーの情報取得
     const userCollectionRef = collection(db, "users");
 
@@ -112,62 +121,76 @@ const addComment = async () => {
   });
   inputComment.value = "";
 };
+console.log(postList.value)
+return {postList}
+  },
+});
 </script>
 
 <template>
-  <div class="wrapper" v-for="post in postList" v-bind:key="post.id">
-    <div class="titleHeader">
-      <a href="/profile">
-        <img v-bind:src="post.icon" alt="icon" class="iconImg" />
-      </a>
-      <a href="/profile">
-        <p>{{ post.userName }}</p>
-      </a>
-      <!-- <div>
+  <section v-if="postList.length > 0">
+    <div class="wrapper" v-for="post in postList" v-bind:key="post.id">
+      <div class="titleHeader">
+        <a href="/profile">
+          <img v-bind:src="post.icon" alt="icon" class="iconImg" />
+        </a>
+        <a href="/profile">
+          <p>{{ post.userName }}</p>
+        </a>
+        <!-- <div>
         {{ dateToDate.month }}月 {{ dateToDate.date }}, {{ dateToDate.year }}
         {{ dateToDate.hour }}:{{ dateToDate.min }}
       </div> -->
-    </div>
+      </div>
 
-    <div class="postImg">
-      <img v-bind:src="post.imageUrl" alt="投稿写真" />
-    </div>
+      <div class="postImg">
+        <img v-bind:src="post.imageUrl" alt="投稿写真" />
+      </div>
 
-    <div>
-      <button>♡</button>
-      <button>📝</button>
-      <button>🏷</button>
-    </div>
+      <div>
+        <button>♡</button>
+        <CommentButton v-bind:postId="post.postId" />
+        <button>🏷</button>
+      </div>
 
-    <div>
-      <span class="favoriteLength">いいね{{ post.favorites.length }}件</span>
-    </div>
+      <div>
+        <span class="favoriteLength">いいね{{ post.favorites.length }}件</span>
+      </div>
 
-    <div class="postContent">
-      <a href="/profile">
-        <p class="postUserName">{{ post.userName }}</p>
-      </a>
-      <div>{{ post.caption }}</div>
-    </div>
+      <div class="postContent">
+        <a href="/profile">
+          <p class="postUserName">{{ post.userName }}</p>
+        </a>
+        <div>{{ post.caption }}</div>
+      </div>
 
-    <div>
-      <!-- あとでモーダルが開くようにする -->
-      <a href="/post">
-        <p class="commentLink">コメントをすべて見る</p>
-      </a>
-    </div>
+      <!-- <div> -->
+        <!-- あとでモーダルが開くようにする -->
+        <!-- <a href="/post">
+          <p class="commentLink">コメントをすべて見る</p>
+        </a>
+      </div> -->
+      <AllComments v-bind:postId="post.postId" />
 
-    <div>
-      <input
-        type="text"
-        v-model="inputComment"
-        class="input"
-        placeholder="コメントを追加..."
-      />
-      <!-- inputに入力されてから表示する -->
-      <button @click="addComment">投稿する</button>
+      <!-- <div>
+        <input
+          type="text"
+          v-model="inputComment"
+          class="input"
+          placeholder="コメントを追加..."
+        />
+      -->
+        <!-- inputに入力されてから表示する -->
+        <!-- <button @click="addComment">投稿する</button> -->
+      <!-- </div> -->
+
+      <Comment v-bind:postId="post.postId" />
+
     </div>
-  </div>
+  </section>
+  <section v-else class="noPostSection">
+    <div class="noPost">投稿がありません</div>
+  </section>
 </template>
 
 <style>
@@ -216,5 +239,11 @@ const addComment = async () => {
 }
 .input:focus {
   outline: none;
+}
+.noPost {
+  font-weight: bold;
+  font-size: 1.6rem;
+  margin-top: 100px;
+  margin-left: 100px;
 }
 </style>

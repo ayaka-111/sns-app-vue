@@ -1,20 +1,31 @@
-// Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
 import { getFirestore } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
-import { getStorage } from "firebase/storage"
+import { getStorage } from "firebase/storage";
 
+// import dotenv from 'dotenv';
+// dotenv.config();
 
 // Your web app's Firebase configuration
+// const firebaseConfig = {
+//   // apiKey: import.meta.env.VITE_APP_NOT_SECRET_CODE,
+//   // authDomain: import.meta.env.VITE_APP_AUTHDOMAIN,
+//   // projectId: import.meta.env.VITE_APP_PROJECT_ID,
+//   apiKey: "AIzaSyAJWioeX_h5q9PKdc78g98kjoIyLAmTKpA",
+//   authDomain: "sns-app-vue.firebaseapp.com",
+//   projectId: "sns-app-vue",
+//   storageBucket: "sns-app-vue.appspot.com",
+//   messagingSenderId: "463668609725",
+//   appId: "1:463668609725:web:c2d636c9eff06c43056dd4"
+// };
+
 const firebaseConfig = {
-  apiKey: import.meta.env.VITE_APP_NOT_SECRET_CODE,
-  authDomain: import.meta.env.VITE_APP_AUTHDOMAIN,
-  projectId: import.meta.env.VITE_APP_PROJECT_ID,
-  storageBucket: "sns-app-vue.appspot.com",
-  messagingSenderId: "463668609725",
-  appId: "1:463668609725:web:c2d636c9eff06c43056dd4"
+  apiKey: "AIzaSyAoe-tmv_nlg11W6os3YGFv_KSSIH9WjXY",
+  authDomain: "sns-app-vue-naito.firebaseapp.com",
+  projectId: "sns-app-vue-naito",
+  storageBucket: "sns-app-vue-naito.appspot.com",
+  messagingSenderId: "753829740516",
+  appId: "1:753829740516:web:86348cbb8be3393f5c11f1"
 };
 
 

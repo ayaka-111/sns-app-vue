@@ -1,3 +1,4 @@
+
 <script setup lang="ts">
 import { collection, doc, getDoc, getDocs, query } from "@firebase/firestore";
 import { db } from "../../firebase";
@@ -13,6 +14,7 @@ const userDataArr:any=ref([]);
 
 
 
+
 // 全てのuser情報を取得
 const userQuery = query(collection(db, "users"));
 getDocs(userQuery).then((data) => {
@@ -24,7 +26,7 @@ getDocs(userQuery).then((data) => {
     });
     });
 
-    
+
 
 const search = (): void => {
   // searchResult.value.push(searchText.value);
@@ -38,7 +40,7 @@ const search = (): void => {
       }
     });
   searchText.value = String("");
-  
+
   console.log(searchResult)
 
   for (const userId of searchResult) {
