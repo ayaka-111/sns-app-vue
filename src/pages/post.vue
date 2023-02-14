@@ -31,6 +31,9 @@ const changeButton = () => {
 // ログインユーザーのuid
 const loginUserUid = ref("");
 
+// ログインユーザーの情報
+const loginUser: any = ref("");
+
 // ユーザーコレクション
 const userCollection: any = ref("");
 // ログインユーザーのドキュメント
@@ -57,6 +60,10 @@ onAuthStateChanged(auth, (currentUser: any) => {
     userCollection.value = loginUserCollectionRef;
     const loginUserDocRefId = doc(loginUserCollectionRef, currentUser.uid);
     loginUserDoc.value = loginUserDocRefId;
+
+    getDoc(loginUserDocRefId).then((data) => {
+      loginUser.value = data.data();
+    });
   }
 });
 console.log(loginUserUid);
@@ -185,6 +192,29 @@ const deleteButton = async (e: any) => {
   console.log("削除しました");
   // location.href = "/home";
 };
+
+// いいね機能
+const favorite = ref("");
+
+// いいね追加
+// ログインユーザーのfavoritePostsにpostIdとpostsのfavoriteにログインユーザーのuserNameを追加
+const addFavorite = async () => {
+  await updateDoc(postDocRefId, {
+    favorites: arrayUnion(loginUser.value.userName),
+  });
+  await updateDoc(loginUserDoc.value, {
+    favoritePosts: arrayUnion(postId),
+  });
+};
+// いいね削除
+const RemoveFavorite = async () => {
+  await updateDoc(postDocRefId, {
+    favorites: arrayRemove(loginUser.value.userName),
+  });
+  await updateDoc(loginUserDoc.value, {
+    favoritePosts: arrayRemove(postId),
+  });
+}
 </script>
 
 <template>
@@ -238,7 +268,8 @@ const deleteButton = async (e: any) => {
         </div>
       </div>
       <div>
-        <button>♡</button>
+        <!-- favoritePosts配列.includes(postId) -->
+        <button @click="addFavorite" ><far icon="heart" class="post_heart" /></button>
         <button>📝</button>
         <button>🏷</button>
       </div>
@@ -303,4 +334,7 @@ const deleteButton = async (e: any) => {
 .post_favoriteLength {
   font-weight: bold;
 }
+/* .post_heart {
+  color: red;
+} */
 </style>
