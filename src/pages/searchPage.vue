@@ -1,3 +1,4 @@
+
 <script setup lang="ts">
 import { collection, getDocs, query } from "@firebase/firestore";
 import { db } from "../../firebase";
@@ -8,6 +9,7 @@ const allUserData: any = ref([]);
 const searchText: any = ref();
 const searchResult: any = ref([]);
 
+
 // 全てのuser情報を取得
 const userQuery = query(collection(db, "user"));
 getDocs(userQuery).then((data) => {
@@ -17,10 +19,10 @@ getDocs(userQuery).then((data) => {
   });
 });
 
-// userNameにsearchText.valueが含まれている または、nameに
-// user情報を配列に格納
+// // userNameにsearchText.valueが含まれている または、nameに
+// // user情報を配列に格納
 
-// mapで回して、アイコンと名前を表示
+// // mapで回して、アイコンと名前を表示
 
 const search = (): void => {
   searchResult.value.push(searchText.value);
