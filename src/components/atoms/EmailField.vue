@@ -29,3 +29,10 @@ export default {
     </div>
   </div>
 </template>
+
+<style scoped>
+input {
+  width: 100%;
+  height: 35px;
+}
+</style>
