@@ -4,7 +4,7 @@ import { doc, getDoc } from "@firebase/firestore";
 import { ref as vueref } from "vue";
 import { auth, db } from "../../firebase";
 import { useRouter } from "vue-router";
-import CurrentUserPosts from "../components/organisms/CurrentUserPosts.vue";
+import UserPostsList from "../components/organisms/UserPostsList.vue";
 
 const router = useRouter();
 
@@ -49,7 +49,7 @@ onAuthStateChanged(auth, async (currentUser) => {
       </div>
     </div>
     <div class="posts">
-      <CurrentUserPosts v-bind:userId="currentUserId" />
+      <UserPostsList v-bind:userId="currentUserId" />
     </div>
   </div>
   <p v-else>loading...</p>
