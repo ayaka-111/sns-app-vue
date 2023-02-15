@@ -60,11 +60,11 @@ onAuthStateChanged(auth, (currentUser: any) => {
     const loginUserDocRefId = doc(loginUserCollectionRef, currentUser.uid);
     loginUserDoc.value = loginUserDocRefId;
 
-    const getUserData = () => {
+    // const getUserData = () => {
       getDoc(loginUserDocRefId).then((data) => {
         loginUser.value = data.data();
       });
-    };
+    // };
     // watchEffect((): void => {
     //   loginUser.value = getUserData();
     // });
@@ -72,7 +72,7 @@ onAuthStateChanged(auth, (currentUser: any) => {
     // watchEffect((onInvalidate) => {
     //   onInvalidate(() => getUserData());
     // });
-    watch(loginUser, getUserData)
+    // watch(loginUser, getUserData);
   }
 });
 
