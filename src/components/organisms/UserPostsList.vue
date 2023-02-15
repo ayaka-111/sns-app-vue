@@ -4,36 +4,36 @@ import { defineComponent, ref as vueref } from "vue";
 import { db } from "../../../firebase";
 
 export default defineComponent({
-  name: "CurrentUserPosts",
+  name: "UserPostsList",
   props: { userId: String },
   setup: (props) => {
-    const currentUserData: any = vueref();
-    const currentUserId: any = vueref(props.userId);
-    const currentUserPostsData: any = vueref("");
+    const userData: any = vueref();
+    const theUserId: any = vueref(props.userId);
+    const theUserPostsData: any = vueref("");
     // currentUserのpostデータ取得
     const postCollectionRef: any = query(
       collection(db, "posts"),
-      where("userId", "==", currentUserId.value)
+      where("userId", "==", theUserId.value)
     );
     // 上記を元にドキュメントのデータを取得(post)
     getDocs(postCollectionRef).then((postDocId) => {
       const newPostDocIds = postDocId.docs;
-      currentUserPostsData.value = newPostDocIds.map((id) => id.data());
+      theUserPostsData.value = newPostDocIds.map((id) => id.data());
     });
     return {
-      currentUserPostsData,
-      currentUserData,
-      currentUserId,
+      theUserPostsData,
+      userData,
+      theUserId,
     };
   },
 });
 </script>
 
 <template>
-  <div v-if="currentUserId">
-    <div v-for="(currentUserPost, index) in currentUserPostsData" :key="index">
-      <a v-bind:href="`/post/${currentUserPost.postId}`">
-        <img v-bind:src="currentUserPost.imageUrl" alt="投稿画像" />
+  <div v-if="theUserId">
+    <div v-for="(theUserPost, index) in theUserPostsData" :key="index">
+      <a v-bind:href="`/post/${theUserPost.postId}`">
+        <img v-bind:src="theUserPost.imageUrl" alt="投稿画像" />
       </a>
     </div>
   </div>
