@@ -130,7 +130,7 @@ const addNewMassage =():void => {
 </template>
 
 
-<style>
+<style scoped>
 .dm{
     margin-left: 350px;
 }

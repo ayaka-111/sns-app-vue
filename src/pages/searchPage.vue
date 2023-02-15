@@ -44,7 +44,7 @@ const search = (): void => {
   </div>
 </template>
 
-<style>
+<style scoped>
 .s {
   margin-left: 350px;
 }
