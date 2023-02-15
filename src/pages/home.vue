@@ -1,10 +1,12 @@
-<script lang="ts">
+<script setup lang="ts">
 import { defineComponent, reactive, ref, watch } from "vue";
 import {
+  arrayRemove,
   arrayUnion,
   collection,
   CollectionReference,
   doc,
+  DocumentReference,
   Firestore,
   getDoc,
   getDocs,
@@ -13,23 +15,43 @@ import {
   updateDoc,
   where,
 } from "firebase/firestore";
+import type { DocumentData } from "firebase/firestore";
 import { auth, db } from "../../firebase";
 import { onAuthStateChanged } from "@firebase/auth";
 import { useRouter } from "vue-router";
-import CommentButton from "../components/atoms/button/CommentButton.vue";
+import CommentButton from "@/components/atoms/button/CommentButton.vue";
 import Comment from "../components/molecules/Comment.vue";
 import AllComments from "../components/atoms/button/AllComments.vue";
+import FavoriteButton from "@/components/atoms/button/FavoriteButton.vue";
 
+type Post = {
+  postId: string;
+  userId: string;
+  imageUrl: string;
+  caption: string;
+  timestamp: Date;
+  favorites: string[];
+  keeps: string[];
+  comments: string[];
+  icon: string;
+  userName: string;
+};
+// type DocumentData = {
+//   [field: string]: any;
+// };
 
-export default defineComponent({
-  name:"Home",
-  components:{CommentButton, Comment, AllComments},
-  setup: () => {
 // ログインユーザーのuid
 const loginUserUid: any = ref("");
 
+// ログインユーザーデータ
+const loginUser: any = ref("");
+
+const loginUserDoc: any = ref("");
+
 //mapで回す取得したpost全データ
 const postList: any = ref([]);
+
+const postDoc: any = ref();
 
 //timestampの表記変更
 const dateToDate = reactive({
@@ -44,11 +66,23 @@ const dateToDate = reactive({
 onAuthStateChanged(auth, (currentUser: any) => {
   if (currentUser) {
     loginUserUid.value = currentUser.uid;
-  console.log(loginUserUid.value);
     //usersからログインユーザーの情報取得
     const userCollectionRef = collection(db, "users");
 
     const userDocRefId = doc(userCollectionRef, currentUser.uid);
+
+    loginUserDoc.value = userDocRefId;
+
+    // watchのために一度データ取得
+    // watch(loginUser, () => {
+    //   getDoc(userDocRefId).then((data) => {
+    //     loginUser.value = data.data();
+    //     console.log(data.data())
+    //   });
+    // });
+    // getUserData();
+    // いいね機能でデータ更新されるのを監視
+    // watch(loginUser, getUserData);
 
     //自分とfollowしているユーザーのuserId配列
     const userList: any[] = [currentUser.uid];
@@ -56,6 +90,8 @@ onAuthStateChanged(auth, (currentUser: any) => {
     getDoc(userDocRefId).then((user) => {
       //data()の形で取得
       const userData = user.data();
+      loginUser.value = userData;
+      console.log(user.data());
 
       //followのみ取得し、上記配列に格納
       const follow = userData?.follow;
@@ -69,6 +105,7 @@ onAuthStateChanged(auth, (currentUser: any) => {
           where("userId", "==", userId)
         );
 
+        // const getPostData = () => {
         //data()の形で取得し、順番にpostListにpushする
         getDocs(postsCollectionRef).then((post: any) => {
           post.forEach((doc: any) => {
@@ -84,10 +121,15 @@ onAuthStateChanged(auth, (currentUser: any) => {
             // dateToDate.min = timestamp.getMinutes();
           });
         });
+        // };
+        // getPostData();
+        // watch(postList, getPostData);
+        // console.log(postList.value);
       });
     });
   }
 });
+console.log(postList.value);
 
 // 日付順に並び替え
 // postList.value.sort((a: any, b: any) => {
@@ -102,6 +144,7 @@ const postCollectionRef = collection(db, "posts");
 
 // 上記を元にドキュメントへの参照を取得(クリックされた投稿のpostIdを指定する)
 const postDocRefId = doc(postCollectionRef, "nxvBjxNsshrRKcsXot7j");
+postDoc.value = postDocRefId;
 
 // 上記を元にドキュメントのデータを取得
 getDoc(postDocRefId).then((data) => {
@@ -121,10 +164,26 @@ const addComment = async () => {
   });
   inputComment.value = "";
 };
-console.log(postList.value)
-return {postList}
-  },
-});
+// console.log(postList.value);
+
+// いいね機能
+// const addFavorite = async () => {
+//   await updateDoc(postDocRefId, {
+//     favorites: arrayUnion(loginUser.value.userName),
+//   });
+//   await updateDoc(loginUserDoc.value, {
+//     favoritePosts: arrayUnion(postId),
+//   });
+// };
+// いいね削除
+// const removeFavorite = async () => {
+//   await updateDoc(postDocRefId, {
+//     favorites: arrayRemove(loginUser.value.userName),
+//   });
+//   await updateDoc(loginUserDoc.value, {
+//     favoritePosts: arrayRemove(postId),
+//   });
+// };
 </script>
 
 <template>
@@ -148,9 +207,16 @@ return {postList}
       </div>
 
       <div>
-        <button>♡</button>
+        <FavoriteButton
+          v-bind:postId="post.postId"
+          v-bind:loginUserDoc="loginUserDoc"
+          v-bind:loginUser="loginUser"
+          v-bind:loginUserUid="loginUserUid"
+        />
         <CommentButton v-bind:postId="post.postId" />
-        <button>🏷</button>
+        <button>
+          <button><font-awesome-icon :icon="['far', 'bookmark']" /></button>
+        </button>
       </div>
 
       <div>
@@ -164,28 +230,9 @@ return {postList}
         <div>{{ post.caption }}</div>
       </div>
 
-      <!-- <div> -->
-        <!-- あとでモーダルが開くようにする -->
-        <!-- <a href="/post">
-          <p class="commentLink">コメントをすべて見る</p>
-        </a>
-      </div> -->
       <AllComments v-bind:postId="post.postId" />
 
-      <!-- <div>
-        <input
-          type="text"
-          v-model="inputComment"
-          class="input"
-          placeholder="コメントを追加..."
-        />
-      -->
-        <!-- inputに入力されてから表示する -->
-        <!-- <button @click="addComment">投稿する</button> -->
-      <!-- </div> -->
-
       <Comment v-bind:postId="post.postId" />
-
     </div>
   </section>
   <section v-else class="noPostSection">
@@ -193,7 +240,7 @@ return {postList}
   </section>
 </template>
 
-<style>
+<style scoped>
 .wrapper {
   border-bottom: 1px solid lightgray;
 }
@@ -233,12 +280,6 @@ return {postList}
 }
 .commentLink {
   color: #757575;
-}
-.input {
-  border: none;
-}
-.input:focus {
-  outline: none;
 }
 .noPost {
   font-weight: bold;

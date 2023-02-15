@@ -4,7 +4,7 @@ import NameField from "@/components/atoms/NameField.vue";
 import ProfileField from "@/components/atoms/ProfileField.vue";
 import UserNameField from "@/components/atoms/UserNameField.vue";
 import PasswordField from "@/components/atoms/PasswordField.vue";
-import CPasswordField from "@/components/atoms/CPasswordField.vue";
+import CPasswordField from "../components/atoms/CPasswordField.vue";
 import { reactive, ref as vueref } from "vue";
 import SubmitButtonState from "@/components/atoms/SubmitBtnState";
 import formValidation from "@/components/molecules/formValidation";
@@ -43,7 +43,7 @@ const file: any = vueref();
 // ログイン状態の場合の処理
 onAuthStateChanged(currentAuth, (currentUser) => {
   if (currentUser) {
-    router.push("/");
+    router.push("/home");
   }
 });
 

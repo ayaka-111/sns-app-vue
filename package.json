@@ -15,7 +15,7 @@
     "@fortawesome/free-brands-svg-icons": "^6.3.0",
     "@fortawesome/free-regular-svg-icons": "^6.3.0",
     "@fortawesome/free-solid-svg-icons": "^6.3.0",
-    "@fortawesome/vue-fontawesome": "^3.0.0-5",
+    "@fortawesome/vue-fontawesome": "^3.0.3",
     "@types/firebase": "^3.2.1",
     "@vue/cli": "^5.0.8",
     "dotenv": "^16.0.3",
