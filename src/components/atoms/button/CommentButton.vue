@@ -4,12 +4,10 @@ import { useRouter } from "vue-router";
 
 export default defineComponent({
   name: "CommentButton",
-  components:{},
   props: { postId: String },
   setup: (props) => {
-    //オブジェクトの形で渡される
-    // const postIdObj = defineProps(["postId"]);
-
+    // const postIdObj = defineProps<Props>(["postId"]);
+    // const props = defineProps<Props>();
     const router = useRouter();
 
     const commentBtn = () => {
@@ -21,5 +19,7 @@ export default defineComponent({
 </script>
 
 <template>
-  <button @click="commentBtn">コメント</button>
+  <button @click="commentBtn">
+    <font-awesome-icon :icon="['far', 'comment']" />
+  </button>
 </template>

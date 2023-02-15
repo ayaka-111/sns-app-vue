@@ -40,7 +40,7 @@ export default {
     const { isSignupButtonDisabled } = SubmitButtonState(user, error);
 
     const toTop = () => {
-      router.push("/");
+      router.push("/home");
     };
 
     const loginButtonPressed = async () => {
@@ -49,7 +49,7 @@ export default {
       try {
         await signInWithEmailAndPassword(auth, user.email, user.password).then(
           () => {
-            router.push("/");
+            router.push("/home");
           }
         );
       } catch (error) {

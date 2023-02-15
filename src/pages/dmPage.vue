@@ -22,7 +22,7 @@ const messageList:any=ref([]);
             // console.log(ownQSnapshot)
             ownQSnapshot.forEach((docdata) => {
                 console.log(docdata)
-          const data = (docdata.id, " => ", docdata.data()); 
+          const data = (docdata.id, " => ", docdata.data());
           console.log(data)
         //   messageList.push
           messageList.value.push
@@ -47,7 +47,7 @@ getDocs(anotherQ).then((ownQSnapshot)=>{
             // console.log(ownQSnapshot)
             ownQSnapshot.forEach((docdata) => {
                 console.log(docdata)
-          const data = (docdata.id, " => ", docdata.data()); 
+          const data = (docdata.id, " => ", docdata.data());
           console.log(data)
         //   messageList.push
           messageList.value.push
@@ -65,10 +65,10 @@ getDocs(anotherQ).then((ownQSnapshot)=>{
 const addNewMassage =():void => {
     // 表示するnewMessageListに追加　これなくていいかも
     newMessageList.value.push({ userId: "53PUV5WYMoOlaJWUVDmB", message: newMessage.value, timestamp:"" ,withUserId:''})
-    
+
     // firestoreにデータ追加
     const collectionMessages:any =collection(db, "messages");
-    addDoc(collectionMessages, 
+    addDoc(collectionMessages,
     {
     userId:"53PUV5WYMoOlaJWUVDmB",
     message:newMessage.value,
@@ -79,8 +79,8 @@ const addNewMassage =():void => {
     })
 
     // inputのところ空にする
-    
-    
+
+
 }
 
 </script>
@@ -121,8 +121,8 @@ const addNewMassage =():void => {
     <form  @submit.prevent="addNewMassage" class="form">
         <div class="inputButton">
         <input class="input" v-model="newMessage" placeholder="メッセージを入力...">
-        <button class="button">送信</button> 
-        </div> 
+        <button class="button">送信</button>
+        </div>
     </form>
 
 </div>
@@ -130,7 +130,7 @@ const addNewMassage =():void => {
 </template>
 
 
-<style>
+<style scoped>
 .dm{
     margin-left: 350px;
 }

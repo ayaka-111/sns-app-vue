@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { reactive, ref, watch } from "vue";
+import { reactive, ref, watch, watchEffect } from "vue";
 import {
   arrayRemove,
   arrayUnion,
@@ -24,7 +24,6 @@ const postId: any = route.params.postId;
 //編集ボタン
 const router = useRouter();
 const changeButton = () => {
-  // const postId = "nxvBjxNsshrRKcsXot7j";
   router.push({ path: `/postChange/${postId}` });
 };
 
@@ -61,12 +60,21 @@ onAuthStateChanged(auth, (currentUser: any) => {
     const loginUserDocRefId = doc(loginUserCollectionRef, currentUser.uid);
     loginUserDoc.value = loginUserDocRefId;
 
-    getDoc(loginUserDocRefId).then((data) => {
-      loginUser.value = data.data();
-    });
+    const getUserData = () => {
+      getDoc(loginUserDocRefId).then((data) => {
+        loginUser.value = data.data();
+      });
+    };
+    // watchEffect((): void => {
+    //   loginUser.value = getUserData();
+    // });
+    // getUserData();
+    // watchEffect((onInvalidate) => {
+    //   onInvalidate(() => getUserData());
+    // });
+    watch(loginUser, getUserData)
   }
 });
-console.log(loginUserUid);
 
 // postsコレクションへの参照を取得
 const postCollectionRef = collection(db, "posts");
@@ -75,23 +83,39 @@ const postCollectionRef = collection(db, "posts");
 const postDocRefId = doc(postCollectionRef, postId);
 
 // //上記を元にドキュメントのデータを取得
-const getData = () => {
-  getDoc(postDocRefId).then((data) => {
-    postData.value = data.data();
-    commentData.value = data.data()?.comments;
 
-    //timestamp取得
-    const dataList = data.data();
-    const timestamp = dataList?.timestamp.toDate();
-    dateToDate.year = timestamp.getFullYear();
-    dateToDate.month = timestamp.getMonth() + 1;
-    dateToDate.date = timestamp.getDate();
-    dateToDate.hour = timestamp.getHours();
-    dateToDate.min = timestamp.getMinutes();
-  });
-};
-getData();
-watch(postData, getData);
+// const getPostData = () => {
+// watch(
+  // postData,
+  // (): void => {
+    getDoc(postDocRefId).then((data) => {
+      postData.value = data.data();
+      commentData.value = data.data()?.comments;
+
+      //timestamp取得
+      const dataList = data.data();
+      const timestamp = dataList?.timestamp.toDate();
+      dateToDate.year = timestamp.getFullYear();
+      dateToDate.month = timestamp.getMonth() + 1;
+      dateToDate.date = timestamp.getDate();
+      dateToDate.hour = timestamp.getHours();
+      dateToDate.min = timestamp.getMinutes();
+    });
+//   },
+//   { immediate: true }
+// );
+// };
+// watchEffect((): void => {
+//   postData.value = getPostData();
+// });
+// getPostData();
+// watch(
+//   postData,
+//   (): void => {
+//     getPostData();
+//   },
+//   { immediate: true }
+// );
 
 //コメント機能(postsのcommentsに追加)
 const inputComment = ref("");
@@ -114,9 +138,9 @@ const deleteButton = async (e: any) => {
   //postsから削除
   await deleteDoc(doc(db, "posts", postId));
 
-  // storageから削除→0がタイプエラー
+  // storageから削除
   console.log(e);
-  // const file = e.target.files[0];
+  // const file = e.target.files[0];→0がタイプエラー
   const gsReference = storageRef(
     storage,
     `${loginUserUid.value}/post/${postId}/postImg.png`
@@ -207,14 +231,14 @@ const addFavorite = async () => {
   });
 };
 // いいね削除
-const RemoveFavorite = async () => {
+const removeFavorite = async () => {
   await updateDoc(postDocRefId, {
     favorites: arrayRemove(loginUser.value.userName),
   });
   await updateDoc(loginUserDoc.value, {
     favoritePosts: arrayRemove(postId),
   });
-}
+};
 </script>
 
 <template>
@@ -250,7 +274,6 @@ const RemoveFavorite = async () => {
             <p class="post_userName">{{ postData.userName }}</p>
           </a>
           <div>{{ postData.caption }}</div>
-          <!-- <div>{{ loginUserDoc }}</div> -->
         </div>
 
         <div
@@ -268,10 +291,17 @@ const RemoveFavorite = async () => {
         </div>
       </div>
       <div>
-        <!-- favoritePosts配列.includes(postId) -->
-        <button @click="addFavorite" ><far icon="heart" class="post_heart" /></button>
-        <button>📝</button>
-        <button>🏷</button>
+        <button
+          @click="removeFavorite"
+          v-if="loginUser.favoritePosts.includes(postId)"
+        >
+          <font-awesome-icon :icon="['fas', 'heart']" class="post_heart" />
+        </button>
+        <button @click="addFavorite" v-else>
+          <font-awesome-icon :icon="['far', 'heart']" />
+        </button>
+        <button><font-awesome-icon :icon="['far', 'comment']" /></button>
+        <button><font-awesome-icon :icon="['far', 'bookmark']" /></button>
       </div>
       <div>
         <span class="post_favoriteLength"
@@ -334,7 +364,7 @@ const RemoveFavorite = async () => {
 .post_favoriteLength {
   font-weight: bold;
 }
-/* .post_heart {
+.post_heart {
   color: red;
-} */
+}
 </style>
