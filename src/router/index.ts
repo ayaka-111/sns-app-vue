@@ -12,6 +12,9 @@ import newPost from "../pages/newPost.vue";
 import postChange from "../pages/postChange.vue";
 import ProfileChange from "../pages/profileChange.vue";
 import PasswordChange from "../pages/passwordChange.vue";
+import myAccountPage from "@/pages/myAccountPage.vue";
+import accountPage from "../../src/pages/accountPage.vue";
+
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -62,12 +65,14 @@ const router = createRouter({
       component: postChange,
     },
     {
-      path: "/about",
-      name: "about",
-      // route level code-splitting
-      // this generates a separate chunk (About.[hash].js) for this route
-      // which is lazy-loaded when the route is visited.
-      component: () => import("../views/AboutView.vue"),
+      path: "/myAccountPage",
+      name: "myAccountPage",
+      component: myAccountPage,
+    },
+    {
+      path: "/accountPage/:userId",
+      name: "accountPage",
+      component: accountPage,
     },
     {
       path: "/logout",

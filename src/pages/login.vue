@@ -1,5 +1,7 @@
 <script lang="ts">
-import { reactive, ref } from "vue";
+
+import { reactive, ref, defineComponent } from "vue";
+
 import EmailField from "@/components/atoms/EmailField.vue";
 import PasswordField from "@/components/atoms/PasswordField.vue";
 import SubmitButtonState from "@/components/atoms/SubmitBtnState";
@@ -9,10 +11,10 @@ import {
   onAuthStateChanged,
   signInWithEmailAndPassword,
 } from "firebase/auth";
-import { auth } from "../../firebase.ts";
+import { auth } from "../../firebase";
 import { useRouter } from "vue-router";
 
-export default {
+export default defineComponent({
   components: {
     EmailField,
     PasswordField,
@@ -24,7 +26,7 @@ export default {
     });
 
     const router = useRouter();
-    const loginJudge = ref(false);
+    const loginJudge: any = ref(false);
     const currentAuth = getAuth();
     console.log(loginJudge.value);
 
@@ -65,7 +67,7 @@ export default {
       loginJudge,
     };
   },
-};
+});
 </script>
 <template>
   <section v-if="loginJudge === false" class="signup-view">
