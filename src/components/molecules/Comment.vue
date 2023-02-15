@@ -54,10 +54,19 @@ export default defineComponent({
     <input
       type="text"
       v-model="inputComment"
-      class="input"
+      class="comment_input"
       placeholder="コメントを追加..."
     />
     <!-- inputに入力されてから表示する -->
     <button @click="addComment">投稿する</button>
   </div>
 </template>
+
+<style>
+.comment_input {
+  border: none;
+}
+.comment_input:focus {
+  outline: none;
+}
+</style>

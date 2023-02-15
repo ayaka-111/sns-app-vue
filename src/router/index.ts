@@ -10,8 +10,11 @@ import SearchPage from "../pages/searchPage.vue";
 import LogoutBtn from "@/components/atoms/LogoutBtn.vue";
 import newPost from "../pages/newPost.vue";
 import postChange from "../pages/postChange.vue";
+import ProfileChange from "../pages/profileChange.vue";
+import PasswordChange from "../pages/passwordChange.vue";
 import myAccountPage from "@/pages/myAccountPage.vue";
 import accountPage from "../../src/pages/accountPage.vue";
+
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -80,6 +83,16 @@ const router = createRouter({
       path: "/searchPage",
       name: "searchPage",
       component: SearchPage,
+    },
+    {
+      path: "/profileChange",
+      name: "profileChange",
+      component: ProfileChange,
+    },
+    {
+      path: "/passwordChange",
+      name: "passwordChange",
+      component: PasswordChange,
     },
   ],
 });

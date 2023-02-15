@@ -127,7 +127,7 @@ const shareButton = async () => {
   console.log("投稿完了");
 
   // home画面に遷移する
-  // location.href = "/home";
+  location.href = "/home";
 };
 </script>
 

@@ -3,12 +3,16 @@ import App from "./App.vue";
 import router from "./router";
 
 import "./assets/main.css";
-import { library } from "@fortawesome/fontawesome-svg-core";
-import { faLeaf, faHeart as solidHeart } from "@fortawesome/free-solid-svg-icons";
-import { faHeart } from "@fortawesome/free-regular-svg-icons";
+import { icon, library } from "@fortawesome/fontawesome-svg-core";
+import { faLeaf, faHeart as fasHeart, faBookmark as fasBookmark } from "@fortawesome/free-solid-svg-icons";
+import {
+  faHeart as farHeart,
+  faComment,
+  faBookmark as farBookmark,
+} from "@fortawesome/free-regular-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 
-library.add(faLeaf, solidHeart, faHeart);
+library.add(faLeaf, fasHeart, farHeart, faComment, fasBookmark, farBookmark);
 
 const app = createApp(App);
 
@@ -16,5 +20,4 @@ app.use(router);
 
 app.mount("#app");
 
-app.component("fa", FontAwesomeIcon);
-app.component("far", FontAwesomeIcon);
+app.component("font-awesome-icon", FontAwesomeIcon);
