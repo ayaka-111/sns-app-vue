@@ -28,11 +28,13 @@
 </li>
 </router-link>
 
+<router-link to="/newPost">
 <li class="li">
 <div>
 <p>📷 作成</p>
 </div>
 </li>
+</router-link>
 
 <li class="li">
 <div>
@@ -43,6 +45,10 @@
 <li class="liEnd">
 <div>
 <p>🌱 その他</p>
+<router-link to="/profileChange">
+<p>設定</p>
+</router-link>
+<p>ログアウト</p>
 </div>
 </li>
 
@@ -103,7 +109,7 @@
     padding-left: 10px;
     width: 100%;
     list-style: none;
-    margin-top: 100px;
+    /* margin-top: 100px; */
 }
 .profName{
     display: grid;
