@@ -1,5 +1,7 @@
 <script lang="ts">
+
 import { reactive, ref, defineComponent } from "vue";
+
 import EmailField from "@/components/atoms/EmailField.vue";
 import PasswordField from "@/components/atoms/PasswordField.vue";
 import SubmitButtonState from "@/components/atoms/SubmitBtnState";
