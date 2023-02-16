@@ -29,9 +29,9 @@ import { getStorage } from "firebase/storage";
 // };
 
 const firebaseConfig = {
-  apiKey: "AIzaSyCOgpNa6bfQBP6BTEc7np-dqEU-DQGhbVc",
-  authDomain: "sns-app-vue-test2.firebaseapp.com",
-  projectId: "sns-app-vue-test2",
+  apiKey: import.meta.env.VITE_APP_NOT_SECRET_CODE,
+  authDomain: import.meta.env.VITE_APP_AUTHDOMAIN,
+  projectId: import.meta.env.VITE_APP_PROJECT_ID,
   storageBucket: "sns-app-vue-test2.appspot.com",
   messagingSenderId: "400770589695",
   appId: "1:400770589695:web:51e8a19fa5efca48cdbdca"
