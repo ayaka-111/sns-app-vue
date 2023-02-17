@@ -7,6 +7,7 @@ import {ref} from "vue";
 
 const userData :any= ref()
 const iconUrl :any= ref()
+const sonotaKanri :any= ref(false)
 
 onAuthStateChanged(auth, (currentUser: any) => {
     console.log(currentUser.uid)
@@ -16,6 +17,11 @@ onAuthStateChanged(auth, (currentUser: any) => {
     iconUrl.value=userData.value.icon
     });
 });
+
+const sonota =() =>{
+    sonotaKanri.value= !sonotaKanri.value
+    console.log(sonotaKanri.value)
+}
 
 </script>
 
@@ -64,16 +70,25 @@ onAuthStateChanged(auth, (currentUser: any) => {
 </router-link>
 
 <li class="liEnd">
-<div>
-<p>🌱 その他</p>
+
+<div v-if="sonotaKanri">
+<button @click="sonota">🌱</button>
 <router-link to="/profileChange">
 <p>設定</p>
 </router-link>
-
+<!-- <router-link to="/profileChange"> -->
+<p>保存済み</p>
+<!-- </router-link> -->
 <router-link to="/logout">
 <p>ログアウト</p>
 </router-link>
 </div>
+
+<div v-else>
+<button @click="sonota">🌱 その他</button>  
+</div>
+
+
 </li>
 
 </ul>
