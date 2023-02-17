@@ -14,7 +14,8 @@ import ProfileChange from "../pages/profileChange.vue";
 import PasswordChange from "../pages/passwordChange.vue";
 import myAccountPage from "@/pages/myAccountPage.vue";
 import accountPage from "../../src/pages/accountPage.vue";
-
+import followList from "@/pages/followList.vue";
+import followerList from "@/pages/followerList.vue";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -25,9 +26,10 @@ const router = createRouter({
       component: Login,
     },
     {
-      path: "/dmPage",
+      path: "/dmPage/:userId",
       name: "dmPage",
       component: DmPage,
+      // props: true
     },
     {
       path: "/",
@@ -93,6 +95,16 @@ const router = createRouter({
       path: "/passwordChange",
       name: "passwordChange",
       component: PasswordChange,
+    },
+    {
+      path: "/followList/:userId",
+      name: "followList",
+      component: followList,
+    },
+    {
+      path: "/followerList/:userId",
+      name: "followerList",
+      component: followerList,
     },
   ],
 });

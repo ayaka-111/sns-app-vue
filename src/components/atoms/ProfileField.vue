@@ -14,6 +14,14 @@ export default {
       autocomplete="off"
       v-model="textarea"
       @input="$emit('update:modelValue', $event.target.value)"
+      cols="38"
+      rows="5"
     />
   </div>
 </template>
+
+<style scoped>
+input {
+  width: 100%;
+}
+</style>

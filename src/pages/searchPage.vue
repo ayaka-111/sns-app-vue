@@ -1,82 +1,109 @@
-
 <script setup lang="ts">
-import { collection, doc, DocumentReference, getDoc, getDocs, query, type DocumentData } from "@firebase/firestore";
+import {
+  collection,
+  doc,
+  DocumentReference,
+  getDoc,
+  getDocs,
+  query,
+  type DocumentData,
+} from "@firebase/firestore";
 import { db } from "../../firebase";
 
-import {ref} from "vue";
-import Header from "../components/organisms/header.vue"
+import { ref } from "vue";
+import Header from "../components/organisms/header.vue";
 import { connectStorageEmulator } from "@firebase/storage";
+import { useRoute, useRouter } from "vue-router";
+// import searchResult from "@/components/organisms/searchResult.vue";
 
-const allUserData:any = ([]);
-const searchText:any = ref();
-const searchResult:any=([]);
-const userDataArr:any=ref([]);
+const allUserData: any = [];
+const searchText: any = ref();
+const searchResultUserId: any = [];
+const userDataArr: any = ref([]);
 
 // 全てのuser情報を取得
 const userQuery = query(collection(db, "users"));
 getDocs(userQuery).then((data) => {
   data.forEach((docdata) => {
     const data = docdata.data();
-    console.log(data)
-    allUserData.push({name:data.name,userName:data.userName,userId:data.userId});  
-    console.log(allUserData) 
+    console.log(data);
+    allUserData.push({
+      name: data.name,
+      userName: data.userName,
+      userId: data.userId,
     });
-    });
+    console.log(allUserData);
+  });
+});
 
-
-
-const search = (): void => {
+const search:() => void =()=> {
   // userDataArrが空配列ではなかったら、userDataArrを空にする
   // if(!userDataArr === [] ){
-    userDataArr.value= []
-    console.log(userDataArr)
+  // userDataArr.value= []
+  // searchResultUserId.value=[]
+  // console.log(userDataArr)
   // }
-  
-  allUserData.forEach((data:any) => { 
-    console.log(data)
-      if (data.userName.includes(searchText.value)) {
-        searchResult.push(data.userId);
-      } else if (data.name.includes(searchText.value)) {
-        searchResult.push(data.userId);
-      }
-    });
 
-  console.log(searchResult)
+  allUserData.forEach((data: any) => {
+    console.log(data);
+    if (data.userName.includes(searchText.value)) {
+      searchResultUserId.push(data.userId);
+    } else if (data.name.includes(searchText.value)) {
+      searchResultUserId.push(data.userId);
+    }
+  });
 
-  for (const userId of searchResult) {
-      console.log(userId)
-      const resultUserDoc= doc(db, "users", userId);
-      console.log(resultUserDoc)
-      getDoc(resultUserDoc).then((resultUserData) => {
+  console.log(searchResultUserId)
 
-        
-        // if(resultUserData){
-          console.log(resultUserData)
-        // const data = (resultUserData.id, " => ", resultUserData.data()); 
-        const getData = resultUserData.data();
-        console.log(getData)
+  const result: any = [];
+  // ここをコンポーネンでかく
+  for (const userId of searchResultUserId) {
+    // console.log(userId)
+    const resultUserDoc = doc(db, "users", userId);
+    // console.log(resultUserDoc)
+    getDoc(resultUserDoc).then((resultUserData) => {
+      // if(resultUserData){
+      console.log(resultUserData);
+      // const data = (resultUserData.id, " => ", resultUserData.data());
+      const getData = resultUserData.data();
+      console.log(getData);
 
-        if (getData) {
-          userDataArr.value.push({
-            userId: getData.userId,
-            name: getData.name,
-            userName: getData.userName,
-            icon: getData.icon,
-          });
-        }
 
+          //  userDataArr.value= []
+      userDataArr.value.push({
+          userId: getData?.userId,
+          name: getData?.name,
+          userName: getData?.userName,
+          icon: getData?.icon,
+        });
+
+      // if (getData) {
+        // userDataArr.value= []
+
+        // result.push({
+        //   userId: getData?.userId,
+        //   name: getData?.name,
+        //   userName: getData?.userName,
+        //   icon: getData?.icon,
+        // });
+
+        // userDataArr.value = result
+
+        // console.log(userDataArr)
       // }
 
-      });
-    }
+      console.log( result )
+      console.log(userDataArr.value);
+      // userDataArr.value = result;
+      // }
+    });
+  }
+ 
 
-      searchText.value = String("");
 
+
+  searchText.value = String("");
 };
-
-
-
-
 </script>
 
 <template>
@@ -87,25 +114,32 @@ const search = (): void => {
       <div class="text">検索</div>
 
       <div class="i">
-      <form class="input" @submit.prevent="search">
-        <input class="inp" v-model="searchText" placeholder="検索" />
-      </form>
-    </div>
-
-  <div class="searchPageResult" v-for="data in userDataArr">
-
-  <div>
-  <img v-bind:src="data.icon" alt="icon" class="iconImg" />
-  </div>
-  
-  <div class="searchPageNameSet">
-  <p class="searchPageUserName">{{ data.userName }}</p>
-  <p>{{ data.name }}</p>
-  </div>
-
-    </div>
+        <form class="input" @submit.prevent="search">
+          <input class="inp" v-model="searchText" placeholder="検索" />
+        </form>
+      </div>
+      <!-- <p>{{ userDataArr }}</p> -->
+      
+      <div
+        class="searchPageResult"
+        v-for="
+        (userDataResult,index) in userDataArr"
+        :key="index"
+      >
+        <a v-bind:href="`/accountPage/${userDataResult.userId}`">
+          <img v-bind:src="userDataResult.icon" alt="icon" class="iconImg" />
+        </a>
 
 
+        <div class="searchPageNameSet">
+          <p class="searchPageUserName">{{ userDataResult.userName }}</p>
+          <p>{{ userDataResult.name }}</p>
+        </div>
+      </div>
+
+      <!-- <div>
+      <CurrentUserPosts v-bind:userId="searchResultUserId" />
+    </div> -->
     </div>
   </div>
 </template>
@@ -113,9 +147,9 @@ const search = (): void => {
 <style scoped>
 .s {
   margin-left: 500px;
-  margin-right:300px;
+  margin-right: 300px;
   margin-top: 25px;
-  border : solid 1px silver;
+  border: solid 1px silver;
   background-color: white;
 }
 /* .search{
@@ -127,20 +161,19 @@ const search = (): void => {
   padding: 15px;
 }
 
-.i{
+.i {
   margin-bottom: 20px;
   border-bottom: solid 1px silver;
 }
-.input{
+.input {
   padding-left: 15px;
   padding-top: 5px;
   outline: none;
   margin-bottom: 20px;
-
 }
-.inp{
+.inp {
   background-color: #f5f5f5;
-  border-radius:5px;
+  border-radius: 5px;
   /* outline:solid 1px #f5f5f5; */
   /* outline: none; */
 }
@@ -149,17 +182,16 @@ const search = (): void => {
   height: 50px;
   border-radius: 50%;
 }
-.searchPageNameSet{
-    margin-top: 5px;
-    margin-left: 10px;
+.searchPageNameSet {
+  margin-top: 5px;
+  margin-left: 10px;
 }
-.searchPageResult{
+.searchPageResult {
   display: flex;
   /* margin-top: 10px; */
 }
 
-.searchPageUserName{
+.searchPageUserName {
   font-weight: bold;
 }
-
 </style>
