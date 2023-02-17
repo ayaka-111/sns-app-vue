@@ -76,10 +76,14 @@ const change =() :void=> {
     <Header />
     <div class="profileChange">
     <form  @submit.prevent="change" >
+
+    <div class="profileChangeIconChange">
+
     <div>
-    <label htmlFor="iconUpload" class="uploadLabel">
-        プロフィール写真を変更
-    </label>
+    <img v-bind:src="iconUrl" alt="icon" class="profileChangeIconImg" />
+    </div>
+    <div class="profileChangeIconInput">
+    <label htmlFor="iconUpload">プロフィール写真を変更</label>
     <input
         name="iconUpload"
         id="iconUpload"
@@ -88,20 +92,43 @@ const change =() :void=> {
         @change="uploadButton"
         class="uploadInput"
     />
-    <img v-bind:src="iconUrl" alt="icon" class="iconImg" />
+    </div>
     </div>
 
+<div class="profileChangeThreeChange">
+        <div class="profileChangeName">名前<input v-model="name" class="profileChangeInput"></div> 
+        <div class="profileChangeUserName">ユーザーネーム<input v-model="userName" class="profileChangeInput"></div> 
+        <div class="profileChangeprofile">プロフィール<input v-model="profile" class="profileChangeInput"></div> 
+</div>
 
-        <div>名前<input v-model="name" ></div> 
-        <div>ユーザーネーム<input v-model="userName"></div> 
-        <div>プロフィール<input v-model="profile"></div> 
-        <button class="button">変更</button>         
+        <button class="profileChangeButton">変更</button>         
     </form>
 </div>
 </template>
 
 <style>
-.button{
+.profileChange{
+    margin-left: 450px;
+    margin-right: 100px;
+    margin-top: 50px;
+    /* margin-bottom: 100px; */
+    font-size: 15px;
+    font-weight: bold;
+    border : solid 1px silver;
+}
+.profileChangeIconChange{
+    display: flex;
+    margin-top: 40px;
+    margin-left: 85px;
+    margin-bottom: 50px;
+}
+.profileChangeIconInput{
+    padding-top: 15px;
+    padding-left: 30px;
+    color: #1596F7;
+    font-size: 12px;
+}
+.profileChangeButton{
     background-color: #1596F7;
     color: white;
     font-weight: bold;
@@ -109,14 +136,36 @@ const change =() :void=> {
     width: 100px;
     margin:30px;
     padding: 3px;
+    margin-top: 60px;
+    margin-left: 420px;
 }
-.iconImg {
+.profileChangeIconImg {
     width: 50px;
     height: 50px;
     border-radius: 50%;
+    
 }
-.profileChange{
-    margin-left: 350px;
+.profileChangeThreeChange{
+    margin-top: 40px;
+    margin-left: 20px;
+
 }
+.profileChangeName{
+    margin-top: 40px;
+    margin-left: 74px;
+    /* margin-bottom: 10px; */
+}
+.profileChangeprofile{
+    margin-top: 40px;
+    margin-left: 16px;
+}
+.profileChangeUserName{
+    margin-top: 40px;
+}
+.profileChangeInput{
+    margin-left: 20px;
+    width:700px
+}
+
 
 </style>

@@ -6,10 +6,13 @@ import { db } from "../../firebase";
 import {ref} from "vue";
 import Header from "../components/organisms/header.vue"
 import { connectStorageEmulator } from "@firebase/storage";
+import { useRoute, useRouter } from "vue-router";
+// import searchResult from "@/components/organisms/searchResult.vue";
+
 
 const allUserData:any = ([]);
 const searchText:any = ref();
-const searchResult:any=([]);
+const searchResultUserId:any=([]);
 const userDataArr:any=ref([]);
 
 // 全てのuser情報を取得
@@ -28,27 +31,31 @@ getDocs(userQuery).then((data) => {
 const search = (): void => {
   // userDataArrが空配列ではなかったら、userDataArrを空にする
   // if(!userDataArr === [] ){
-    userDataArr.value= []
-    console.log(userDataArr)
+    // userDataArr.value= []
+    // searchResultUserId.value=[]
+    // console.log(userDataArr)
   // }
+ 
   
   allUserData.forEach((data:any) => { 
     console.log(data)
       if (data.userName.includes(searchText.value)) {
-        searchResult.push(data.userId);
+        searchResultUserId.push(data.userId);
       } else if (data.name.includes(searchText.value)) {
-        searchResult.push(data.userId);
+        searchResultUserId.push(data.userId);
       }
+     
     });
 
-  console.log(searchResult)
+  console.log(searchResultUserId)
 
-  for (const userId of searchResult) {
+  // ここをコンポーネンでかく
+  for (const userId of searchResultUserId) {
       console.log(userId)
       const resultUserDoc= doc(db, "users", userId);
       console.log(resultUserDoc)
       getDoc(resultUserDoc).then((resultUserData) => {
-
+       
         
         // if(resultUserData){
           console.log(resultUserData)
@@ -57,6 +64,7 @@ const search = (): void => {
         console.log(getData)
 
         if (getData) {
+          userDataArr.value= []
           userDataArr.value.push({
             userId: getData.userId,
             name: getData.name,
@@ -92,11 +100,14 @@ const search = (): void => {
       </form>
     </div>
 
+
   <div class="searchPageResult" v-for="data in userDataArr">
 
-  <div>
+   
+    <a v-bind:href="`/accountPage/${data.userId}` ">
   <img v-bind:src="data.icon" alt="icon" class="iconImg" />
-  </div>
+    </a>
+
   
   <div class="searchPageNameSet">
   <p class="searchPageUserName">{{ data.userName }}</p>
@@ -105,9 +116,14 @@ const search = (): void => {
 
     </div>
 
+    <!-- <div>
+      <CurrentUserPosts v-bind:userId="searchResultUserId" />
+    </div> -->
+
 
     </div>
   </div>
+
 </template>
 
 <style scoped>
