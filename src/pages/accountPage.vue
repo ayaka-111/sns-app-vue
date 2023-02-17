@@ -11,6 +11,12 @@ const userId: any = route.params.userId;
 
 const router = useRouter();
 
+// userIdを渡す
+const userIdPush = () => {
+  // const postId = "nxvBjxNsshrRKcsXot7j";
+  router.push({ path: `/dmPage/${userId}` });
+};
+
 
 const anotherUserData: any = vueref();
 const currentUserId: any = vueref();
@@ -45,7 +51,7 @@ onAuthStateChanged(auth, async (currentUser) => {
         <p>{{ anotherUserData.userName }}</p>
         <button>フォロー中</button>
         <!-- <button>フォローする</button> -->
-        <button>メッセージを送信</button>
+        <button @click="userIdPush">メッセージを送信</button>
         <p>投稿{{ anotherUserData.posts.length }}件</p>
         <p>フォロワー{{ anotherUserData.follower.length }}人</p>
         <p>フォロー中{{ anotherUserData.follow.length }}人</p>

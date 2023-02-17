@@ -1,20 +1,40 @@
 <script setup lang="ts">
 import { getAuth, onAuthStateChanged } from "@firebase/auth";
-import { addDoc, collection, doc, getDocs, limit, query, serverTimestamp, setDoc, where } from "@firebase/firestore";
-import {ref} from "vue";
+import { addDoc, collection, doc, getDoc, getDocs, limit, query, serverTimestamp, setDoc, where } from "@firebase/firestore";
+import {createApp, ref} from "vue";
+import { useRoute } from "vue-router";
 import { db } from "../../firebase"
 import Header from "../components/organisms/header.vue"
 
+//postIdを受け取る
+const route = useRoute();
+const userId: any = route.params.userId;
 
 const newMessage:any= ref('');
 const newMessageList:any = ref([]);
 const messageList:any=ref([]);
 const uid:any=ref('');
+const withUserData:any=ref('');
+const withUserName:any=ref('');
+const withUserIcon:any=ref('');
+
+// 会話相手の情報を取得
+const userCollectionRef = collection(db, "users");
+const userDocRefId = doc(userCollectionRef, userId);
+console.log(userDocRefId )
+getDoc(userDocRefId).then((data) => {
+withUserData.value = data.data();
+withUserIcon.value=withUserData.value.icon
+withUserName.value = withUserData.value.name;
+    });
+
+
 
 // ログイン判定
 const auth = getAuth();
   const currentUserId = auth.currentUser?.uid;
   uid.value=auth.currentUser?.uid
+  const loginUserId = auth.currentUser?.uid
 //   const userId:any=ref(currentUserId)
   console.log(currentUserId)
 //   console.log(userId)
@@ -28,7 +48,7 @@ const auth = getAuth();
           collection(db, "messages"),
         //   ログインユーザーのID
           where("userId", "==", currentUser?.uid),
-          where("withUserId", "==", "W7qqpJGJrpbwdTLiIopoNJYcVjm2"),
+          where("withUserId", "==", userId),
         //   limit(5)
         );
         // const ownQSnapshot = await getDocs(ownQ);
@@ -50,7 +70,7 @@ const auth = getAuth();
 // 会話相手の情報取得(メッセージ表示のため)
 const anotherQ = query(
     collection(db, "messages"),
-    where("userId", "==", "W7qqpJGJrpbwdTLiIopoNJYcVjm2"),
+    where("userId", "==", userId),
     //   ログインユーザーのID
     where("withUserId", "==", currentUser?.uid),
     // limit(5)
@@ -90,7 +110,7 @@ const addNewMessage =() :void=> {
     message:newMessage.value,
     // timestamp: serverTimestamp(),
     timestamp: time,
-    withUserId:'W7qqpJGJrpbwdTLiIopoNJYcVjm2'
+    withUserId:userId
     }).then(()=>{
         console.log("a")
     })
@@ -110,20 +130,25 @@ const addNewMessage =() :void=> {
 <div class="dm">
 
     <div class="your">
-    <img src="../../public/noIcon.png" class="img"/>
-    <p class="name">えみりさん</p>
+    <img v-bind:src="withUserIcon" alt="withUserIcon" class="img"/>
+    <!-- <img src="../../public/noIcon.png" class="img"/> -->
+    <p class="name">{{ withUserName }}</p>
     </div>
 
     <div class="m">
     <ul>
         <li v-for="mess in messageList" :key="mess.userId" >
-            <!-- userid === mess.userid ? (
-<p class="myMess">{{ mess.message }}</p>
-            ) :(
-<p class="yourMess">{{ mess.message }}</p>
-            )-->
+        
+        <div v-if="userId === mess.userId " class="withUser">
+        <p class="yourmess">{{ mess.message }}</p>
+        <p class="yourtime">{{ mess.timestamp}}</p>
+        </div>
+
+        <div v-if="userId === mess.withUserId" class="user">
         <p class="mess">{{ mess.message }}</p>
-        <p class="time">{{ mess.timestamp}}</p>
+        <p class="time">{{ mess.timestamp}}</p>  
+        </div>
+
         </li>
     </ul>
 
@@ -187,19 +212,36 @@ const addNewMessage =() :void=> {
 }
 .mess{
     background-color: #e0dddd;
-    margin: 10px 10px 10px 10px;
+    /* margin: 10px 10px 10px 10px; */
     border: 1px solid #afadad;
     border-radius: 10px;
     padding: 10px;
+    margin-left:200px;
+}
+.yourmess{
+    background-color: #e0dddd;
+    /* margin: 10px 10px 10px 10px; */
+    border: 1px solid #afadad;
+    border-radius: 10px;
+    padding: 10px;
+    margin-right:200px;
+
 }
 .time{
     display: block;
     padding-right: 10px;
     text-align: right;
+    margin-left:200px;
+}
+.yourtime{
+    display: block;
+    padding-right: 10px;
+    text-align: right;
+    margin-right:200px;
 }
 .m{
     font-size: 13px;
-    margin: 10px 10px 10px auto;
+    /* margin: 10px 10px 10px auto; */
     width: 40%;
 }
 
