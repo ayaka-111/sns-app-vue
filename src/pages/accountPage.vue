@@ -23,7 +23,7 @@ const router = useRouter();
 // userIdを渡す
 const userIdPush = () => {
   // const postId = "nxvBjxNsshrRKcsXot7j";
-  router.push({ path: /dmPage/${userId} });
+  router.push({ path: `/dmPage/${userId}` });
 };
 
 const anotherUserData: any = vueref();

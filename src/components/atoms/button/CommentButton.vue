@@ -20,6 +20,14 @@ export default defineComponent({
 
 <template>
   <button @click="commentBtn">
-    <font-awesome-icon :icon="['far', 'comment']" />
+    <font-awesome-icon :icon="['far', 'comment']" class="commentBtn" />
   </button>
 </template>
+
+<style scoped>
+.commentBtn {
+  width: 25px;
+  height: auto;
+}
+
+</style>

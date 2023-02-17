@@ -17,6 +17,7 @@ import {
   uploadBytesResumable,
 } from "@firebase/storage";
 import { auth, db, storage } from "../../firebase";
+import Header from "../components/organisms/header.vue";
 
 // ログインユーザー
 const loginUser: any = ref("");
@@ -132,55 +133,95 @@ const shareButton = async () => {
 </script>
 
 <template>
-  <section v-if="postUrl === ''">
-    <div class="title">新規投稿を作成</div>
-    <div class="uploadButton">
-      <label htmlFor="iconUpload" class="uploadLabel">
-        写真をアップロード
-      </label>
-      <input
-        name="iconUpload"
-        id="iconUpload"
-        type="file"
-        accept=".png, .jpeg, .jpg"
-        @change="uploadButton"
-        class="uploadInput"
-      />
-    </div>
-  </section>
+  <Header />
+  <section class="newPost">
+    <section v-if="postUrl === ''" class="newPost_uploadingSection">
+      <div class="newPost_title">新規投稿を作成</div>
+      <div class="newPost_upload">
+        <div class="newPost_pictureIcon">
+          <font-awesome-icon
+            :icon="['far', 'images']"
+            class="newPost_pictureIconImg"
+          />
+        </div>
+        <div class="uploadButton">
+          <label htmlFor="iconUpload" class="uploadLabel">
+            写真をアップロード
+          </label>
+          <input
+            name="iconUpload"
+            id="iconUpload"
+            type="file"
+            accept=".png, .jpeg, .jpg"
+            @change="uploadButton"
+            class="uploadInput"
+          />
+        </div>
+      </div>
+    </section>
 
-  <section v-else>
-    <div>
-      <div>新規投稿を作成</div>
-      <button @click="shareButton" class="share">シェア</button>
-    </div>
-    <div>
-      <div>
-        <img v-bind:src="postUrl" alt="投稿写真" />
+    <section v-else class="newPost_uploadedSection">
+      <div class="newPost_uploadedTitleContent">
+        <div class="newPost_uploadedTitle">新規投稿を作成</div>
+        <button @click="shareButton" class="share">シェア</button>
       </div>
-    </div>
-    <div>
-      <div>
-        <img v-bind:src="loginUser.icon" alt="icon" class="iconImg" />
-        <p>{{ loginUser.userName }}</p>
+      <div class="newPost_uploadedContent">
+        <div class="newPost_post">
+          <img v-bind:src="postUrl" alt="投稿写真" class="newPost_postImg" />
+        </div>
+        <div>
+          <div class="newPost_iconName">
+            <img v-bind:src="loginUser.icon" alt="icon" class="iconImg" />
+            <p class="newPost_userName">{{ loginUser.userName }}</p>
+          </div>
+          <div>
+            <textarea
+              v-model="inputCaption"
+              placeholder="キャプションを入力..."
+              maxlength="2200"
+              class="newPost_captionInput"
+            />
+          </div>
+          <div class="newPost_captionLength">
+            {{ inputCaption.length }}/2200
+          </div>
+        </div>
       </div>
-      <div>
-        <input
-          type="text"
-          v-model="inputCaption"
-          placeholder="キャプションを入力..."
-          maxlength="2200"
-        />
-      </div>
-      <div>{{ inputCaption.length }}/2200</div>
-    </div>
+    </section>
   </section>
 </template>
 
-<style>
-.title {
+<style scoped>
+.newPost {
+  overflow: hidden;
+}
+.newPost_uploadingSection {
+  margin-left: 500px;
+  margin-top: 100px;
+  width: 500px;
+  height: 500px;
+  background-color: #ffff;
+  border-radius: 3%;
+}
+.newPost_title {
   font-size: 1.7rem;
   font-weight: bold;
+  border-bottom: 1px solid lightgray;
+  text-align: center;
+  height: 50px;
+  padding-top: 10px;
+}
+.newPost_upload {
+  margin-top: 140px;
+}
+.newPost_pictureIcon {
+  width: 100px;
+  height: auto;
+  margin: 0 auto 20px auto;
+}
+.newPost_pictureIconImg {
+  width: 100%;
+  height: 100%;
 }
 .uploadButton {
   background-color: #1596f7;
@@ -193,6 +234,7 @@ const shareButton = async () => {
   /* height: 20px; */
   text-align: center;
   border-radius: 5%;
+  margin: 0 auto;
 }
 .uploadLabel:hover {
   opacity: 0.6;
@@ -201,15 +243,71 @@ const shareButton = async () => {
 .uploadInput {
   display: none;
 }
+.newPost_uploadedSection {
+  margin-left: 400px;
+  margin-top: 100px;
+  width: 900px;
+  height: 500px;
+  background-color: #ffff;
+  border-radius: 3%;
+}
+.newPost_uploadedTitleContent {
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid lightgray;
+  /* justify-content: space-between; */
+}
+.newPost_uploadedTitle {
+  font-weight: bold;
+  font-size: 1.7rem;
+  margin: 0 auto;
+}
 .share {
   color: #1596f7;
   font-weight: bold;
   font-size: 1.4rem;
   line-height: 5rem;
+  margin-right: 10px;
+}
+.newPost_uploadedContent {
+  display: flex;
+  gap: 1%;
+}
+.newPost_post {
+  height: 448px;
+}
+.newPost_postImg {
+  width: 100%;
+  height: 100%;
+  border-radius: 0 0 0 3%;
+  object-fit: cover;
+}
+.newPost_iconName {
+  display: flex;
+  align-items: center;
+  gap: 5%;
+  margin-top: 20px;
 }
 .iconImg {
-  width: 100px;
-  height: 100px;
+  width: 30px;
+  height: 30px;
   border-radius: 50%;
+}
+.newPost_userName {
+  font-weight: bold;
+}
+.newPost_captionInput {
+  width: 215px;
+  height: 350px;
+  border: none;
+  padding-top: 10px;
+}
+textarea:focus {
+  outline: none;
+}
+.newPost_captionLength {
+  color: lightgray;
+  text-align: end;
+  margin-right: 10px;
 }
 </style>
