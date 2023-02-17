@@ -18,6 +18,13 @@ const userId: any = route.params.userId;
 
 const router = useRouter();
 
+
+// userIdを渡す
+const userIdPush = () => {
+  // const postId = "nxvBjxNsshrRKcsXot7j";
+  router.push({ path: `/dmPage/${userId}` });
+};
+
 const anotherUserData: any = vueref();
 const currentUserId: any = vueref();
 const isLoading: any = vueref(true);
@@ -113,6 +120,7 @@ const onClickUnFollow = () => {
       </div>
       <div class="user_detail">
         <p>{{ anotherUserData.userName }}</p>
+
         <button v-if="isFollowing" @click="onClickUnFollow">フォロー中</button>
         <button v-else @click="onClickAddFollow">フォローする</button>
         <button>メッセージを送信</button>

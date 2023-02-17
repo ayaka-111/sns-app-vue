@@ -25,9 +25,10 @@ const router = createRouter({
       component: Login,
     },
     {
-      path: "/dmPage",
+      path: "/dmPage/:userId",
       name: "dmPage",
       component: DmPage,
+      // props: true
     },
     {
       path: "/",
