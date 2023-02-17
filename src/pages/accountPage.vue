@@ -123,7 +123,7 @@ const onClickUnFollow = () => {
 
         <button v-if="isFollowing" @click="onClickUnFollow">フォロー中</button>
         <button v-else @click="onClickAddFollow">フォローする</button>
-        <button>メッセージを送信</button>
+        <button @click="userIdPush"> メッセージを送信</button>
         <p>投稿{{ anotherUserData.posts.length }}件</p>
         <p>フォロワー{{ numberOfFollower }}人</p>
         <p>フォロー中{{ anotherUserData.follow.length }}人</p>

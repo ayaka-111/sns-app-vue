@@ -6,9 +6,11 @@ import { useRoute } from "vue-router";
 import { db } from "../../firebase"
 import Header from "../components/organisms/header.vue"
 
-//postIdを受け取る
+//userIdを受け取る
 const route = useRoute();
 const userId: any = route.params.userId;
+
+console.log(userId)
 
 const newMessage:any= ref('');
 const newMessageList:any = ref([]);
@@ -93,7 +95,13 @@ getDocs(anotherQ).then((ownQSnapshot)=>{
         })
 
 
+
+
 });
+
+
+
+
 
 
 // inputに入力したものをfirebaseに追加
@@ -121,6 +129,11 @@ const addNewMessage =() :void=> {
 }
 
 
+messageList.value.sort((a: any, b: any) => {
+    return a.messageList.timestamp > b.messageList.timestamp ? -1 : 1;
+  });
+
+
 </script>
 
 <template>
@@ -138,7 +151,6 @@ const addNewMessage =() :void=> {
     <div class="m">
     <ul>
         <li v-for="mess in messageList" :key="mess.userId" >
-        
         <div v-if="userId === mess.userId " class="withUser">
         <p class="yourmess">{{ mess.message }}</p>
         <p class="yourtime">{{ mess.timestamp}}</p>
