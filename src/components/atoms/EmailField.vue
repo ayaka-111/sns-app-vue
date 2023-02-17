@@ -24,8 +24,19 @@ export default {
         @input="$emit('update:modelValue', $event.target.value)"
       />
     </div>
-    <div class="ui basic label pointing red" v-if="error.email">
+    <div class="error_text" v-if="error.email">
       {{ error.email }}
     </div>
   </div>
 </template>
+
+<style scoped>
+input {
+  width: 100%;
+  height: 35px;
+}
+.error_text {
+  color: red;
+  font-weight: bold;
+}
+</style>

@@ -1,5 +1,4 @@
 <script lang="ts">
-
 import { reactive, ref, defineComponent } from "vue";
 
 import EmailField from "@/components/atoms/EmailField.vue";
@@ -42,7 +41,7 @@ export default defineComponent({
     const { isSignupButtonDisabled } = SubmitButtonState(user, error);
 
     const toTop = () => {
-      router.push("/");
+      router.push("/home");
     };
 
     const loginButtonPressed = async () => {
@@ -51,7 +50,7 @@ export default defineComponent({
       try {
         await signInWithEmailAndPassword(auth, user.email, user.password).then(
           () => {
-            router.push("/");
+            router.push("/home");
           }
         );
       } catch (error) {
@@ -70,24 +69,73 @@ export default defineComponent({
 });
 </script>
 <template>
-  <section v-if="loginJudge === false" class="signup-view">
-    <form @submit.prevent novalidate class="ui form">
-      <div class="ui stacked segment">
-        <EmailField v-model="user.email" />
+  <section v-if="loginJudge === false">
+    <div class="login_wrapper">
+      <img src="/mobileLogo.png" alt="firstgram" class="icon" />
+      <form @submit.prevent novalidate class="form">
+        <EmailField v-model="user.email" class="email_input" />
         <PasswordField v-model="user.password" />
         <button
-          class="ui button red fluid"
+          class="login_button"
           :disabled="isSignupButtonDisabled"
           @click="loginButtonPressed"
         >
           ログイン
         </button>
+      </form>
+      <div class="no_account">
+        <p>アカウントをお持ちでないですか？</p>
+        <a href="/register" class="register">登録する</a>
       </div>
-    </form>
-    <div>
-      <p>アカウントをお持ちでないですか？</p>
-      <a href="/register">登録する</a>
     </div>
   </section>
   <button @click="toTop" v-else>TOPへ</button>
 </template>
+
+<style scoped>
+.login_wrapper {
+  width: 350px;
+  border: 1px solid #dbdbdb;
+  background: #fff;
+  margin: 150px auto;
+  padding: 20px 0;
+}
+.form {
+  margin: 30px 50px;
+}
+
+.icon {
+  margin: 0 auto;
+}
+
+.login_button {
+  background-color: #1596f7;
+  color: white;
+  font-weight: bold;
+  border-radius: 10px;
+  width: 100%;
+  margin: 30px 0;
+  padding: 3px;
+  height: 32px;
+}
+.login_button:hover {
+  cursor: pointer;
+}
+
+.email_input {
+  margin-bottom: 20px;
+}
+.no_account {
+  display: flex;
+  font-size: 14px;
+  justify-content: center;
+}
+.register {
+  font-weight: bold;
+  color: #1596f7;
+  margin-left: 10px
+}
+.register:hover {
+  opacity: 0.6;
+}
+</style>
