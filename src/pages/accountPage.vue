@@ -11,6 +11,7 @@ import { watch, onMounted, ref as vueref } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { onAuthStateChanged } from "@firebase/auth";
 import UserPostsList from "../components/organisms/UserPostsList.vue";
+import Header from "../components/organisms/header.vue";
 
 //postIdを受け取る
 const route = useRoute();
@@ -22,7 +23,7 @@ const router = useRouter();
 // userIdを渡す
 const userIdPush = () => {
   // const postId = "nxvBjxNsshrRKcsXot7j";
-  router.push({ path: `/dmPage/${userId}` });
+  router.push({ path: /dmPage/${userId} });
 };
 
 const anotherUserData: any = vueref();
@@ -113,47 +114,144 @@ const onClickUnFollow = () => {
 </script>
 
 <template>
-  <div v-if="!isLoading">
-    <div class="user_info">
-      <div class="user_icon">
-        <img v-bind:src="anotherUserData.icon" alt="ユーザーアイコン" />
+  <Header />
+  <div class="header_area">
+    <div v-if="!isLoading" class="accountPage_wrapper">
+      <div class="user_info flex">
+        <div class="user_info_left">
+          <div class="user_icon">
+            <img v-bind:src="anotherUserData.icon" alt="ユーザーアイコン" />
+          </div>
+        </div>
+        <div class="user_info_right">
+          <div class="user_detail">
+            <div class="flex first_line">
+              <p class="user_name">{{ anotherUserData.userName }}</p>
+              <button
+                v-if="isFollowing"
+                @click="onClickUnFollow"
+                class="follow_btn"
+              >
+                フォロー中
+              </button>
+              <button v-else @click="onClickAddFollow" class="un_follow_btn">
+                フォローする
+              </button>
+              <button @click="userIdPush" class="dm_btn">メッセージを送信</button>
+            </div>
+            <div class="flex">
+              <p class="three_amount">
+                投稿<span class="amount">{{
+                  anotherUserData.posts.length
+                }}</span
+                >件
+              </p>
+              <p class="three_amount">
+                フォロワー<span class="amount">{{ numberOfFollower }}</span
+                >人
+              </p>
+              <p class="three_amount">
+                フォロー中<span class="amount">{{
+                  anotherUserData.follow.length
+                }}</span
+                >人
+              </p>
+            </div>
+            <p class="name">{{ anotherUserData.name }}</p>
+            <p>{{ anotherUserData.profile }}</p>
+          </div>
+        </div>
       </div>
-      <div class="user_detail">
-        <p>{{ anotherUserData.userName }}</p>
-
-        <button v-if="isFollowing" @click="onClickUnFollow">フォロー中</button>
-        <button v-else @click="onClickAddFollow">フォローする</button>
-        <button @click="userIdPush"> メッセージを送信</button>
-        <p>投稿{{ anotherUserData.posts.length }}件</p>
-        <p>フォロワー{{ numberOfFollower }}人</p>
-        <p>フォロー中{{ anotherUserData.follow.length }}人</p>
-        <p>{{ anotherUserData.name }}</p>
-        <p>{{ anotherUserData.profile }}</p>
+      <div class="posts">
+        <UserPostsList v-bind:userId="userId" />
       </div>
     </div>
-    <div class="posts">
-      <UserPostsList v-bind:userId="userId" />
-    </div>
+    <p v-else>loading...</p>
   </div>
-  <p v-else>loading...</p>
 </template>
 
 <style scoped>
+.header_area {
+  margin-left: 250px;
+}
+.accountPage_wrapper {
+  width: 80%;
+  margin: 0 auto;
+  padding: 50px;
+}
+.user_info_left {
+  width: 30%;
+}
+.user_info_right {
+  width: 70%;
+}
 .user_info {
   width: 100%;
-  display: flex;
+  padding: 0 20px;
+  margin-bottom: 30px;
 }
 .user_icon {
   border-radius: 50%;
-  width: 10%;
+  width: 150px;
+  height: 150px;
   aspect-ratio: 1/1;
   border: solid 1px lightgray;
   background-color: #ffff;
+  margin: auto;
 }
 .user_icon > img {
   width: 100%;
   height: 100%;
   object-fit: cover;
   border-radius: 50%;
+}
+.flex {
+  display: flex;
+}
+.user_name {
+  font-size: 17px;
+  font-weight: bold;
+}
+.dm_btn,
+.follow_btn {
+  background: #efefef;
+  border-radius: 7px;
+  font-weight: bold;
+  padding: 2px 15px;
+  margin-left: 30px;
+}
+.un_follow_btn {
+  background: #1596f7;
+  border-radius: 7px;
+  font-weight: bold;
+  padding: 2px 15px;
+  margin-left: 30px;
+  color: #fff;
+}
+.follow_btn:hover,
+.dm_btn:hover,
+.un_follow_btn:hover {
+  cursor: pointer;
+}
+.first_line {
+  margin-bottom: 20px;
+}
+.three_amount {
+  margin-right: 20px;
+  font-size: 15px;
+}
+.amount {
+  font-weight: bold;
+}
+.name {
+  font-size: 12px;
+  font-weight: bold;
+  margin-top: 20px;
+}
+.loading_text {
+  text-align: center;
+  margin-top: 200px;
+  font-size: 16px;
+  font-weight: bold;
 }
 </style>

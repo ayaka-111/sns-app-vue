@@ -97,7 +97,7 @@ body {
   font-family:  system-ui, -apple-system, "Hiragino Sans", "Yu Gothic UI", "Segoe UI", "Meiryo", sans-serif;
   /* min-width: 350px;
   max-width: 600px; */
-  margin-left: 250px;
+  /* margin-left: 250px; */
   overflow-x: hidden;
   min-height: 100vh;
   position: relative;
