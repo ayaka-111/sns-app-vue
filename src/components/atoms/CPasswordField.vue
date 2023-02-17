@@ -24,8 +24,18 @@ export default {
         @input="$emit('update:modelValue', $event.target.value)"
       />
     </div>
-    <div class="ui basic label pointing red" v-if="error.cPassword">
+    <div class="error_text" v-if="error.cPassword">
       {{ error.cPassword }}
     </div>
   </div>
 </template>
+
+<style scoped>
+  input {
+    width: 100%;
+  }
+  .error_text {
+    color: red;
+    font-weight: bold;
+  }
+</style>

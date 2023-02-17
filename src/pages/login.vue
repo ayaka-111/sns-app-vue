@@ -94,7 +94,7 @@ export default defineComponent({
 
 <style scoped>
 .login_wrapper {
-  width: 25%;
+  width: 350px;
   border: 1px solid #dbdbdb;
   background: #fff;
   margin: 150px auto;
