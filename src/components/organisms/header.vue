@@ -1,4 +1,21 @@
 <script setup lang="ts">
+import { onAuthStateChanged } from '@firebase/auth';
+import { doc, getDoc } from '@firebase/firestore';
+import { auth, db } from '../../../firebase';
+import {ref} from "vue";
+
+
+const userData :any= ref()
+const iconUrl :any= ref()
+
+onAuthStateChanged(auth, (currentUser: any) => {
+    console.log(currentUser.uid)
+    const loginUserData = doc(db, "users", currentUser.uid);
+    getDoc(loginUserData).then((data) => {
+    userData.value = data.data();
+    iconUrl.value=userData.value.icon
+    });
+});
 
 </script>
 
@@ -36,11 +53,15 @@
 </li>
 </router-link>
 
+<router-link to="/myAccountPage">
 <li class="li">
 <div>
-<div class="prof"><img class="icon" src="../../../public/noIcon.png" /> <p class="profName">プロフィール</p></div>
+<div class="prof">
+    <img v-bind:src="iconUrl" alt="icon" class="icon" />
+     <p class="profName">プロフィール</p></div>
 </div>
 </li>
+</router-link>
 
 <li class="liEnd">
 <div>
@@ -48,7 +69,10 @@
 <router-link to="/profileChange">
 <p>設定</p>
 </router-link>
+
+<router-link to="/logout">
 <p>ログアウト</p>
+</router-link>
 </div>
 </li>
 
