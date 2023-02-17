@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import { onAuthStateChanged } from "@firebase/auth";
 import { doc, getDoc } from "@firebase/firestore";
-import { ref as vueref } from "vue";
+import { onMounted, ref as vueref } from "vue";
 import { auth, db } from "../../firebase";
 import { useRouter } from "vue-router";
 import UserPostsList from "../components/organisms/UserPostsList.vue";
+import Header from "../components/organisms/header.vue";
 
 const router = useRouter();
 
@@ -12,65 +13,147 @@ const currentUserData: any = vueref();
 const currentUserId: any = vueref();
 const isLoading: any = vueref(true);
 
-onAuthStateChanged(auth, async (currentUser) => {
-  if (!currentUser) {
-    router.push("/login");
-  } else {
-    currentUserId.value = currentUser.uid;
-    isLoading.value = false;
-    //ドキュメントへの参照を取得
-    const userDocRef: any = doc(db, "users", currentUser.uid);
+onMounted(() => {
+  onAuthStateChanged(auth, async (currentUser) => {
+    if (!currentUser) {
+      router.push("/login");
+    } else {
+      currentUserId.value = currentUser.uid;
+      isLoading.value = false;
+      //ドキュメントへの参照を取得
+      const userDocRef: any = doc(db, "users", currentUser.uid);
 
-    //上記を元にドキュメントのデータを取得
-    getDoc(userDocRef).then((userDocData) => {
-      //取得したデータから必要なものを取り出す
-      const userDataId: any = userDocData.data();
-      currentUserData.value = userDataId;
-    });
-  }
+      //上記を元にドキュメントのデータを取得
+      getDoc(userDocRef).then((userDocData) => {
+        //取得したデータから必要なものを取り出す
+        const userDataId: any = userDocData.data();
+        currentUserData.value = userDataId;
+      });
+    }
+  });
 });
-
 </script>
 
 <template>
-  <div v-if="!isLoading">
-    <div class="user_info">
-      <div class="user_icon">
-        <img v-bind:src="currentUserData.icon" alt="ユーザーアイコン" />
+  <Header />
+  <div class="header_area">
+    <div v-if="!isLoading" class="myPage_wrapper">
+      <div class="user_info flex">
+        <div class="user_info_left">
+          <div class="user_icon">
+            <img v-bind:src="currentUserData.icon" alt="ユーザーアイコン" />
+          </div>
+        </div>
+        <div class="user_info_right">
+          <div class="user_detail">
+            <div class="flex first_line">
+              <p class="user_name">{{ currentUserData.userName }}</p>
+              <button class="profile_edit_btn">プロフィール編集</button>
+            </div>
+            <div class="flex">
+              <p class="three_amount">
+                投稿<span class="amount">{{
+                  currentUserData.posts.length
+                }}</span
+                >件
+              </p>
+              <p class="three_amount">
+                フォロワー<span class="amount">{{
+                  currentUserData.follower.length
+                }}</span
+                >人
+              </p>
+              <p class="three_amount">
+                フォロー中<span class="amount">{{
+                  currentUserData.follow.length
+                }}</span
+                >人
+              </p>
+            </div>
+            <p class="name">{{ currentUserData.name }}</p>
+            <p>{{ currentUserData.profile }}</p>
+          </div>
+        </div>
       </div>
-      <div class="user_detail">
-        <p>{{ currentUserData.userName }}</p>
-        <button>プロフィール編集</button>
-        <p>投稿{{ currentUserData.posts.length }}件</p>
-        <p>フォロワー{{ currentUserData.follower.length }}人</p>
-        <p>フォロー中{{ currentUserData.follow.length }}人</p>
-        <p>{{ currentUserData.name }}</p>
-        <p>{{ currentUserData.profile }}</p>
+      <div class="posts">
+        <UserPostsList v-bind:userId="currentUserId" />
       </div>
     </div>
-    <div class="posts">
-      <UserPostsList v-bind:userId="currentUserId" />
-    </div>
+    <p v-else class="loading_text">loading...</p>
   </div>
-  <p v-else>loading...</p>
 </template>
 
 <style scoped>
+.header_area {
+  margin-left: 250px;
+}
+.myPage_wrapper {
+  width: 80%;
+  margin: 0 auto;
+  padding: 50px;
+}
+.user_info_left {
+  width: 30%;
+}
+.user_info_right {
+  width: 70%;
+}
 .user_info {
   width: 100%;
-  display: flex;
+  padding: 0 20px;
+  margin-bottom: 30px;
 }
 .user_icon {
   border-radius: 50%;
-  width: 10%;
+  width: 150px;
+  height: 150px;
   aspect-ratio: 1/1;
   border: solid 1px lightgray;
   background-color: #ffff;
+  margin: auto;
 }
 .user_icon > img {
   width: 100%;
   height: 100%;
   object-fit: cover;
   border-radius: 50%;
+}
+.flex {
+  display: flex;
+}
+.user_name {
+  font-size: 17px;
+  font-weight: bold;
+}
+.profile_edit_btn {
+  background: #efefef;
+  border-radius: 7px;
+  font-weight: bold;
+  padding: 2px 15px;
+  margin-left: 30px;
+}
+.profile_edit_btn:hover {
+  cursor: pointer;
+}
+.first_line {
+  margin-bottom: 20px;
+}
+.three_amount {
+  margin-right: 20px;
+  font-size: 15px;
+}
+.amount {
+  font-weight: bold;
+}
+.name {
+  font-size: 12px;
+  font-weight: bold;
+  margin-top: 20px;
+}
+.loading_text {
+  text-align: center;
+  margin-top: 200px;
+  font-size: 16px;
+  font-weight: bold;
 }
 </style>
