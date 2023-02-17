@@ -1,5 +1,12 @@
 <script setup lang="ts">
-import { defineComponent, reactive, ref, watch } from "vue";
+import {
+  defineComponent,
+  onMounted,
+  reactive,
+  ref,
+  watch,
+  watchEffect,
+} from "vue";
 import {
   arrayRemove,
   arrayUnion,
@@ -23,22 +30,8 @@ import CommentButton from "@/components/atoms/button/CommentButton.vue";
 import Comment from "../components/molecules/Comment.vue";
 import AllComments from "../components/atoms/button/AllComments.vue";
 import FavoriteButton from "@/components/atoms/button/FavoriteButton.vue";
-
-type Post = {
-  postId: string;
-  userId: string;
-  imageUrl: string;
-  caption: string;
-  timestamp: Date;
-  favorites: string[];
-  keeps: string[];
-  comments: string[];
-  icon: string;
-  userName: string;
-};
-// type DocumentData = {
-//   [field: string]: any;
-// };
+import Header from "../components/organisms/header.vue";
+import Date from "../components/molecules/Date.vue";
 
 // ログインユーザーのuid
 const loginUserUid: any = ref("");
@@ -46,245 +39,235 @@ const loginUserUid: any = ref("");
 // ログインユーザーデータ
 const loginUser: any = ref("");
 
+// const favorite = ref(false);
+// const noFavorite = ref(false);
+
 const loginUserDoc: any = ref("");
 
 //mapで回す取得したpost全データ
 const postList: any = ref([]);
 
+// postsのfavorite
+// const postFavorite: any = ref();
+
+// usersのfavoritePosts
+// const userFavorite: any = ref(0);
+
 const postDoc: any = ref();
 
-//timestampの表記変更
-const dateToDate = reactive({
-  year: "",
-  month: "",
-  date: "",
-  hour: "",
-  min: "",
-});
+const loading = ref(true);
 
-//ログイン認証、一覧で表示するデータ取得
-onAuthStateChanged(auth, (currentUser: any) => {
-  if (currentUser) {
-    loginUserUid.value = currentUser.uid;
-    //usersからログインユーザーの情報取得
-    const userCollectionRef = collection(db, "users");
+const router = useRouter();
 
-    const userDocRefId = doc(userCollectionRef, currentUser.uid);
+onMounted(() => {
+  //ログイン認証、一覧で表示するデータ取得
+  onAuthStateChanged(auth, (currentUser: any) => {
+    if (!currentUser) {
+      router.push("/login");
+    } else {
+      console.log(currentUser.uid);
+      loginUserUid.value = currentUser.uid;
+      //usersからログインユーザーの情報取得
+      const userCollectionRef = collection(db, "users");
 
-    loginUserDoc.value = userDocRefId;
+      const userDocRefId = doc(userCollectionRef, currentUser.uid);
 
-    // watchのために一度データ取得
-    // watch(loginUser, () => {
-    //   getDoc(userDocRefId).then((data) => {
-    //     loginUser.value = data.data();
-    //     console.log(data.data())
-    //   });
-    // });
-    // getUserData();
-    // いいね機能でデータ更新されるのを監視
-    // watch(loginUser, getUserData);
+      loginUserDoc.value = userDocRefId;
 
-    //自分とfollowしているユーザーのuserId配列
-    const userList: any[] = [currentUser.uid];
+      loading.value = false;
 
-    getDoc(userDocRefId).then((user) => {
-      //data()の形で取得
-      const userData = user.data();
-      loginUser.value = userData;
-      console.log(user.data());
+      //自分とfollowしているユーザーのuserId配列
+      const userList: any[] = [currentUser.uid];
 
-      //followのみ取得し、上記配列に格納
-      const follow = userData?.follow;
-      follow.map((id: string) => userList.push(id));
+      // watch([loginUser, postList], async () => {
+      // const getData = async () => {
+      getDoc(userDocRefId).then((user) => {
+        //data()の形で取得
+        const userData = user.data();
+        loginUser.value = userData;
 
-      //もし上記getDocの外で以下記述した場合userIdがpushされる前に処理されてしまう
-      // userIdが入っている配列をmapで回し、postsからuserIdと等しいデータを取得
-      userList.map((userId) => {
-        const postsCollectionRef = query(
-          collection(db, "posts"),
-          where("userId", "==", userId)
-        );
+        //followのみ取得し、上記配列に格納
+        const follow = userData?.follow;
+        follow.map((id: string) => userList.push(id));
 
-        // const getPostData = () => {
-        //data()の形で取得し、順番にpostListにpushする
-        getDocs(postsCollectionRef).then((post: any) => {
-          post.forEach((doc: any) => {
-            postList.value.push(doc.data());
+        //もし上記getDocの外で以下記述した場合userIdがpushされる前に処理されてしまう
+        // userIdが入っている配列をmapで回し、postsからuserIdと等しいデータを取得
+        userList.map((userId) => {
+          const postsCollectionRef = query(
+            collection(db, "posts"),
+            where("userId", "==", userId)
+          );
 
-            //timestamp取得
-            // const dataList = doc.data();
-            // const timestamp = dataList?.timestamp.toDate();
-            // dateToDate.year = timestamp.getFullYear();
-            // dateToDate.month = timestamp.getMonth() + 1;
-            // dateToDate.date = timestamp.getDate();
-            // dateToDate.hour = timestamp.getHours();
-            // dateToDate.min = timestamp.getMinutes();
+          //data()の形で取得し、順番にpostListにpushする
+          getDocs(postsCollectionRef).then((post: any) => {
+            post.forEach((doc: any) => {
+              postList.value.push(doc.data());
+              // 日付順に並び替え
+              postList.value.sort((a: any, b: any) => {
+                return a.timestamp.toDate() > b.timestamp.toDate() ? -1 : 1;
+              });
+            });
           });
         });
-        // };
-        // getPostData();
-        // watch(postList, getPostData);
-        // console.log(postList.value);
       });
-    });
-  }
-});
-console.log(postList.value);
-
-// 日付順に並び替え
-// postList.value.sort((a: any, b: any) => {
-//   return a.timestamp.toDate() > b.timestamp.toDate() ? -1 : 1;
-// });
-
-//コメント用
-const postData: any = ref("");
-
-// コレクションへの参照を取得
-const postCollectionRef = collection(db, "posts");
-
-// 上記を元にドキュメントへの参照を取得(クリックされた投稿のpostIdを指定する)
-const postDocRefId = doc(postCollectionRef, "nxvBjxNsshrRKcsXot7j");
-postDoc.value = postDocRefId;
-
-// 上記を元にドキュメントのデータを取得
-getDoc(postDocRefId).then((data) => {
-  postData.value = data.data();
-});
-
-//コメント機能(postsのcommentsに追加)
-const inputComment = ref("");
-
-const addComment = async () => {
-  await updateDoc(postDocRefId, {
-    comments: arrayUnion({
-      userName: postData.value.userName,
-      icon: postData.value.icon,
-      comment: inputComment.value,
-    }),
+    }
   });
-  inputComment.value = "";
-};
-// console.log(postList.value);
+});
 
-// いいね機能
-// const addFavorite = async () => {
-//   await updateDoc(postDocRefId, {
-//     favorites: arrayUnion(loginUser.value.userName),
-//   });
-//   await updateDoc(loginUserDoc.value, {
-//     favoritePosts: arrayUnion(postId),
-//   });
-// };
-// いいね削除
-// const removeFavorite = async () => {
-//   await updateDoc(postDocRefId, {
-//     favorites: arrayRemove(loginUser.value.userName),
-//   });
-//   await updateDoc(loginUserDoc.value, {
-//     favoritePosts: arrayRemove(postId),
-//   });
-// };
+
+console.log(postList.value);
 </script>
 
 <template>
-  <section v-if="postList.length > 0">
-    <div class="wrapper" v-for="post in postList" v-bind:key="post.id">
-      <div class="titleHeader">
-        <a href="/profile">
-          <img v-bind:src="post.icon" alt="icon" class="iconImg" />
+  <Header />
+  <section v-if="postList.length > 0" class="home">
+    <div class="home_wrapper" v-for="post in postList" v-bind:key="post.id">
+      <div class="home_titleHeader" v-if="post.userId === loginUserUid">
+        <a href="/myAccountPage">
+          <img v-bind:src="post.icon" alt="icon" class="home_iconImg" />
         </a>
-        <a href="/profile">
-          <p>{{ post.userName }}</p>
+        <a href="/myAccountPage">
+          <p class="home_userName">{{ post.userName }}</p>
         </a>
-        <!-- <div>
-        {{ dateToDate.month }}月 {{ dateToDate.date }}, {{ dateToDate.year }}
-        {{ dateToDate.hour }}:{{ dateToDate.min }}
-      </div> -->
+        <Date v-bind:date="post.timestamp" />
+      </div>
+      <div class="home_titleHeader" v-else>
+        <a v-bind:href="`/accountPage/${post.userId}`">
+          <img v-bind:src="post.icon" alt="icon" class="home_iconImg" />
+        </a>
+        <a v-bind:href="`/accountPage/${post.userId}`">
+          <p class="home_userName">{{ post.userName }}</p>
+        </a>
+        <Date v-bind:date="post.timestamp" />
       </div>
 
-      <div class="postImg">
+      <div class="home_postImg">
         <img v-bind:src="post.imageUrl" alt="投稿写真" />
       </div>
 
-      <div>
-        <FavoriteButton
-          v-bind:postId="post.postId"
-          v-bind:loginUserDoc="loginUserDoc"
-          v-bind:loginUser="loginUser"
-          v-bind:loginUserUid="loginUserUid"
-        />
-        <CommentButton v-bind:postId="post.postId" />
+      <div class="home_buttons">
+        <div class="home_favCom">
+          <FavoriteButton
+            v-bind:postId="post.postId"
+            v-bind:loginUserDoc="loginUserDoc"
+            v-bind:loginUser="loginUser"
+            v-bind:loginUserUid="loginUserUid"
+          />
+          <!-- @response="
+            (postData) => {
+              postList = postData;
+            }
+          " -->
+          <CommentButton v-bind:postId="post.postId" />
+        </div>
         <button>
-          <button><font-awesome-icon :icon="['far', 'bookmark']" /></button>
+          <button>
+            <font-awesome-icon
+              :icon="['far', 'bookmark']"
+              class="home_bookmark"
+            />
+          </button>
         </button>
       </div>
 
       <div>
-        <span class="favoriteLength">いいね{{ post.favorites.length }}件</span>
+        いいね<span class="home_favoriteLength">{{
+          post.favorites.length
+        }}</span
+        >件
       </div>
 
-      <div class="postContent">
-        <a href="/profile">
-          <p class="postUserName">{{ post.userName }}</p>
-        </a>
+      <div class="home_postContent">
+        <p class="home_postUserName" v-if="post.userId === loginUserUid">
+          <a href="/myAccountPage">{{ post.userName }}</a>
+        </p>
+        <p class="home_postUserName" v-else>
+          <a v-bind:href="`/accountPage/${post.userId}`">{{ post.userName }}</a>
+        </p>
         <div>{{ post.caption }}</div>
       </div>
 
       <AllComments v-bind:postId="post.postId" />
 
-      <Comment v-bind:postId="post.postId" />
+      <Comment v-bind:postId="post.postId" v-bind:loginUser="loginUser" />
     </div>
   </section>
-  <section v-else class="noPostSection">
-    <div class="noPost">投稿がありません</div>
+  <section v-else class="home_noPostSection">
+    <div class="home_noPost">投稿がありません</div>
   </section>
 </template>
 
 <style scoped>
-.wrapper {
-  border-bottom: 1px solid lightgray;
+.home {
+  padding-left: 500px;
+  background-color: #ffff;
 }
-.titleHeader {
+.home_wrapper {
+  border-bottom: 1px solid lightgray;
+  width: 500px;
+}
+.home_titleHeader {
   display: flex;
   gap: 5%;
   align-items: center;
-  height: 100px;
+  height: 60px;
 }
-.iconImg {
-  width: 50px;
-  height: 50px;
+.home_iconImg {
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
+  object-fit: cover;
 }
-.smallIconImg {
+.home_userName {
+  font-weight: bold;
+}
+.home_smallIconImg {
   width: 20px;
   height: 20px;
   border-radius: 50%;
 }
-.postImg {
+.home_postImg {
   width: 500px;
   height: 500px;
 }
-.postImg img {
+.home_postImg img {
   width: 100%;
   height: 100%;
+  object-fit: cover;
 }
-.favoriteLength {
+.home_buttons {
+  display: flex;
+  justify-content: space-between;
+  margin: 2% 0;
+}
+.home_favCom {
+  display: flex;
+  gap: 5%;
+}
+.home_bookmark {
+  width: 18px;
+  height: auto;
+}
+.home_favoriteLength {
   font-weight: bold;
 }
-.postContent {
+.home_postContent {
   display: flex;
   gap: 3%;
 }
-.postUserName {
+.home_postUserName {
   font-weight: bold;
 }
-.commentLink {
+.home_commentLink {
   color: #757575;
 }
-.noPost {
+.home_noPost {
   font-weight: bold;
   font-size: 1.6rem;
   margin-top: 100px;
   margin-left: 100px;
+}
+button {
+  cursor: pointer;
 }
 </style>
