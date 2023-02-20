@@ -3,16 +3,18 @@ import {
   arrayUnion,
   collection,
   doc,
+  DocumentSnapshot,
   getDoc,
   serverTimestamp,
   updateDoc,
 } from "@firebase/firestore";
+import type { DocumentData } from "firebase/firestore";
 import { db } from "../../../firebase";
 import { defineComponent, ref } from "vue";
 
 export default defineComponent({
   name: "Comment",
-  props: { postId: String },
+  props: ["postId", "loginUser"],
   setup: (props) => {
     // オブジェクトの形でpostIdが渡される
     // const postIdObj = defineProps(["postId"]);
@@ -36,9 +38,10 @@ export default defineComponent({
     const addComment = async () => {
       await updateDoc(postDocRefId, {
         comments: arrayUnion({
-          userName: postData.value.userName,
-          icon: postData.value.icon,
+          userName: props.loginUser.userName,
+          icon: props.loginUser.icon,
           comment: inputComment.value,
+          userId: props.loginUser.userId,
           // timestamp: serverTimestamp(),
         }),
       });
@@ -50,23 +53,39 @@ export default defineComponent({
 </script>
 
 <template>
-  <div>
-    <input
-      type="text"
+  <div class="comment_form">
+    <textarea
       v-model="inputComment"
       class="comment_input"
       placeholder="コメントを追加..."
     />
     <!-- inputに入力されてから表示する -->
-    <button @click="addComment">投稿する</button>
+    <button
+      @click="addComment"
+      class="comment_button"
+      v-if="inputComment.length > 0"
+    >
+      投稿する
+    </button>
   </div>
 </template>
 
 <style>
+.comment_form {
+  position: relative;
+}
 .comment_input {
   border: none;
+  width: 100%;
 }
 .comment_input:focus {
   outline: none;
+}
+.comment_button {
+  position: absolute;
+  top: 30%;
+  left: 85%;
+  font-weight: bold;
+  color: #1596f7;
 }
 </style>

@@ -4,15 +4,28 @@ import router from "./router";
 
 import "./assets/main.css";
 import { icon, library } from "@fortawesome/fontawesome-svg-core";
-import { faLeaf, faHeart as fasHeart, faBookmark as fasBookmark } from "@fortawesome/free-solid-svg-icons";
+import {
+  faLeaf,
+  faHeart as fasHeart,
+  faBookmark as fasBookmark,
+} from "@fortawesome/free-solid-svg-icons";
 import {
   faHeart as farHeart,
   faComment,
   faBookmark as farBookmark,
+  faImages,
 } from "@fortawesome/free-regular-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 
-library.add(faLeaf, fasHeart, farHeart, faComment, fasBookmark, farBookmark);
+library.add(
+  faLeaf,
+  fasHeart,
+  farHeart,
+  faComment,
+  fasBookmark,
+  farBookmark,
+  faImages
+);
 
 const app = createApp(App);
 
