@@ -17,6 +17,7 @@ import { auth, db, storage } from "../../firebase";
 import { onAuthStateChanged } from "@firebase/auth";
 import { useRoute, useRouter } from "vue-router";
 import Header from "../components/organisms/header.vue";
+import KeepBtn from "../components/atoms/button/keepBtn.vue";
 
 //postIdを受け取る
 const route = useRoute();
@@ -399,39 +400,33 @@ const onClickComment = () => {
               />
             </button>
           </div>
-          <button>
-            <font-awesome-icon
-              :icon="['far', 'bookmark']"
-              class="post_bookmark"
-            />
-          </button>
-        </div>
-        <div class="post_favorite">
-          いいね
-          <span class="post_favoriteLength">{{ postFavoriteLength }} </span>
-          件
-        </div>
-        <div class="post_date">
-          {{ dateToDate.month }}月 {{ dateToDate.date }}, {{ dateToDate.year }}
-        </div>
-        <div class="post_addCommentContent">
-          <input
-            type="text"
-            v-model="inputComment"
-            class="post_input"
-            placeholder="コメントを追加..."
-            id="inputComment"
-          />
-          <button
-            @click="onClickAddComment"
-            class="post_focusCommentBtn"
-            v-if="inputComment.length > 0"
-          >
-            投稿する
-          </button>
-          <button class="post_commentBtn" v-else>投稿する</button>
-        </div>
-      </section>
+          <KeepBtn v-bind:postId="post.postId" />
+      </div>
+      <div class="post_favorite">
+        いいね
+        <span class="post_favoriteLength">{{ postFavoriteLength }} </span>
+        件
+      </div>
+      <div class="post_date">
+        {{ dateToDate.month }}月 {{ dateToDate.date }}, {{ dateToDate.year }}
+      </div>
+      <div class="post_addCommentContent">
+        <input
+          type="text"
+          v-model="inputComment"
+          class="post_input"
+          placeholder="コメントを追加..."
+          id="inputComment"
+        />
+        <button
+          @click="onClickAddComment"
+          class="post_focusCommentBtn"
+          v-if="inputComment.length > 0"
+        >
+          投稿する
+        </button>
+        <button class="post_commentBtn" v-else>投稿する</button>
+      </div>
     </section>
     <!-- </template> -->
     <!-- <template #fallback>

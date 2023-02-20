@@ -6,12 +6,14 @@ import { auth, db } from "../../firebase";
 import { useRouter } from "vue-router";
 import UserPostsList from "../components/organisms/UserPostsList.vue";
 import Header from "../components/organisms/header.vue";
+import KeepList from "../components/organisms/keepsList.vue";
 
 const router = useRouter();
 
 const currentUserData: any = vueref();
 const currentUserId: any = vueref();
 const isLoading: any = vueref(true);
+const displaySwitch: any = vueref(true);
 
 onMounted(() => {
   onAuthStateChanged(auth, async (currentUser) => {
@@ -32,6 +34,10 @@ onMounted(() => {
     }
   });
 });
+const onClickChangeSwitch = () => {
+  displaySwitch.value = !displaySwitch.value;
+};
+console.log(displaySwitch.value);
 </script>
 
 <template>
@@ -75,8 +81,30 @@ onMounted(() => {
           </div>
         </div>
       </div>
-      <div class="posts">
-        <UserPostsList v-bind:userId="currentUserId" />
+      <div v-if="displaySwitch" class="displayLavel">
+        <div class="effective">
+          <p>投稿</p>
+        </div>
+        <div @click="onClickChangeSwitch" class="noEffect">
+          <p>保存済み</p>
+        </div>
+      </div>
+
+      <div v-else class="displayLavel">
+        <div @click="onClickChangeSwitch" class="noEffect">
+          <p>投稿</p>
+        </div>
+        <div class="effective">
+          <p>保存済み</p>
+        </div>
+      </div>
+      <div class="posts" v-if="displaySwitch">
+        <div class="posts">
+          <UserPostsList v-bind:userId="currentUserId" />
+        </div>
+      </div>
+      <div class="keeps" v-else>
+        <KeepList v-bind:userId="currentUserId" />
       </div>
     </div>
     <p v-else class="loading_text">loading...</p>
@@ -155,5 +183,33 @@ onMounted(() => {
   margin-top: 200px;
   font-size: 16px;
   font-weight: bold;
+}
+.displayLavel {
+  display: flex;
+  line-height: 50px;
+  border-top: 1px solid #dbdbdb;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: bold;
+}
+.effective,
+.noEffect {
+  margin-bottom: 10px;
+  width: 150px;
+}
+.effective > p {
+  margin: auto;
+  width: 80px;
+  border-top: 1px solid #262626;
+  text-align: center;
+}
+.noEffect > p {
+  opacity: 0.6;
+  margin: auto;
+  width: 80px;
+  text-align: center;
+}
+.noEffect > p:hover {
+  cursor: pointer;
 }
 </style>
