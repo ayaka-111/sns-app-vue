@@ -31,21 +31,19 @@ export default defineComponent({
 
 <template>
   <div v-if="theUserPostsData">
-    <div v-if="theUserId">
+    <div v-if="theUserId" class="threeRowsPostList">
       <div
         v-for="(theUserPost, index) in theUserPostsData"
         :key="index"
-        class="threeRowsPostList"
+        class="threeRowsPostList__image"
       >
-        <div class="threeRowsPostList__image">
-          <a v-bind:href="`/post/${theUserPost.postId}`">
-            <img
-              v-bind:src="theUserPost.imageUrl"
-              alt="投稿画像"
-              class="post_img"
-            />
-          </a>
-        </div>
+        <a v-bind:href="`/post/${theUserPost.postId}`">
+          <img
+            v-bind:src="theUserPost.imageUrl"
+            alt="投稿画像"
+            class="post_img"
+          />
+        </a>
       </div>
     </div>
     <div v-else class="threeRowsPostList__message">Loading...</div>
@@ -57,7 +55,8 @@ export default defineComponent({
 .threeRowsPostList {
   display: flex;
   flex-wrap: wrap;
-  gap: 3px;
+  gap: 5px;
+  width: 100%;
 }
 .threeRowsPostList__image {
   width: calc((100% - 6px) / 3);
