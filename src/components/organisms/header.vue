@@ -72,20 +72,22 @@ const sonota =() =>{
 <li class="liEnd">
 
 <div v-if="sonotaKanri">
-<button @click="sonota">🌱</button>
+<button @click="sonota"><p>🌱 その他</p></button>
+<div class="ul2">
 <router-link to="/profileChange">
-<p>設定</p>
+<p class="li">⚙️ 設定</p>
 </router-link>
 <!-- <router-link to="/profileChange"> -->
-<p>保存済み</p>
+<p class="li">📂 保存済み</p>
 <!-- </router-link> -->
 <router-link to="/logout">
-<p>ログアウト</p>
+<p class="li">ログアウト</p>
 </router-link>
+</div>
 </div>
 
 <div v-else>
-<button @click="sonota">🌱 その他</button>  
+<button @click="sonota"><p>🌱 その他</p></button>  
 </div>
 
 
@@ -130,6 +132,15 @@ const sonota =() =>{
     height: 450px;
     width: 90%;
     margin: 50px 0 0 0;
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+    gap: 10%;
+}
+.ul2{
+    height: 100px;
+    width: 90%;
+    margin: 10px 0 0 0;
     display: flex;
     flex-direction: column;
     padding: 0;
