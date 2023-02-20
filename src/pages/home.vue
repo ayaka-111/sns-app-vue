@@ -32,6 +32,7 @@ import AllComments from "../components/atoms/button/AllComments.vue";
 import FavoriteButton from "@/components/atoms/button/FavoriteButton.vue";
 import Header from "../components/organisms/header.vue";
 import Date from "../components/molecules/Date.vue";
+import KeepBtn from "../components/atoms/button/keepBtn.vue";
 
 // ログインユーザーのuid
 const loginUserUid: any = ref("");
@@ -160,14 +161,7 @@ console.log(postList.value);
           " -->
           <CommentButton v-bind:postId="post.postId" />
         </div>
-        <button>
-          <button>
-            <font-awesome-icon
-              :icon="['far', 'bookmark']"
-              class="home_bookmark"
-            />
-          </button>
-        </button>
+        <KeepBtn v-bind:postId="post.postId" />
       </div>
 
       <div>
@@ -244,10 +238,7 @@ console.log(postList.value);
   display: flex;
   gap: 5%;
 }
-.home_bookmark {
-  width: 18px;
-  height: auto;
-}
+
 .home_favoriteLength {
   font-weight: bold;
 }

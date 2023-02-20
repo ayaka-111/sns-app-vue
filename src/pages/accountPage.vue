@@ -30,7 +30,6 @@ const anotherUserData: any = vueref();
 const currentUserId: any = vueref();
 const isLoading: any = vueref(true);
 const isFollowing: any = vueref(false);
-const isUnFollowing: any = vueref(false);
 const numberOfFollower: any = vueref(0);
 
 onMounted(() => {
@@ -47,8 +46,6 @@ onMounted(() => {
         numberOfFollower.value = anotherUserData.value.follower.length;
         if (anotherUserData.value.follower.includes(currentUser.uid)) {
           isFollowing.value = true;
-        } else {
-          isUnFollowing.value = true;
         }
       });
     }
