@@ -5,7 +5,7 @@ export default defineComponent({
   name: "Date",
   props: ["date"],
   setup: (props) => {
-    const dateToDate = reactive({
+    const dateToDate: any = reactive({
       year: "",
       month: "",
       date: "",
@@ -15,9 +15,9 @@ export default defineComponent({
     const timestamp = props.date.toDate();
     dateToDate.year = timestamp.getFullYear();
     dateToDate.month = timestamp.getMonth() + 1;
-    dateToDate.date = timestamp.getDate();
-    dateToDate.hour = timestamp.getHours();
-    dateToDate.min = timestamp.getMinutes();
+    dateToDate.date = timestamp.getDate().toString().padStart(2, "0");
+    dateToDate.hour = timestamp.getHours().toString().padStart(2, "0");
+    dateToDate.min = timestamp.getMinutes().toString().padStart(2, "0");
     return { dateToDate };
   },
 });

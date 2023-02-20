@@ -1,28 +1,13 @@
 <script setup lang="ts">
+import { onMounted, ref } from "vue";
 import {
-  defineComponent,
-  onMounted,
-  reactive,
-  ref,
-  watch,
-  watchEffect,
-} from "vue";
-import {
-  arrayRemove,
-  arrayUnion,
   collection,
-  CollectionReference,
   doc,
-  DocumentReference,
-  Firestore,
   getDoc,
   getDocs,
-  getFirestore,
   query,
-  updateDoc,
   where,
 } from "firebase/firestore";
-import type { DocumentData } from "firebase/firestore";
 import { auth, db } from "../../firebase";
 import { onAuthStateChanged } from "@firebase/auth";
 import { useRouter } from "vue-router";
@@ -40,21 +25,10 @@ const loginUserUid: any = ref("");
 // ログインユーザーデータ
 const loginUser: any = ref("");
 
-// const favorite = ref(false);
-// const noFavorite = ref(false);
-
 const loginUserDoc: any = ref("");
 
 //mapで回す取得したpost全データ
 const postList: any = ref([]);
-
-// postsのfavorite
-// const postFavorite: any = ref();
-
-// usersのfavoritePosts
-// const userFavorite: any = ref(0);
-
-const postDoc: any = ref();
 
 const loading = ref(true);
 
@@ -115,6 +89,19 @@ onMounted(() => {
   });
 });
 
+// ボタンクリックでbooleanを管理
+const readMore = ref(true);
+// 続きを読むボタン
+const onRead = () => {
+  // ボタンクリックでbooleanを反転
+  readMore.value = !readMore.value;
+  console.log(readMore.value);
+  // 続きを読むボタンを取得
+  const button = document.getElementsByClassName("home_captionReadMore");
+  // ボタンにid(display:none;スタイリングがついている)を付与
+  button[0].setAttribute("id", "home_captionId");
+};
+console.log(readMore.value);
 
 console.log(postList.value);
 </script>
@@ -154,21 +141,10 @@ console.log(postList.value);
             v-bind:loginUser="loginUser"
             v-bind:loginUserUid="loginUserUid"
           />
-          <!-- @response="
-            (postData) => {
-              postList = postData;
-            }
-          " -->
+
           <CommentButton v-bind:postId="post.postId" />
         </div>
         <KeepBtn v-bind:postId="post.postId" />
-      </div>
-
-      <div>
-        いいね<span class="home_favoriteLength">{{
-          post.favorites.length
-        }}</span
-        >件
       </div>
 
       <div class="home_postContent">
@@ -178,7 +154,19 @@ console.log(postList.value);
         <p class="home_postUserName" v-else>
           <a v-bind:href="`/accountPage/${post.userId}`">{{ post.userName }}</a>
         </p>
-        <div>{{ post.caption }}</div>
+        <div class="home_caption">
+          <p class="home_captionHidden" id="home_captionRemove" v-if="readMore">
+            {{ post.caption }}
+          </p>
+          <p v-else>{{ post.caption }}</p>
+          <button
+            @click="onRead"
+            class="home_captionReadMore"
+            v-if="post.caption.length > 30"
+          >
+            続きを読む
+          </button>
+        </div>
       </div>
 
       <AllComments v-bind:postId="post.postId" />
@@ -215,6 +203,23 @@ console.log(postList.value);
 .home_userName {
   font-weight: bold;
 }
+.home_caption {
+  white-space: normal;
+  width: 410px;
+  word-wrap: break-word;
+}
+.home_captionHidden {
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 1;
+}
+.home_captionReadMore {
+  color: #757575;
+}
+#home_captionId {
+  display: none;
+}
 .home_smallIconImg {
   width: 20px;
   height: 20px;
@@ -233,9 +238,11 @@ console.log(postList.value);
   display: flex;
   justify-content: space-between;
   margin: 2% 0;
+  align-items: flex-start;
 }
 .home_favCom {
   display: flex;
+  align-items: flex-start;
   gap: 5%;
 }
 

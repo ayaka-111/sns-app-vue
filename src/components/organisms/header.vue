@@ -1,4 +1,27 @@
 <script setup lang="ts">
+import { onAuthStateChanged } from '@firebase/auth';
+import { doc, getDoc } from '@firebase/firestore';
+import { auth, db } from '../../../firebase';
+import {ref} from "vue";
+
+
+const userData :any= ref()
+const iconUrl :any= ref()
+const sonotaKanri :any= ref(false)
+
+onAuthStateChanged(auth, (currentUser: any) => {
+    console.log(currentUser.uid)
+    const loginUserData = doc(db, "users", currentUser.uid);
+    getDoc(loginUserData).then((data) => {
+    userData.value = data.data();
+    iconUrl.value=userData.value.icon
+    });
+});
+
+const sonota =() =>{
+    sonotaKanri.value= !sonotaKanri.value
+    console.log(sonotaKanri.value)
+}
 
 </script>
 
@@ -36,20 +59,38 @@
 </li>
 </router-link>
 
+<router-link to="/myAccountPage">
 <li class="li">
 <div>
-<div class="prof"><img class="icon" src="../../../public/noIcon.png" /> <p class="profName">プロフィール</p></div>
+<div class="prof">
+    <img v-bind:src="iconUrl" alt="icon" class="icon" />
+     <p class="profName">プロフィール</p></div>
 </div>
 </li>
+</router-link>
 
 <li class="liEnd">
-<div>
-<p>🌱 その他</p>
+
+<div v-if="sonotaKanri">
+<button @click="sonota"><p>🌱 その他</p></button>
+<div class="ul2">
 <router-link to="/profileChange">
-<p>設定</p>
+<p class="li">⚙️ 設定</p>
 </router-link>
-<p>ログアウト</p>
+<!-- <router-link to="/profileChange"> -->
+<p class="li">📂 保存済み</p>
+<!-- </router-link> -->
+<router-link to="/logout">
+<p class="li">ログアウト</p>
+</router-link>
 </div>
+</div>
+
+<div v-else>
+<button @click="sonota"><p>🌱 その他</p></button>  
+</div>
+
+
 </li>
 
 </ul>
@@ -91,6 +132,15 @@
     height: 450px;
     width: 90%;
     margin: 50px 0 0 0;
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+    gap: 10%;
+}
+.ul2{
+    height: 100px;
+    width: 90%;
+    margin: 10px 0 0 0;
     display: flex;
     flex-direction: column;
     padding: 0;
