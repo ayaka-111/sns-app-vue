@@ -297,159 +297,166 @@ const onClickComment = () => {
   <!-- <Suspense> -->
   <!-- <template #default> -->
   <Header />
-  <section class="post_wrapper">
-    <section>
-      <div class="post_postImg">
-        <img v-bind:src="postData.imageUrl" alt="投稿写真" />
-      </div>
-    </section>
-    <section class="post_content">
-      <div class="post_title">
-        <div class="post_profile" v-if="postData.userId === loginUserUid">
-          <a href="/myAccountPage">
-            <img v-bind:src="postData.icon" alt="icon" class="post_iconImg" />
-          </a>
-          <a href="/myAccountPage">
-            <p class="post_userName">{{ postData.userName }}</p>
-          </a>
+  <section class="post">
+    <section class="post_wrapper">
+      <section>
+        <div class="post_postImg">
+          <img v-bind:src="postData.imageUrl" alt="投稿写真" />
         </div>
-        <div class="post_profile" v-else>
-          <a v-bind:href="`/accountPage/${postData.userId}`">
-            <img v-bind:src="postData.icon" alt="icon" class="post_iconImg" />
-          </a>
-          <a v-bind:href="`/accountPage/${postData.userId}`">
-            <p class="post_userName">{{ postData.userName }}</p>
-          </a>
-        </div>
-        <div v-if="postData.userId === loginUserUid">
-          <button @click="changeButton">編集</button>
-          <button @click="deleteButton">削除</button>
-        </div>
-      </div>
-      <div class="post_captionContent">
-        <div class="post_caption" v-if="postData.userId === loginUserUid">
-          <a href="/myAccountPage">
-            <img v-bind:src="postData.icon" alt="icon" class="post_iconImg" />
-          </a>
-          <a href="/myAccountPage">
-            <p class="post_userName">{{ postData.userName }}</p>
-          </a>
-          <div>{{ postData.caption }}</div>
-        </div>
-        <div class="post_caption" v-else>
-          <a v-bind:href="`/accountPage/${postData.userId}`">
-            <img v-bind:src="postData.icon" alt="icon" class="post_iconImg" />
-          </a>
-          <a v-bind:href="`/accountPage/${postData.userId}`">
-            <p class="post_userName">{{ postData.userName }}</p>
-          </a>
-          <div>{{ postData.caption }}</div>
-        </div>
-
-        <div
-          v-for="comment in commentData"
-          v-bind:key="comment.id"
-          class="post_caption"
-        >
-          <div
-            v-if="comment.userId === loginUserUid"
-            class="post_commentIconImg"
-          >
+      </section>
+      <section class="post_content">
+        <div class="post_title">
+          <div class="post_profile" v-if="postData.userId === loginUserUid">
             <a href="/myAccountPage">
-              <img v-bind:src="comment.icon" alt="iconImg" />
+              <img v-bind:src="postData.icon" alt="icon" class="post_iconImg" />
+            </a>
+            <a href="/myAccountPage">
+              <p class="post_userName">{{ postData.userName }}</p>
             </a>
           </div>
-          <div v-else class="post_commentIconImg">
-            <a v-bind:href="`/accountPage/${comment.userId}`">
-              <img v-bind:src="comment.icon" alt="iconImg" />
+          <div class="post_profile" v-else>
+            <a v-bind:href="`/accountPage/${postData.userId}`">
+              <img v-bind:src="postData.icon" alt="icon" class="post_iconImg" />
+            </a>
+            <a v-bind:href="`/accountPage/${postData.userId}`">
+              <p class="post_userName">{{ postData.userName }}</p>
             </a>
           </div>
-          <div class="post_commentContent">
-            <p v-if="comment.userId === loginUserUid" class="post_commentName">
-              <a href="/myAccountPage">{{ comment.userName }}</a>
-            </p>
-            <p v-else class="post_commentName">
-              <a v-bind:href="`/accountPage/${comment.userId}`">
-                {{ comment.userName }}
+          <div v-if="postData.userId === loginUserUid">
+            <button @click="changeButton">編集</button>
+            <button @click="deleteButton">削除</button>
+          </div>
+        </div>
+        <div class="post_captionContent">
+          <div class="post_commentList" v-if="postData.userId === loginUserUid">
+            <a href="/myAccountPage">
+              <img v-bind:src="postData.icon" alt="icon" class="post_iconImg" />
+            </a>
+            <a href="/myAccountPage">
+              <p class="post_userName">{{ postData.userName }}</p>
+            </a>
+            <div class="post_caption">{{ postData.caption }}</div>
+          </div>
+          <div class="post_commentList" v-else>
+            <a v-bind:href="`/accountPage/${postData.userId}`">
+              <img v-bind:src="postData.icon" alt="icon" class="post_iconImg" />
+            </a>
+            <a v-bind:href="`/accountPage/${postData.userId}`">
+              <p class="post_userName">{{ postData.userName }}</p>
+            </a>
+            <div class="post_caption">{{ postData.caption }}</div>
+          </div>
+
+          <div
+            v-for="comment in commentData"
+            v-bind:key="comment.id"
+            class="post_commentList"
+          >
+            <div
+              v-if="comment.userId === loginUserUid"
+              class="post_commentIconImg"
+            >
+              <a href="/myAccountPage">
+                <img v-bind:src="comment.icon" alt="iconImg" />
               </a>
-            </p>
-            <p>{{ comment.comment }}</p>
+            </div>
+            <div v-else class="post_commentIconImg">
+              <a v-bind:href="`/accountPage/${comment.userId}`">
+                <img v-bind:src="comment.icon" alt="iconImg" />
+              </a>
+            </div>
+            <div class="post_commentContent">
+              <p
+                v-if="comment.userId === loginUserUid"
+                class="post_commentName"
+              >
+                <a href="/myAccountPage">{{ comment.userName }}</a>
+              </p>
+              <p v-else class="post_commentName">
+                <a v-bind:href="`/accountPage/${comment.userId}`">
+                  {{ comment.userName }}
+                </a>
+              </p>
+              <p>{{ comment.comment }}</p>
+            </div>
           </div>
         </div>
-      </div>
-      <div class="post_buttons">
-        <div class="post_favCom">
-          <button @click="onClickRemoveFavorite" v-if="favorite">
+        <div class="post_buttons">
+          <div class="post_favCom">
+            <button @click="onClickRemoveFavorite" v-if="favorite">
+              <font-awesome-icon
+                :icon="['fas', 'heart']"
+                class="post_heart post_redHeart"
+              />
+            </button>
+            <button @click="onClickAddFavorite" v-else>
+              <font-awesome-icon :icon="['far', 'heart']" class="post_heart" />
+            </button>
+            <button @click="onClickComment">
+              <font-awesome-icon
+                :icon="['far', 'comment']"
+                class="post_comment"
+              />
+            </button>
+          </div>
+          <button>
             <font-awesome-icon
-              :icon="['fas', 'heart']"
-              class="post_heart post_redHeart"
-            />
-          </button>
-          <button @click="onClickAddFavorite" v-else>
-            <font-awesome-icon :icon="['far', 'heart']" class="post_heart" />
-          </button>
-          <button @click="onClickComment">
-            <font-awesome-icon
-              :icon="['far', 'comment']"
-              class="post_comment"
+              :icon="['far', 'bookmark']"
+              class="post_bookmark"
             />
           </button>
         </div>
-        <button>
-          <font-awesome-icon
-            :icon="['far', 'bookmark']"
-            class="post_bookmark"
+        <div class="post_favorite">
+          いいね
+          <span class="post_favoriteLength">{{ postFavoriteLength }} </span>
+          件
+        </div>
+        <div class="post_date">
+          {{ dateToDate.month }}月 {{ dateToDate.date }}, {{ dateToDate.year }}
+        </div>
+        <div class="post_addCommentContent">
+          <input
+            type="text"
+            v-model="inputComment"
+            class="post_input"
+            placeholder="コメントを追加..."
+            id="inputComment"
           />
-        </button>
-      </div>
-      <div class="post_favorite">
-        いいね
-        <span class="post_favoriteLength">{{ postFavoriteLength }} </span>
-        件
-      </div>
-      <div class="post_date">
-        {{ dateToDate.month }}月 {{ dateToDate.date }}, {{ dateToDate.year }}
-      </div>
-      <div class="post_addCommentContent">
-        <input
-          type="text"
-          v-model="inputComment"
-          class="post_input"
-          placeholder="コメントを追加..."
-          id="inputComment"
-        />
-        <button
-          @click="onClickAddComment"
-          class="post_focusCommentBtn"
-          v-if="inputComment.length > 0"
-        >
-          投稿する
-        </button>
-        <button class="post_commentBtn" v-else>投稿する</button>
-      </div>
+          <button
+            @click="onClickAddComment"
+            class="post_focusCommentBtn"
+            v-if="inputComment.length > 0"
+          >
+            投稿する
+          </button>
+          <button class="post_commentBtn" v-else>投稿する</button>
+        </div>
+      </section>
     </section>
-  </section>
-  <!-- </template> -->
-  <!-- <template #fallback>
+    <!-- </template> -->
+    <!-- <template #fallback>
       <div>
         Loading...
       </div>
     </template>
   </Suspense> -->
+  </section>
 </template>
 
 <style scoped>
-.post_wrapper {
-  display: flex;
-  height: 550px;
-  width: 1050px;
-  margin-left: 330px;
-  margin-top: 80px;
-  background-color: #ffff;
+.post {
   overflow: hidden;
 }
+.post_wrapper {
+  display: flex;
+  height: 600px;
+  width: 1050px;
+  margin-left: 330px;
+  margin-top: 45px;
+  background-color: #ffff;
+}
 .post_postImg {
-  height: 550px;
+  height: 600px;
   width: 600px;
 }
 .post_postImg img {
@@ -464,6 +471,8 @@ const onClickComment = () => {
   display: flex;
   justify-content: space-between;
   border-bottom: 1px solid lightgray;
+  padding: 3% 0;
+  padding-left: 3.5%;
 }
 .post_profile {
   display: flex;
@@ -483,14 +492,20 @@ const onClickComment = () => {
 .post_captionContent {
   overflow-y: scroll;
   overflow-x: none;
-  height: 380px;
+  height: 400px;
   border-bottom: 1px solid lightgray;
 }
 .post_caption {
+  width: 270px;
+  white-space: normal;
+  word-wrap: break-word;
+}
+.post_commentList {
   display: flex;
-  align-items: center;
+  /* align-items: center; */
   gap: 5%;
   margin-top: 3%;
+  margin-left: 3.5%;
 }
 .post_commentIconImg {
   width: 35px;

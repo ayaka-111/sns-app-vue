@@ -275,6 +275,7 @@ const shareButton = async () => {
 }
 .newPost_post {
   height: 448px;
+  width: 600px;
 }
 .newPost_postImg {
   width: 100%;
@@ -297,7 +298,7 @@ const shareButton = async () => {
   font-weight: bold;
 }
 .newPost_captionInput {
-  width: 215px;
+  width: 282px;
   height: 350px;
   border: none;
   padding-top: 10px;
