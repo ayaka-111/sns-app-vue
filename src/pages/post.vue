@@ -17,6 +17,7 @@ import { auth, db, storage } from "../../firebase";
 import { onAuthStateChanged } from "@firebase/auth";
 import { useRoute, useRouter } from "vue-router";
 import Header from "../components/organisms/header.vue";
+import KeepBtn from "../components/atoms/button/keepBtn.vue";
 
 //postIdを受け取る
 const route = useRoute();
@@ -396,10 +397,7 @@ const onClickComment = () => {
           </button>
         </div>
         <button>
-          <font-awesome-icon
-            :icon="['far', 'bookmark']"
-            class="post_bookmark"
-          />
+          <KeepBtn v-bind:postId="post.postId" />
         </button>
       </div>
       <div class="post_favorite">
