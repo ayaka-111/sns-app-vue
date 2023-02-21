@@ -18,6 +18,7 @@ import {
 } from "@firebase/storage";
 import { auth, db, storage } from "../../firebase";
 import Header from "../components/organisms/header.vue";
+import { useRouter } from "vue-router";
 
 // ログインユーザー
 const loginUser: any = ref("");
@@ -34,6 +35,8 @@ const inputCaption = ref("");
 
 //投稿する画像のurl
 const postUrl = ref("");
+
+const router = useRouter();
 
 //ログイン認証、user情報取得
 onAuthStateChanged(auth, (currentUser: any) => {
@@ -72,6 +75,8 @@ const uploadButton = (e: any) => {
     });
   });
 };
+
+const show = ref(false);
 
 // シェアボタン
 const shareButton = async () => {
@@ -128,7 +133,13 @@ const shareButton = async () => {
   console.log("投稿完了");
 
   // home画面に遷移する
-  location.href = "/home";
+  // location.href = "/home";
+  // モーダル開く
+  show.value = true;
+};
+const close = () => {
+  // show.value = false;
+  router.push("/myAccountPage");
 };
 </script>
 
@@ -163,7 +174,43 @@ const shareButton = async () => {
     <section v-else class="newPost_uploadedSection">
       <div class="newPost_uploadedTitleContent">
         <div class="newPost_uploadedTitle">新規投稿を作成</div>
-        <button @click="shareButton" class="share">シェア</button>
+
+        <!-- <button @click="shareButton" class="share">シェア</button> -->
+
+        <div id="shareModal" class="shareModal">
+          <!--  クリック要素  -->
+          <!-- <span @click="open" class="modal_open_btn"
+              ><font-awesome-icon :icon="['fas', 'ellipsis']" class="post_menu"
+            /></span> -->
+          <button @click="shareButton" class="share modal_open_btn">
+            シェア
+          </button>
+
+          <!--  モーダルウィンドウ  -->
+          <div v-show="show" class="modal_contents">
+            <!-- モーダルウィンドウの背景 -->
+            <div @click="close" class="modal_contents_bg"></div>
+
+            <!--   モーダルウィンドウを閉じる   -->
+            <button @click="close" class="modal_close_btn">
+              <font-awesome-icon :icon="['fas', 'xmark']" class="check" />
+            </button>
+
+            <!--   モーダルウィンドウの中身   -->
+            <div class="modal_contents_wrap">
+              <p class="shareModal_title">投稿をシェアしました</p>
+              <div class="shareModal_contents">
+
+                <font-awesome-icon
+                  :icon="['far', 'circle-check']"
+                  class="check"
+                />
+
+                <p class="shareModal_text">投稿がシェアされました</p>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
       <div class="newPost_uploadedContent">
         <div class="newPost_post">
@@ -302,6 +349,7 @@ const shareButton = async () => {
   height: 350px;
   border: none;
   padding-top: 10px;
+  resize: none;
 }
 textarea:focus {
   outline: none;
@@ -310,5 +358,83 @@ textarea:focus {
   color: lightgray;
   text-align: end;
   margin-right: 10px;
+}
+.shareModal {
+  padding-right: 4%;
+}
+/* モーダルウィンドウを開く要素 */
+.modal_open_btn {
+  cursor: pointer;
+}
+/* モーダルウィンドウ要素 */
+.modal_contents {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 100;
+  width: 100%;
+  height: 100%;
+  width: 100%;
+}
+/* モーダルウィンドウの背景要素 */
+.modal_contents_bg {
+  background: rgba(0, 0, 0, 0.8);
+  width: 100%;
+  height: 100%;
+}
+/* モーダルウィンドウの中身*/
+.modal_contents_wrap {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  background-color: #fff;
+  width: 35%;
+  height: 70%;
+  margin: auto;
+  transform: translate(-50%, -50%);
+  border-radius: 5%;
+  display: flex;
+  flex-direction: column;
+  text-align: center;
+}
+.shareModal_title {
+  /* font-size: 1.7rem; */
+  border-bottom: 1px solid lightgray;
+  height: 50px;
+  padding-top: 5%;
+  font-weight: bold;
+}
+.shareModal_contents {
+  display: flex;
+  flex-direction: column;
+  margin: auto auto;
+}
+.check {
+  width: 100px;
+  height: auto;
+  margin: 0 auto;
+  background: linear-gradient(
+    to bottom right,
+    #fdc103,
+    #fd5727,
+    #fd174a,
+    #c602ab,
+    #8d22e4
+  );
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: #ffff;
+  border-radius: 50%;
+}
+.shareModal_text {
+  font-size: 1.7rem;
+  margin-top: 10%;
+}
+/* モーダルウィンドウを閉じる要素 */
+.modal_close_btn {
+  cursor: pointer;
+  height: 33%;
+  color: #ffff;
 }
 </style>

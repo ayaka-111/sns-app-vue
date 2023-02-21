@@ -70,13 +70,14 @@ export default defineComponent({
   </div>
 </template>
 
-<style>
+<style scoped>
 .comment_form {
   position: relative;
 }
 .comment_input {
   border: none;
   width: 100%;
+  resize: none;
 }
 .comment_input:focus {
   outline: none;

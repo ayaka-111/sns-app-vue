@@ -449,10 +449,9 @@ const close = () => {
           {{ dateToDate.month }}月 {{ dateToDate.date }}, {{ dateToDate.year }}
         </div>
         <div class="post_addCommentContent">
-          <input
-            type="text"
+          <textarea
             v-model="inputComment"
-            class="post_input"
+            class="post_commentTextarea"
             placeholder="コメントを追加..."
             id="inputComment"
             maxlength="2200"
@@ -592,28 +591,33 @@ const close = () => {
   margin-left: 2%;
 }
 .post_addCommentContent {
-  position: relative;
+  /* position: relative; */
   border-top: 1px solid lightgray;
   margin-top: 2%;
+  display: flex;
 }
-.post_input {
+.post_commentTextarea {
   border: none;
-  width: 100%;
+  width: 85%;
   height: 40px;
+  resize: none;
 }
-.post_commentBtn {
-  position: absolute;
-  top: 25%;
-  left: 85%;
-  font-weight: bold;
-  color: #67b6fa;
+.post_commentTextarea:focus {
+  outline: none;
 }
 .post_focusCommentBtn {
-  position: absolute;
-  top: 25%;
-  left: 85%;
+  /* position: absolute; */
+  /* top: 25%; */
+  /* left: 85%; */
   font-weight: bold;
   color: #1596f7;
+}
+.post_commentBtn {
+  /* position: absolute; */
+  /* top: 25%; */
+  /* left: 85%; */
+  font-weight: bold;
+  color: #67b6fa;
 }
 button {
   cursor: pointer;
