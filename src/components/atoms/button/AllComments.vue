@@ -25,7 +25,7 @@ export default defineComponent({
   </button>
 </template>
 
-<style>
+<style scoped>
 .AllComment_button {
   color: #757575;
 }

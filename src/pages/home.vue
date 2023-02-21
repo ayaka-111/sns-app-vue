@@ -259,11 +259,14 @@ console.log(postList.value);
 .home_commentLink {
   color: #757575;
 }
+.home_noPostSection {
+  overflow: hidden;
+}
 .home_noPost {
   font-weight: bold;
   font-size: 1.6rem;
   margin-top: 100px;
-  margin-left: 100px;
+  margin-left: 50%;
 }
 button {
   cursor: pointer;

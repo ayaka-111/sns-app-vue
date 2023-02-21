@@ -10,12 +10,15 @@ import {
   faBookmark as fasBookmark,
   faEye,
   faEyeSlash,
+  faEllipsis,
+  faXmark,
 } from "@fortawesome/free-solid-svg-icons";
 import {
   faHeart as farHeart,
   faComment,
   faBookmark as farBookmark,
   faImages,
+  faCircleCheck,
 } from "@fortawesome/free-regular-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 
@@ -28,7 +31,10 @@ library.add(
   farBookmark,
   faImages,
   faEye,
-  faEyeSlash
+  faEyeSlash,
+  faEllipsis,
+  faCircleCheck,
+  faXmark
 );
 
 const app = createApp(App);
