@@ -109,25 +109,27 @@ const search:() => void =()=> {
 <template>
   <Header />
 
-  <div class="s">
-    <div class="search">
-      <div class="text">検索</div>
+  <div class="searchPage-250px">
+    <div class="searchPage-auto">
+      <div class="searchPage-50">
 
-      <div class="i">
-        <form class="input" @submit.prevent="search">
-          <input class="inp" v-model="searchText" placeholder="検索" />
+      <div class="searchPage-text">検索</div>
+
+      <div class="searchPage-forminput">
+        <form class="searchPage-form" @submit.prevent="search">
+          <input class="searchPage-input" v-model="searchText" placeholder="検索" />
         </form>
       </div>
       <!-- <p>{{ userDataArr }}</p> -->
       
       <div
-        class="searchPageResult"
+        class="searchPage-Result"
         v-for="
         (userDataResult,index) in userDataArr"
         :key="index"
       >
         <a v-bind:href="`/accountPage/${userDataResult.userId}`">
-          <img v-bind:src="userDataResult.icon" alt="icon" class="iconImg" />
+          <img v-bind:src="userDataResult.icon" alt="icon" class="searchPage-iconImg" />
         </a>
 
 
@@ -140,58 +142,120 @@ const search:() => void =()=> {
       <!-- <div>
       <CurrentUserPosts v-bind:userId="searchResultUserId" />
     </div> -->
+  </div>
     </div>
   </div>
 </template>
 
 <style scoped>
-.s {
-  margin-left: 500px;
-  margin-right: 300px;
+.searchPage-250px{
+  margin-left: 250px;
   margin-top: 25px;
+}
+.searchPage-auto{
+  margin:auto;
+  width:500px
+  
+}
+.searchPage-50{
   border: solid 1px silver;
   background-color: white;
+  width:90%;
+  margin-left: 10%;
+  height:600px;
 }
-/* .search{
-    text-align: center;
-} */
-.text {
+.searchPage-text{
   font-size: x-large;
   font-weight: bold;
   padding: 15px;
 }
-
-.i {
+.searchPage-forminput{
   margin-bottom: 20px;
   border-bottom: solid 1px silver;
 }
-.input {
+.searchPage-form{
   padding-left: 15px;
   padding-top: 5px;
   outline: none;
   margin-bottom: 20px;
 }
-.inp {
-  background-color: #f5f5f5;
-  border-radius: 5px;
-  /* outline:solid 1px #f5f5f5; */
-  /* outline: none; */
+
+.searchPage-Result{
+  display: flex; 
+  margin-top: 10px;
 }
-.iconImg {
+
+.searchPage-iconImg{
   width: 50px;
   height: 50px;
   border-radius: 50%;
 }
-.searchPageNameSet {
+.searchPageNameSet{
   margin-top: 5px;
   margin-left: 10px;
 }
-.searchPageResult {
-  display: flex;
-  /* margin-top: 10px; */
-}
-
-.searchPageUserName {
+.searchPageUserName{
   font-weight: bold;
 }
+
+.searchPage-input{
+  /* background-color: #f5f5f5;
+  border-radius: 5px;
+  outline:solid 1px #f5f5f5;
+  outline: none; */
+  width:70%;
+} 
+
+
+
+
+/* .s {
+  margin-left: 500px;
+  margin-right: 300px;
+  margin-top: 25px;
+  border: solid 1px silver;
+  background-color: white;
+} */
+/* .search{
+    text-align: center;
+} */
+/* .text {
+  font-size: x-large;
+  font-weight: bold;
+  padding: 15px;
+} */
+
+/* .i {
+  margin-bottom: 20px;
+  border-bottom: solid 1px silver;
+} */
+/* .input {
+  padding-left: 15px;
+  padding-top: 5px;
+  outline: none;
+  margin-bottom: 20px;
+} */
+/* .inp {
+  background-color: #f5f5f5;
+  border-radius: 5px;
+  /* outline:solid 1px #f5f5f5; */
+  /* outline: none; */
+/* }  */
+/* .iconImg {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+} */
+/* .searchPageNameSet {
+  margin-top: 5px;
+  margin-left: 10px;
+} */
+/* .searchPageResult {
+  display: flex; */
+  /* margin-top: 10px; */
+/* } */
+
+/* .searchPageUserName { */
+  /* font-weight: bold; */
+/* } */
 </style>

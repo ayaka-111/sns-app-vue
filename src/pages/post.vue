@@ -17,6 +17,8 @@ import { auth, db, storage } from "../../firebase";
 import { onAuthStateChanged } from "@firebase/auth";
 import { useRoute, useRouter } from "vue-router";
 import Header from "../components/organisms/header.vue";
+// import PostNavModal from "../components/organisms/PostNavModal.vue";
+// import PostNavPanel from "../components/molecules/PostNavPanel.vue";
 
 //postIdを受け取る
 const route = useRoute();
@@ -283,7 +285,7 @@ const deleteButton = async (e: any) => {
   });
 
   console.log("削除しました");
-  // location.href = "/home";
+  location.href = "/myAccountPage";
 };
 
 // コメントアイコンボタン
@@ -291,14 +293,23 @@ const onClickComment = () => {
   const input = document.getElementById("inputComment");
   input?.focus();
 };
+
+// menuの表示切り替え
+const show = ref(false);
+
+const open = () => {
+  show.value = true;
+};
+
+const close = () => {
+  show.value = false;
+};
 </script>
 
 <template>
-  <!-- <Suspense> -->
-  <!-- <template #default> -->
   <Header />
   <section class="post">
-    <section class="post_wrapper">
+    <section class="post_wrapper" v-if="!loading">
       <section>
         <div class="post_postImg">
           <img v-bind:src="postData.imageUrl" alt="投稿写真" />
@@ -322,11 +333,34 @@ const onClickComment = () => {
               <p class="post_userName">{{ postData.userName }}</p>
             </a>
           </div>
-          <div v-if="postData.userId === loginUserUid">
-            <button @click="changeButton">編集</button>
-            <button @click="deleteButton">削除</button>
+
+          <div
+            id="postNav"
+            class="postNav"
+            v-if="postData.userId === loginUserUid"
+          >
+            <!--  クリック要素  -->
+            <span @click="open" class="modal_open_btn"
+              ><font-awesome-icon :icon="['fas', 'ellipsis']" class="post_menu"
+            /></span>
+
+            <!--  モーダルウィンドウ  -->
+            <div v-show="show" class="modal_contents">
+              <!-- モーダルウィンドウの背景 -->
+              <div @click="close" class="modal_contents_bg"></div>
+
+              <!--   モーダルウィンドウの中身   -->
+              <div class="modal_contents_wrap">
+                <button @click="deleteButton" class="deleteBtn">削除</button>
+
+                <button @click="changeButton" class="updateBtn">編集</button>
+                <!--   モーダルウィンドウを閉じる   -->
+                <button @click="close" class="modal_close_btn">キャンセル</button>
+              </div>
+            </div>
           </div>
         </div>
+
         <div class="post_captionContent">
           <div class="post_commentList" v-if="postData.userId === loginUserUid">
             <a href="/myAccountPage">
@@ -415,12 +449,12 @@ const onClickComment = () => {
           {{ dateToDate.month }}月 {{ dateToDate.date }}, {{ dateToDate.year }}
         </div>
         <div class="post_addCommentContent">
-          <input
-            type="text"
+          <textarea
             v-model="inputComment"
-            class="post_input"
+            class="post_commentTextarea"
             placeholder="コメントを追加..."
             id="inputComment"
+            maxlength="2200"
           />
           <button
             @click="onClickAddComment"
@@ -433,13 +467,7 @@ const onClickComment = () => {
         </div>
       </section>
     </section>
-    <!-- </template> -->
-    <!-- <template #fallback>
-      <div>
-        Loading...
-      </div>
-    </template>
-  </Suspense> -->
+    <p v-else class="loading_text">loading...</p>
   </section>
 </template>
 
@@ -473,6 +501,7 @@ const onClickComment = () => {
   border-bottom: 1px solid lightgray;
   padding: 3% 0;
   padding-left: 3.5%;
+  align-items: center;
 }
 .post_profile {
   display: flex;
@@ -562,30 +591,95 @@ const onClickComment = () => {
   margin-left: 2%;
 }
 .post_addCommentContent {
-  position: relative;
+  /* position: relative; */
   border-top: 1px solid lightgray;
   margin-top: 2%;
+  display: flex;
 }
-.post_input {
+.post_commentTextarea {
   border: none;
-  width: 100%;
+  width: 85%;
   height: 40px;
+  resize: none;
 }
-.post_commentBtn {
-  position: absolute;
-  top: 25%;
-  left: 85%;
-  font-weight: bold;
-  color: #67b6fa;
+.post_commentTextarea:focus {
+  outline: none;
 }
 .post_focusCommentBtn {
-  position: absolute;
-  top: 25%;
-  left: 85%;
+  /* position: absolute; */
+  /* top: 25%; */
+  /* left: 85%; */
   font-weight: bold;
   color: #1596f7;
 }
+.post_commentBtn {
+  /* position: absolute; */
+  /* top: 25%; */
+  /* left: 85%; */
+  font-weight: bold;
+  color: #67b6fa;
+}
 button {
   cursor: pointer;
+}
+
+.postNav {
+  padding-right: 4%;
+}
+/* モーダルウィンドウを開く要素 */
+.modal_open_btn {
+  cursor: pointer;
+}
+/* モーダルウィンドウ要素 */
+.modal_contents {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 100;
+  width: 100%;
+  height: 100%;
+  width: 100%;
+}
+/* モーダルウィンドウの背景要素 */
+.modal_contents_bg {
+  background: rgba(0, 0, 0, 0.8);
+  width: 100%;
+  height: 100%;
+}
+/* モーダルウィンドウの中身*/
+.modal_contents_wrap {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  background-color: #fff;
+  width: 25%;
+  height: 30%;
+  margin: auto;
+  transform: translate(-50%, -50%);
+  border-radius: 5%;
+  display: flex;
+  flex-direction: column;
+  text-align: center;
+}
+.deleteBtn {
+  height: 33%;
+  color: red;
+  font-weight: bold;
+}
+.updateBtn {
+  border-top: 1px solid lightgray;
+  border-bottom: 1px solid lightgray;
+  height: 33%;
+}
+/* モーダルウィンドウを閉じる要素 */
+.modal_close_btn {
+  cursor: pointer;
+  height: 33%;
+}
+.loading_text {
+  text-align: center;
+  margin-top: 200px;
+  font-size: 16px;
+  font-weight: bold;
 }
 </style>

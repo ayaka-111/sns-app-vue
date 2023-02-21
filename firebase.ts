@@ -84,22 +84,13 @@ import { getStorage } from "firebase/storage";
 // };
 
 const firebaseConfig = {
-    apiKey: "AIzaSyCOgpNa6bfQBP6BTEc7np-dqEU-DQGhbVc",
-    authDomain: "sns-app-vue-test2.firebaseapp.com",
-    projectId: "sns-app-vue-test2",
-    storageBucket: "sns-app-vue-test2.appspot.com",
-    messagingSenderId: "400770589695",
-    appId: "1:400770589695:web:51e8a19fa5efca48cdbdca"
-  };
-
-// const firebaseConfig = {
-//   apiKey: "AIzaSyCOgpNa6bfQBP6BTEc7np-dqEU-DQGhbVc",
-//   authDomain: "sns-app-vue-test2.firebaseapp.com",
-//   projectId: "sns-app-vue-test2",
-//   storageBucket: "sns-app-vue-test2.appspot.com",
-//   messagingSenderId: "400770589695",
-//   appId: "1:400770589695:web:51e8a19fa5efca48cdbdca"
-// };
+  apiKey: "AIzaSyCOgpNa6bfQBP6BTEc7np-dqEU-DQGhbVc",
+  authDomain: "sns-app-vue-test2.firebaseapp.com",
+  projectId: "sns-app-vue-test2",
+  storageBucket: "sns-app-vue-test2.appspot.com",
+  messagingSenderId: "400770589695",
+  appId: "1:400770589695:web:51e8a19fa5efca48cdbdca"
+};
 
 
 // Initialize Firebase

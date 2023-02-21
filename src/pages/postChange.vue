@@ -3,6 +3,7 @@ import { db } from "../../firebase";
 import { collection, doc, getDoc, updateDoc } from "firebase/firestore";
 import { ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
+import Header from "../components/organisms/header.vue";
 
 //postIdを受け取る
 const route = useRoute();
@@ -39,33 +40,125 @@ const updateButton = async () => {
     caption: caption.value,
   });
   console.log("更新しました");
+  location.href = `/post/${postId}`;
 };
 </script>
 
 <template>
-  <div>
-    <button @click="cancelButton">キャンセル</button>
-    <h1>情報を編集</h1>
-    <button @click="updateButton">完了</button>
-  </div>
-  <div>
-    <div>
-      <img v-bind:src="postData.imageUrl" alt="投稿写真" />
-    </div>
-    <div>
-      <div>
-        <img v-bind:src="postData.icon" alt="icon" class="iconImg" />
-        <p>{{ postData.userName }}</p>
+  <Header />
+  <section class="postChange">
+    <section class="postChange_section">
+      <div class="postChange_titleContent">
+        <button @click="cancelButton" class="cancelBtn">キャンセル</button>
+        <div class="postChangeTitle">情報を編集</div>
+        <button @click="updateButton" class="completionBtn">完了</button>
       </div>
-      <input type="text" v-model="caption" />
-    </div>
-  </div>
+      <div>
+        <div class="postChange_content">
+          <div class="postChange_post">
+            <img
+              v-bind:src="postData.imageUrl"
+              alt="投稿写真"
+              class="postChange_postImg"
+            />
+          </div>
+          <div>
+            <div class="postChange_iconName">
+              <img v-bind:src="postData.icon" alt="icon" class="iconImg" />
+              <p class="postChange_userName">{{ postData.userName }}</p>
+            </div>
+            <div>
+              <textarea
+                v-model="caption"
+                maxlength="2200"
+                class="postChange_captionInput"
+              />
+            </div>
+            <div class="postChange_captionLength">
+              {{ caption.length }}/2200
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </section>
 </template>
 
-<style>
+<style scoped>
+.postChange {
+  overflow: hidden;
+}
+.postChange_section {
+  margin-left: 400px;
+  margin-top: 100px;
+  width: 900px;
+  height: 500px;
+  background-color: #ffff;
+  border-radius: 3%;
+}
+.postChange_titleContent {
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid lightgray;
+}
+.postChangeTitle {
+  font-weight: bold;
+  font-size: 1.7rem;
+  margin: 0 auto;
+}
+.cancelBtn {
+  font-size: 1.4rem;
+  line-height: 5rem;
+  margin-left: 10px;
+}
+.completionBtn {
+  color: #1596f7;
+  font-weight: bold;
+  font-size: 1.4rem;
+  line-height: 5rem;
+  margin-right: 10px;
+}
+.postChange_content {
+  display: flex;
+  gap: 1%;
+}
+.postChange_post {
+  height: 448px;
+  width: 600px;
+}
+.postChange_postImg {
+  width: 100%;
+  height: 100%;
+  border-radius: 0 0 0 3%;
+  object-fit: cover;
+}
+.postChange_iconName {
+  display: flex;
+  align-items: center;
+  gap: 5%;
+  margin-top: 20px;
+}
 .iconImg {
-  width: 100px;
-  height: 100px;
+  width: 30px;
+  height: 30px;
   border-radius: 50%;
+}
+.postChange_userName {
+  font-weight: bold;
+}
+.postChange_captionInput {
+  width: 282px;
+  height: 350px;
+  border: none;
+  padding-top: 10px;
+  resize: none;
+}
+textarea:focus {
+  outline: none;
+}
+.postChange_captionLength {
+  color: lightgray;
+  text-align: end;
+  margin-right: 10px;
 }
 </style>
