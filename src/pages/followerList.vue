@@ -10,7 +10,7 @@ import {
   getDoc,
   updateDoc,
 } from "@firebase/firestore";
-// import { watch } from "fs";
+import Header from "../components/organisms/header.vue";
 
 const route = useRoute();
 const userId: any = route.params.userId;
@@ -102,62 +102,65 @@ onMounted(() => {
 // };
 </script>
 <template>
-  <div class="follower_wrapper">
-    <p class="title">フォロワー</p>
-    <div v-if="!isLoading">
-      <div v-if="anotherUserData.value !== []">
-        <ol>
-          <div v-for="(anotherUser, index) in anotherUserData" :key="index">
-            <li
-              class="user_data"
-              v-if="anotherUser.value == currentUserId.value"
-            >
-              <a href="/myAccountPage">
-                <div class="user_icon">
-                  <img v-bind:src="anotherUser.icon" alt="ユーザーアイコン" />
-                </div>
-              </a>
-              <a href="/myAccountPage">
-                <div class="user_text_data">
-                  <p class="user_name">{{ anotherUser.userName }}</p>
-                  <p class="name">{{ anotherUser.name }}</p>
-                </div>
-              </a>
-            </li>
-            <li class="user_data" v-else>
-              <a v-bind:href="`/accountPage/${anotherUser.userId}`">
-                <div class="user_icon">
-                  <img v-bind:src="anotherUser.icon" alt="ユーザーアイコン" />
-                </div>
-              </a>
-              <a v-bind:href="`/accountPage/${anotherUser.userId}`">
-                <div class="user_text_data">
-                  <p class="user_name">{{ anotherUser.userName }}</p>
-                  <p class="name">{{ anotherUser.name }}</p>
-                </div>
-              </a>
-            </li>
-          </div>
-        </ol>
+  <Header />
+  <div class="header_area">
+    <div class="follower_wrapper">
+      <p class="title">フォロワー</p>
+      <div v-if="!isLoading">
+        <div v-if="anotherUserData.value !== []">
+          <ol>
+            <div v-for="(anotherUser, index) in anotherUserData" :key="index">
+              <li class="user_data" v-if="anotherUser == currentUserId">
+                <a href="/myAccountPage">
+                  <div class="user_icon">
+                    <img v-bind:src="anotherUser.icon" alt="ユーザーアイコン" />
+                  </div>
+                </a>
+                <a href="/myAccountPage">
+                  <div class="user_text_data">
+                    <p class="user_name">{{ anotherUser.userName }}</p>
+                    <p class="name">{{ anotherUser.name }}</p>
+                  </div>
+                </a>
+              </li>
+              <li class="user_data" v-else>
+                <a v-bind:href="`/accountPage/${anotherUser.userId}`">
+                  <div class="user_icon">
+                    <img v-bind:src="anotherUser.icon" alt="ユーザーアイコン" />
+                  </div>
+                </a>
+                <a v-bind:href="`/accountPage/${anotherUser.userId}`">
+                  <div class="user_text_data">
+                    <p class="user_name">{{ anotherUser.userName }}</p>
+                    <p class="name">{{ anotherUser.name }}</p>
+                  </div>
+                </a>
+              </li>
+            </div>
+          </ol>
+        </div>
+        <div v-else>
+          <p class="no_follow">現在フォロワーはいません</p>
+        </div>
       </div>
       <div v-else>
-        <p class="no_follow">現在フォロワーはいません</p>
+        <p class="loading">Loading...</p>
       </div>
-    </div>
-    <div v-else>
-      <p class="loading">Loading...</p>
     </div>
   </div>
 </template>
 
 <style scoped>
+.header_area {
+  margin-left: 250px;
+}
 .title {
   text-align: center;
   font-size: 18px;
   font-weight: bold;
   margin: 30px 0;
 }
-.follow_wrapper {
+.follower_wrapper {
   width: 500px;
   margin: auto;
 }

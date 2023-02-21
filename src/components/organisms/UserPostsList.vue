@@ -9,16 +9,25 @@ export default defineComponent({
   setup: (props) => {
     const userData: any = vueref();
     const theUserId: any = vueref(props.userId);
-    const theUserPostsData: any = vueref("");
+    const theUserPostsData: any = vueref([]);
     // currentUserのpostデータ取得
     const postCollectionRef: any = query(
       collection(db, "posts"),
       where("userId", "==", theUserId.value)
     );
     // 上記を元にドキュメントのデータを取得(post)
-    getDocs(postCollectionRef).then((postDocId) => {
-      const newPostDocIds = postDocId.docs;
-      theUserPostsData.value = newPostDocIds.map((id) => id.data());
+    getDocs(postCollectionRef).then((post: any) => {
+      post.forEach((doc: any) => {
+        theUserPostsData.value.push(doc.data());
+        // 日付順に並び替え
+        theUserPostsData.value.sort((a: any, b: any) => {
+          return a.timestamp.toDate() > b.timestamp.toDate() ? -1 : 1;
+        });
+      });
+          console.log(theUserPostsData.value[0].postId)
+
+      // const newPostDocIds = postDocId.docs;
+      // theUserPostsData.value = newPostDocIds.map((id) => id.data());
     });
     return {
       theUserPostsData,
@@ -55,11 +64,11 @@ export default defineComponent({
 .threeRowsPostList {
   display: flex;
   flex-wrap: wrap;
-  gap: 5px;
+  gap: 30px;
   width: 100%;
 }
 .threeRowsPostList__image {
-  width: calc((100% - 6px) / 3);
+  width: calc((100% - 60px) / 3);
   aspect-ratio: 1/1;
   margin-right: 0;
 }

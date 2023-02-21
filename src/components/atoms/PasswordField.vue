@@ -4,26 +4,37 @@ import formValidation from "../molecules/formValidation";
 export default {
   setup() {
     let input = ref(null);
+    const showPassword = ref(false)
     const { validatePasswordField, error } = formValidation();
     const validateInput = () => {
       validatePasswordField("password", input.value);
     };
-    return { input, error, validateInput };
+    const toggleShowPassword = () => {
+      showPassword.value = !showPassword.value
+    }
+    console.log(toggleShowPassword.value)
+    return { input, error, validateInput, toggleShowPassword, showPassword };
   },
 };
 </script>
 <template>
   <div class="field">
-    <div class="ui left icon input big">
+    <div class="password_field">
       <input
-        type="password"
+        :type="showPassword ? 'text' : 'password'"
         placeholder="パスワード(6文字以上)"
         autocomplete="off"
         v-model="input"
         @keyup="validateInput"
         @input="$emit('update:modelValue', $event.target.value)"
       />
-    </div>
+      <button @click="toggleShowPassword" v-if="showPassword" class="eye_icon">
+        <font-awesome-icon :icon="['fas', 'eye']" />
+      </button>
+      <button @click="toggleShowPassword" v-else class="eye_icon">
+        <font-awesome-icon :icon="['fas', 'eye-slash']" />
+      </button>
+    </div> 
     <div class="error_text" v-if="error.password">
       {{ error.password }}
     </div>
@@ -38,5 +49,13 @@ input {
 .error_text {
   color: red;
   font-weight: bold;
+}
+.password_field {
+  position: relative;
+}
+.eye_icon {
+  position: absolute;
+  top: 10px;
+  right: 5px;
 }
 </style>

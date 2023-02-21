@@ -8,6 +8,8 @@ import {
   faLeaf,
   faHeart as fasHeart,
   faBookmark as fasBookmark,
+  faEye,
+  faEyeSlash,
 } from "@fortawesome/free-solid-svg-icons";
 import {
   faHeart as farHeart,
@@ -24,7 +26,9 @@ library.add(
   faComment,
   fasBookmark,
   farBookmark,
-  faImages
+  faImages,
+  faEye,
+  faEyeSlash
 );
 
 const app = createApp(App);

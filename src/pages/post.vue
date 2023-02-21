@@ -400,33 +400,34 @@ const onClickComment = () => {
               />
             </button>
           </div>
-          <KeepBtn v-bind:postId="post.postId" />
-      </div>
-      <div class="post_favorite">
-        いいね
-        <span class="post_favoriteLength">{{ postFavoriteLength }} </span>
-        件
-      </div>
-      <div class="post_date">
-        {{ dateToDate.month }}月 {{ dateToDate.date }}, {{ dateToDate.year }}
-      </div>
-      <div class="post_addCommentContent">
-        <input
-          type="text"
-          v-model="inputComment"
-          class="post_input"
-          placeholder="コメントを追加..."
-          id="inputComment"
-        />
-        <button
-          @click="onClickAddComment"
-          class="post_focusCommentBtn"
-          v-if="inputComment.length > 0"
-        >
-          投稿する
-        </button>
-        <button class="post_commentBtn" v-else>投稿する</button>
-      </div>
+          <KeepBtn v-bind:postId="postId" />
+        </div>
+        <div class="post_favorite">
+          いいね
+          <span class="post_favoriteLength">{{ postFavoriteLength }} </span>
+          件
+        </div>
+        <div class="post_date">
+          {{ dateToDate.month }}月 {{ dateToDate.date }}, {{ dateToDate.year }}
+        </div>
+        <div class="post_addCommentContent">
+          <input
+            type="text"
+            v-model="inputComment"
+            class="post_input"
+            placeholder="コメントを追加..."
+            id="inputComment"
+          />
+          <button
+            @click="onClickAddComment"
+            class="post_focusCommentBtn"
+            v-if="inputComment.length > 0"
+          >
+            投稿する
+          </button>
+          <button class="post_commentBtn" v-else>投稿する</button>
+        </div>
+      </section>
     </section>
     <!-- </template> -->
     <!-- <template #fallback>
