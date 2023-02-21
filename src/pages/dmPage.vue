@@ -20,6 +20,10 @@ const withUserData:any=ref('');
 const withUserName:any=ref('');
 const withUserIcon:any=ref('');
 
+
+const now = new Date();
+const times = now.toLocaleTimeString();
+
 // 会話相手の情報を取得
 const userCollectionRef = collection(db, "users");
 const userDocRefId = doc(userCollectionRef, userId);
@@ -107,7 +111,7 @@ getDocs(anotherQ).then((ownQSnapshot)=>{
 // inputに入力したものをfirebaseに追加
 const addNewMessage =() :void=> {
     // 表示するnewMessageListに追加　これなくていいかも
-    newMessageList.value.push({ userId: uid.value, message: newMessage.value, timestamp:"" ,withUserId:''})
+    newMessageList.value.push({ userId: uid.value, message: newMessage.value, timestamp:"" ,withUserId:userId})
     const now = new Date();
     const time = now.toLocaleTimeString();
     // firestoreにデータ追加
@@ -124,13 +128,14 @@ const addNewMessage =() :void=> {
     })
 
     // inputのところ空にする
-    newMessage.value = String('')
+    newMessage.value = ''
 
 }
 
 
+
 messageList.value.sort((a: any, b: any) => {
-    return a.messageList.timestamp > b.messageList.timestamp ? -1 : 1;
+    return a.messageList.times > b.messageList.times ? -1 : 1;
   });
 
 
