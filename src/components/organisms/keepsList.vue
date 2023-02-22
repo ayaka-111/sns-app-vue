@@ -6,7 +6,7 @@ import type { Ref } from "vue";
 
 interface NeedPostData {
   postId: string;
-//   timestamp: string;
+  timestamp: any;
   imageUrl: string;
 }
 
@@ -37,8 +37,11 @@ export default defineComponent({
             console.log(postData.postId);
             currentKeepsData.value.push({
               postId: postData.postId,
-            //   timestamp: postData.timestamp,
+              timestamp: postData.timestamp,
               imageUrl: postData.imageUrl,
+            });
+            currentKeepsData.value.sort((a: any, b: any) => {
+              return a.timestamp.toDate() > b.timestamp.toDate() ? -1 : 1;
             });
             console.log(currentKeepsData.value[0].postId);
           });
@@ -58,21 +61,19 @@ export default defineComponent({
 
 <template>
   <div v-if="currentKeepsData">
-    <div v-if="!isLoading">
+    <div v-if="!isLoading" class="threeRowsPostList">
       <div
         v-for="(currentKeepData, index) in currentKeepsData"
         :key="index"
-        class="threeRowsPostList"
+        class="threeRowsPostList__image"
       >
-        <div class="threeRowsPostList__image">
-          <a v-bind:href="`/post/${currentKeepData.postId}`">
-            <img
-              v-bind:src="currentKeepData.imageUrl"
-              alt="投稿画像"
-              class="post_img"
-            />
-          </a>
-        </div>
+        <a v-bind:href="`/post/${currentKeepData.postId}`">
+          <img
+            v-bind:src="currentKeepData.imageUrl"
+            alt="投稿画像"
+            class="post_img"
+          />
+        </a>
       </div>
     </div>
     <div v-else class="threeRowsPostList__message">Loading...</div>
@@ -84,10 +85,11 @@ export default defineComponent({
 .threeRowsPostList {
   display: flex;
   flex-wrap: wrap;
-  gap: 3px;
+  gap: 30px;
+  width: 100%;
 }
 .threeRowsPostList__image {
-  width: calc((100% - 6px) / 3);
+  width: calc((100% - 60px) / 3);
   aspect-ratio: 1/1;
   margin-right: 0;
 }

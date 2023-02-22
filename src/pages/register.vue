@@ -5,7 +5,7 @@ import ProfileField from "@/components/atoms/ProfileField.vue";
 import UserNameField from "@/components/atoms/UserNameField.vue";
 import PasswordField from "@/components/atoms/PasswordField.vue";
 import CPasswordField from "../components/atoms/CPasswordField.vue";
-import { reactive, ref as vueref } from "vue";
+import { onMounted, reactive, ref as vueref } from "vue";
 import SubmitButtonState from "@/components/atoms/SubmitBtnState";
 import formValidation from "@/components/molecules/formValidation";
 import {
@@ -35,6 +35,7 @@ const currentAuth = getAuth();
 const router = useRouter();
 const file: any = vueref();
 const haveIcon: any = vueref(false);
+const profileValue: any = vueref("");
 
 // ログイン状態の場合の処理
 onAuthStateChanged(currentAuth, (currentUser) => {
@@ -88,22 +89,41 @@ const loginButtonPressed = async () => {
             const userDoc: any = getDoc(docRef).then(() => {
               //exists()でドキュメントの存在の有無を確認
               if (!userDoc.exists) {
-                //FireStoreにユーザー用のドキュメントが作られていなければ新規作成
-                setDoc(docRef, {
-                  userId: currentUserId,
-                  userName: user.userName,
-                  name: user.name,
-                  icon: iconImg.value,
-                  email: user.email,
-                  password: user.password,
-                  Cpassword: user.cPassword,
-                  follow: [],
-                  follower: [],
-                  favoritePosts: [],
-                  profile: user.profile,
-                  posts: [],
-                  keepPosts: [],
-                });
+                // アイコンが未登録の場合
+                if (iconImg.value !== "/noicon.png") {
+                  //FireStoreにユーザー用のドキュメントが作られていなければ新規作成
+                  setDoc(docRef, {
+                    userId: currentUserId,
+                    userName: user.userName,
+                    name: user.name,
+                    icon: iconImg.value,
+                    email: user.email,
+                    password: user.password,
+                    Cpassword: user.cPassword,
+                    follow: [],
+                    follower: [],
+                    favoritePosts: [],
+                    profile: user.profile,
+                    posts: [],
+                    keepPosts: [],
+                  });
+                } else {
+                  setDoc(docRef, {
+                    userId: currentUserId,
+                    userName: user.userName,
+                    name: user.name,
+                    icon: "",
+                    email: user.email,
+                    password: user.password,
+                    Cpassword: user.cPassword,
+                    follow: [],
+                    follower: [],
+                    favoritePosts: [],
+                    profile: user.profile,
+                    posts: [],
+                    keepPosts: [],
+                  });
+                }
               }
             });
           });
@@ -116,7 +136,7 @@ const loginButtonPressed = async () => {
     console.log(e);
   }
 };
-console.log(haveIcon.value)
+console.log(haveIcon.value);
 </script>
 
 <template>
@@ -128,7 +148,11 @@ console.log(haveIcon.value)
           <img src="/noIcon.png" alt="noユーザーアイコン" />
         </div> -->
         <div class="user_icon">
-          <img :src="iconImg" alt="ユーザーアイコン" />
+          <img
+            :src="iconImg"
+            alt="ユーザーアイコン"
+            v-if="iconImg !== undefined"
+          />
         </div>
         <div class="icon_form">
           <label htmlFor="iconPreview" class="label">
@@ -189,8 +213,7 @@ console.log(haveIcon.value)
 }
 .form {
   margin: 20px 50px 30px 50px;
-    position: relative;
-
+  position: relative;
 }
 .icon_input {
   display: none;
@@ -203,15 +226,15 @@ console.log(haveIcon.value)
   border-radius: 50%;
   width: 30px;
 
-    aspect-ratio: 1/1;
-      position: absolute;
+  aspect-ratio: 1/1;
+  position: absolute;
   top: 70px;
   right: 90px;
 }
 .add_icon {
   font-size: 27px;
-    font-weight: bold;
-    line-height: 14px;
+  font-weight: bold;
+  line-height: 14px;
 }
 .register_button {
   background-color: #1596f7;
@@ -256,7 +279,7 @@ console.log(haveIcon.value)
   margin-bottom: 5px;
 }
 .no_user_icon {
-    border-radius: 50%;
+  border-radius: 50%;
   width: 30%;
   aspect-ratio: 1/1;
   border: solid 1px lightgray;
