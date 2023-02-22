@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { getAuth, onAuthStateChanged } from "@firebase/auth";
 import { addDoc, collection, doc, getDoc, getDocs, limit, query, serverTimestamp, setDoc, where } from "@firebase/firestore";
-import {createApp, ref} from "vue";
+import {createApp, ref,reactive} from "vue";
 import { useRoute } from "vue-router";
 import { db } from "../../firebase"
 import Header from "../components/organisms/header.vue"
@@ -24,6 +24,7 @@ const withUserIcon:any=ref('');
 const now = new Date();
 const nowStr = now.toLocaleTimeString();
 const timeStrRef = ref(nowStr)
+
 
 // 会話相手の情報を取得
 const userCollectionRef = collection(db, "users");
@@ -68,9 +69,15 @@ const auth = getAuth();
           ({
             userId: data.userId,
             message: data.message,
-            timestamp: data.timestamp,
+            timestamp:data.timestamp,
+            hour: data.timestamp.toDate().getHours().toString().padStart(2, "0"),
+            min: data.timestamp.toDate().getMinutes().toString().padStart(2, "0"),
             withUserId:data.withUserId
           });
+          // 日付順に並び替え
+          messageList.value.sort((a: any, b: any) => {
+          return a.timestamp.toDate() > b.timestamp.toDate() ? -1 : 1;
+            })
         });
         })
 
@@ -83,19 +90,21 @@ const anotherQ = query(
     // limit(5)
 );
 getDocs(anotherQ).then((ownQSnapshot)=>{
-            // console.log(ownQSnapshot)
-            ownQSnapshot.forEach((docdata) => {
-                console.log(docdata)
+          ownQSnapshot.forEach((docdata) => {
           const data = (docdata.id, " => ", docdata.data()); 
-          console.log(data)
-        //   messageList.push
           messageList.value.push
           ({
             userId: data.userId,
             message: data.message,
-            timestamp: data.timestamp,
-            withUserId:data.withUserId
+            timestamp:data.timestamp,
+            hour: data.timestamp.toDate().getHours().toString().padStart(2, "0"),
+            min: data.timestamp.toDate().getMinutes().toString().padStart(2, "0"),
+            withUserId:data.withUserId,
           });
+          // 日付順に並び替え
+          messageList.value.sort((a: any, b: any) => {
+          return a.timestamp.toDate() > b.timestamp.toDate() ? -1 : 1;
+              })
         });
         })
 
@@ -108,36 +117,38 @@ getDocs(anotherQ).then((ownQSnapshot)=>{
 
 
 
-
 // inputに入力したものをfirebaseに追加
 const addNewMessage =() :void=> {
-    // 表示するnewMessageListに追加　これなくていいかも
-    newMessageList.value.push({ userId: uid.value, message: newMessage.value, timestamp:"" ,withUserId:userId})
-    const now = new Date();
-    const time = now.toLocaleTimeString();
     // firestoreにデータ追加
-    const collectionMessages:any =collection(db, "messages");
-    addDoc(collectionMessages, 
+    addDoc(collection(db, "messages"), 
     {
     userId: uid.value,
     message:newMessage.value,
-    // timestamp: serverTimestamp(),
-    timestamp: time,
+    timestamp: serverTimestamp(),
     withUserId:userId
     }).then(()=>{
         console.log("a")
     })
 
+    // newMessageList.value.push({ message: newMessage.value })
+
     // inputのところ空にする
     newMessage.value = ''
 
+
 }
 
+console.log(typeof messageList.value)
+console.log(messageList.value)
 
+// messageList.value.timestamp.sort(function(a:any, b:any){
+// 	return (a < b ? 1 : -1);
+// });
 
-messageList.value.sort((a: any, b: any) => {
-    return a.messageList.times > b.messageList.times ? -1 : 1;
-  });
+// messageList.value.sort((a: any, b: any) => {
+//     return a.messageList.times > b.messageList.times ? -1 : 1;
+//   });
+
 
 
 </script>
@@ -160,12 +171,12 @@ messageList.value.sort((a: any, b: any) => {
         <li v-for="mess in messageList" :key="mess.userId" >
         <div v-if="userId === mess.userId " >
         <p class="dmPage-withUserMess">{{ mess.message }}</p>
-        <p class="dmPage-withUserTime">{{ mess.timestamp}}</p>
+        <p class="dmPage-withUserTime">{{ mess.hour}}:{{ mess.min }}</p>
         </div>
 
         <div v-if="userId === mess.withUserId" >
         <p class="dmPage-Mymess">{{ mess.message }}</p>
-        <p class="dmPage-Mytime">{{ mess.timestamp}}</p>  
+        <p class="dmPage-Mytime">{{ mess.hour}}:{{ mess.min }}</p>  
         </div>
 
         </li>
