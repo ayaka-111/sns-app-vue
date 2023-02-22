@@ -12,6 +12,7 @@ import {
   faEyeSlash,
   faEllipsis,
   faXmark,
+  faTableCells,
 } from "@fortawesome/free-solid-svg-icons";
 import {
   faHeart as farHeart,
@@ -34,7 +35,8 @@ library.add(
   faEyeSlash,
   faEllipsis,
   faCircleCheck,
-  faXmark
+  faXmark,
+  faTableCells
 );
 
 const app = createApp(App);

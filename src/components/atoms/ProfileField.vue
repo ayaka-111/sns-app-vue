@@ -21,7 +21,8 @@ export default {
 </template>
 
 <style scoped>
-input {
+textarea {
   width: 100%;
+  resize: none;
 }
 </style>

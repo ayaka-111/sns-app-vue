@@ -31,12 +31,13 @@ export default {
 </template>
 
 <style scoped>
-  input {
-    width: 100%;
-  }
+input {
+  width: 100%;
+  height: 35px;
+}
 
-  .error_text {
-    color: red;
-    font-weight: bold;
-  }
+.error_text {
+  color: red;
+  font-weight: bold;
+}
 </style>

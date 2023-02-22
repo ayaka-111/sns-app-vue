@@ -4,15 +4,14 @@ import formValidation from "../molecules/formValidation";
 export default {
   setup() {
     let input = ref(null);
-    const showPassword = ref(false)
+    const showPassword = ref(false);
     const { validatePasswordField, error } = formValidation();
     const validateInput = () => {
       validatePasswordField("password", input.value);
     };
     const toggleShowPassword = () => {
-      showPassword.value = !showPassword.value
-    }
-    console.log(toggleShowPassword.value)
+      showPassword.value = !showPassword.value;
+    };
     return { input, error, validateInput, toggleShowPassword, showPassword };
   },
 };
@@ -34,7 +33,7 @@ export default {
       <button @click="toggleShowPassword" v-else class="eye_icon">
         <font-awesome-icon :icon="['fas', 'eye-slash']" />
       </button>
-    </div> 
+    </div>
     <div class="error_text" v-if="error.password">
       {{ error.password }}
     </div>

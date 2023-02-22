@@ -91,20 +91,40 @@ console.log(displaySwitch.value);
         </div>
       </div>
       <div v-if="displaySwitch" class="displayLavel">
-        <div class="effective">
-          <p>投稿</p>
+        <div class="effective flex">
+          <p>
+            <font-awesome-icon
+              :icon="['fas', 'table-cells']"
+              class="icon"
+            />投稿
+          </p>
         </div>
         <div @click="onClickChangeSwitch" class="noEffect">
-          <p>保存済み</p>
+          <p>
+            <font-awesome-icon
+              :icon="['far', 'bookmark']"
+              class="icon"
+            />保存済み
+          </p>
         </div>
       </div>
 
       <div v-else class="displayLavel">
-        <div @click="onClickChangeSwitch" class="noEffect">
-          <p>投稿</p>
+        <div @click="onClickChangeSwitch" class="noEffect flex">
+          <p>
+            <font-awesome-icon
+              :icon="['fas', 'table-cells']"
+              class="icon"
+            />投稿
+          </p>
         </div>
         <div class="effective">
-          <p>保存済み</p>
+          <p>
+            <font-awesome-icon
+              :icon="['far', 'bookmark']"
+              class="icon"
+            />保存済み
+          </p>
         </div>
       </div>
       <div class="posts" v-if="displaySwitch">
@@ -220,5 +240,8 @@ console.log(displaySwitch.value);
 }
 .noEffect > p:hover {
   cursor: pointer;
+}
+.icon {
+  padding-right: 7px;
 }
 </style>
