@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { getAuth, onAuthStateChanged } from "@firebase/auth";
 import { addDoc, collection, doc, getDoc, getDocs, limit, query, serverTimestamp, setDoc, where } from "@firebase/firestore";
-import {createApp, ref} from "vue";
+import {createApp, ref,reactive} from "vue";
 import { useRoute } from "vue-router";
 import { db } from "../../firebase"
 import Header from "../components/organisms/header.vue"
@@ -19,6 +19,12 @@ const uid:any=ref('');
 const withUserData:any=ref('');
 const withUserName:any=ref('');
 const withUserIcon:any=ref('');
+
+
+const now = new Date();
+const nowStr = now.toLocaleTimeString();
+const timeStrRef = ref(nowStr)
+
 
 // 会話相手の情報を取得
 const userCollectionRef = collection(db, "users");
@@ -63,9 +69,15 @@ const auth = getAuth();
           ({
             userId: data.userId,
             message: data.message,
-            timestamp: data.timestamp,
+            timestamp:data.timestamp,
+            hour: data.timestamp.toDate().getHours().toString().padStart(2, "0"),
+            min: data.timestamp.toDate().getMinutes().toString().padStart(2, "0"),
             withUserId:data.withUserId
           });
+          // 日付順に並び替え
+          messageList.value.sort((a: any, b: any) => {
+          return a.timestamp.toDate() > b.timestamp.toDate() ? -1 : 1;
+            })
         });
         })
 
@@ -78,19 +90,21 @@ const anotherQ = query(
     // limit(5)
 );
 getDocs(anotherQ).then((ownQSnapshot)=>{
-            // console.log(ownQSnapshot)
-            ownQSnapshot.forEach((docdata) => {
-                console.log(docdata)
+          ownQSnapshot.forEach((docdata) => {
           const data = (docdata.id, " => ", docdata.data()); 
-          console.log(data)
-        //   messageList.push
           messageList.value.push
           ({
             userId: data.userId,
             message: data.message,
-            timestamp: data.timestamp,
-            withUserId:data.withUserId
+            timestamp:data.timestamp,
+            hour: data.timestamp.toDate().getHours().toString().padStart(2, "0"),
+            min: data.timestamp.toDate().getMinutes().toString().padStart(2, "0"),
+            withUserId:data.withUserId,
           });
+          // 日付順に並び替え
+          messageList.value.sort((a: any, b: any) => {
+          return a.timestamp.toDate() > b.timestamp.toDate() ? -1 : 1;
+              })
         });
         })
 
@@ -103,35 +117,38 @@ getDocs(anotherQ).then((ownQSnapshot)=>{
 
 
 
-
 // inputに入力したものをfirebaseに追加
 const addNewMessage =() :void=> {
-    // 表示するnewMessageListに追加　これなくていいかも
-    newMessageList.value.push({ userId: uid.value, message: newMessage.value, timestamp:"" ,withUserId:''})
-    const now = new Date();
-    const time = now.toLocaleTimeString();
     // firestoreにデータ追加
-    const collectionMessages:any =collection(db, "messages");
-    addDoc(collectionMessages, 
+    addDoc(collection(db, "messages"), 
     {
     userId: uid.value,
     message:newMessage.value,
-    // timestamp: serverTimestamp(),
-    timestamp: time,
+    timestamp: serverTimestamp(),
     withUserId:userId
     }).then(()=>{
         console.log("a")
     })
 
+    // newMessageList.value.push({ message: newMessage.value })
+
     // inputのところ空にする
-    newMessage.value = String('')
+    newMessage.value = ''
+
 
 }
 
+console.log(typeof messageList.value)
+console.log(messageList.value)
 
-messageList.value.sort((a: any, b: any) => {
-    return a.messageList.timestamp > b.messageList.timestamp ? -1 : 1;
-  });
+// messageList.value.timestamp.sort(function(a:any, b:any){
+// 	return (a < b ? 1 : -1);
+// });
+
+// messageList.value.sort((a: any, b: any) => {
+//     return a.messageList.times > b.messageList.times ? -1 : 1;
+//   });
+
 
 
 </script>
@@ -139,26 +156,27 @@ messageList.value.sort((a: any, b: any) => {
 <template>
 
     <Header />
+<div class="dmPage-header250">
+<div class="dmPage-auto">
+<div class="dmPage-50">
 
-<div class="dm">
-
-    <div class="your">
-    <img v-bind:src="withUserIcon" alt="withUserIcon" class="img"/>
+    <div class="dmPage-withUser">
+    <img v-bind:src="withUserIcon" alt="withUserIcon" class="dmPage-withUserIcon"/>
     <!-- <img src="../../public/noIcon.png" class="img"/> -->
-    <p class="name">{{ withUserName }}</p>
+    <p class="dmPage-withUserName">{{ withUserName }}</p>
     </div>
 
-    <div class="m">
+    <div class="dmPage-message">
     <ul>
         <li v-for="mess in messageList" :key="mess.userId" >
-        <div v-if="userId === mess.userId " class="withUser">
-        <p class="yourmess">{{ mess.message }}</p>
-        <p class="yourtime">{{ mess.timestamp}}</p>
+        <div v-if="userId === mess.userId " >
+        <p class="dmPage-withUserMess">{{ mess.message }}</p>
+        <p class="dmPage-withUserTime">{{ mess.hour}}:{{ mess.min }}</p>
         </div>
 
-        <div v-if="userId === mess.withUserId" class="user">
-        <p class="mess">{{ mess.message }}</p>
-        <p class="time">{{ mess.timestamp}}</p>  
+        <div v-if="userId === mess.withUserId" >
+        <p class="dmPage-Mymess">{{ mess.message }}</p>
+        <p class="dmPage-Mytime">{{ mess.hour}}:{{ mess.min }}</p>  
         </div>
 
         </li>
@@ -166,14 +184,14 @@ messageList.value.sort((a: any, b: any) => {
 
     <ul>
         <li v-for="newMess in newMessageList" :key="newMess.userId">
-        <p class="mess">{{ newMess.message }}</p>
-        <p class="time">{{ newMess.timestamp }}</p>
+        <p class="dmPage-Mymess">{{ newMess.message }}</p>
+        <p class="dmPage-Mytime">{{ timeStrRef }}</p>
         </li>
     </ul>
 
 </div>
 
-    <form  @submit.prevent="addNewMessage" class="form">
+    <form  @submit.prevent="addNewMessage" class="dmPage-form">
         <div class="inputButton">
         <input class="input" v-model="newMessage" placeholder="メッセージを入力...">
         <button class="button">送信</button> 
@@ -182,79 +200,102 @@ messageList.value.sort((a: any, b: any) => {
 
 </div>
 
+</div>
+</div>
+
 </template>
 
 
 <style scoped>
-.dm{
-    margin-left: 350px;
+.dmPage-header25{
+margin-left: 259px;
 }
-.your{
-    /* border: #c0c0c0; */
-    /* text-align: center; */
-    /* justify-content: center; */
-    display: flex;
-    /* width:50%; */
+.dmPage-auto{
+margin:auto;
+width:800px;
 }
-.img{
-    background-color: #c0c0c0;
+.dmPage-50{
+  border: solid 1px silver;
+  background-color: white;
+  width:100%;
+  margin-left: 10%;
+  margin-top: 5%;
+  margin-bottom: 5%;
+  /* height:600px; */
+}
+.dmPage-withUser{
+  display: flex;
+  margin-top:5px;
+  margin-left:10px;
+  margin-bottom: 5px;
+
+}
+.dmPage-withUserIcon{
+  /* background-color: #c0c0c0; */
     border-radius:50%;
     width: 40px;
     height: 40px;
 }
-.name{
-    display: grid;
+.dmPage-withUserName{
+  display: grid;
     place-items: center;
     margin-left: 10px;
+    /* font-weight: bold; */
+    
 }
-/* .form {
-    margin:auto;
-} */
-.inputButton{
-    text-align: center;
-    /* margin-top: 10px; */
-}
-.button{
-    color: #1596F7;
-}
-.input{
-    border-radius:5px;
-    outline:solid 1px #c0c0c0;
-    width: 50%;
-}
-.mess{
-    background-color: #e0dddd;
+
+.dmPage-withUserMess{
+  background-color: #e0dddd;
     /* margin: 10px 10px 10px 10px; */
     border: 1px solid #afadad;
     border-radius: 10px;
     padding: 10px;
-    margin-left:200px;
+    width: 40%;
+    /* margin-right:200px; */
 }
-.yourmess{
-    background-color: #e0dddd;
-    /* margin: 10px 10px 10px 10px; */
+.dmPage-withUserTime{
+  display: block;
+    padding-right: 10px;
+    text-align: right;
+    width: 40%;
+    /* margin-right:200px; */
+}
+.dmPage-Mymess{
+  background-color: #e0dddd;
     border: 1px solid #afadad;
     border-radius: 10px;
     padding: 10px;
-    margin-right:200px;
+    width: 40%;
+    margin-left: auto;
+    margin-right: 10%;
+}
+.dmPage-Mytime{
+  display: block;
+    padding-right: 10px;
+    text-align: right;
+    margin-left: auto;
+    margin-right: 10%;
 
 }
-.time{
-    display: block;
-    padding-right: 10px;
-    text-align: right;
-    margin-left:200px;
+
+.dmPage-form{
+  margin:auto;
+  display: flex;
 }
-.yourtime{
-    display: block;
-    padding-right: 10px;
-    text-align: right;
-    margin-right:200px;
+.inputButton{
+  text-align: center;
+  width:100%
 }
-.m{
-    font-size: 13px;
-    /* margin: 10px 10px 10px auto; */
-    width: 40%;
+
+.input{
+  width:85%;
+  margin-bottom: 20px;
+  margin-top: 30px;
 }
+
+.button{
+  color: #1596F7;
+}
+
 
 </style>
