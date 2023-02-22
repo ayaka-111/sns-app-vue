@@ -15,7 +15,7 @@ import CommentButton from "@/components/atoms/button/CommentButton.vue";
 import Comment from "../components/molecules/Comment.vue";
 import AllComments from "../components/atoms/button/AllComments.vue";
 import FavoriteButton from "@/components/atoms/button/FavoriteButton.vue";
-import Header from "../components/organisms/header.vue";
+import CustomHeader from "../components/organisms/header.vue";
 import Date from "../components/molecules/Date.vue";
 import KeepBtn from "../components/atoms/button/keepBtn.vue";
 
@@ -107,7 +107,7 @@ console.log(postList.value);
 </script>
 
 <template>
-  <Header />
+  <CustomHeader />
   <section v-if="postList.length > 0" class="home">
     <div class="home_wrapper" v-for="post in postList" v-bind:key="post.id">
       <div class="home_titleHeader" v-if="post.userId === loginUserUid">
@@ -199,6 +199,8 @@ console.log(postList.value);
   height: 40px;
   border-radius: 50%;
   object-fit: cover;
+  border: 1px solid lightgray;
+  background-color: #ffff;
 }
 .home_userName {
   font-weight: bold;
