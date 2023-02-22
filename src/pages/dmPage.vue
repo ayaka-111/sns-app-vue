@@ -15,7 +15,7 @@ console.log(userId)
 const newMessage:any= ref('');
 const newMessageList:any = ref([]);
 const messageList:any=ref([]);
-const uid:any=ref('');
+// const uid:any=ref('');
 const withUserData:any=ref('');
 const withUserName:any=ref('');
 const withUserIcon:any=ref('');
@@ -41,16 +41,11 @@ withUserName.value = withUserData.value.name;
 // ログイン判定
 const auth = getAuth();
   const currentUserId = auth.currentUser?.uid;
-  uid.value=auth.currentUser?.uid
-  const loginUserId = auth.currentUser?.uid
-//   const userId:any=ref(currentUserId)
-  console.log(currentUserId)
-//   console.log(userId)
+  const uid =auth.currentUser?.uid
+
 
     onAuthStateChanged(auth, (currentUser: any) => {
         // const currentUserId = currentUser?.uid;
-   
-
  // ログインユーザーのデータ取得
  const ownQ = query(
           collection(db, "messages"),
@@ -72,11 +67,12 @@ const auth = getAuth();
             timestamp:data.timestamp,
             hour: data.timestamp.toDate().getHours().toString().padStart(2, "0"),
             min: data.timestamp.toDate().getMinutes().toString().padStart(2, "0"),
+            seco: data.timestamp.toDate().getUTCSeconds().toString().padStart(2, "0"),
             withUserId:data.withUserId
           });
           // 日付順に並び替え
           messageList.value.sort((a: any, b: any) => {
-          return a.timestamp.toDate() > b.timestamp.toDate() ? -1 : 1;
+          return a.timestamp.toDate() < b.timestamp.toDate() ? -1 : 1;
             })
         });
         })
@@ -99,11 +95,12 @@ getDocs(anotherQ).then((ownQSnapshot)=>{
             timestamp:data.timestamp,
             hour: data.timestamp.toDate().getHours().toString().padStart(2, "0"),
             min: data.timestamp.toDate().getMinutes().toString().padStart(2, "0"),
+            seco: data.timestamp.toDate().getUTCSeconds().toString().padStart(2, "0"),
             withUserId:data.withUserId,
           });
           // 日付順に並び替え
           messageList.value.sort((a: any, b: any) => {
-          return a.timestamp.toDate() > b.timestamp.toDate() ? -1 : 1;
+          return a.timestamp.toDate() < b.timestamp.toDate() ? -1 : 1;
               })
         });
         })
@@ -118,11 +115,20 @@ getDocs(anotherQ).then((ownQSnapshot)=>{
 
 
 // inputに入力したものをfirebaseに追加
-const addNewMessage =() :void=> {
+const addNewMessage =() =>{
+
+  // ログイン判定
+const auth = getAuth();
+const uid =auth.currentUser?.uid
+
+console.log(uid)
+console.log(newMessage.value)
+console.log(serverTimestamp())
+console.log(userId)
     // firestoreにデータ追加
     addDoc(collection(db, "messages"), 
     {
-    userId: uid.value,
+    userId: uid,
     message:newMessage.value,
     timestamp: serverTimestamp(),
     withUserId:userId
@@ -130,7 +136,7 @@ const addNewMessage =() :void=> {
         console.log("a")
     })
 
-    // newMessageList.value.push({ message: newMessage.value })
+    newMessageList.value.push({ message: newMessage.value,})
 
     // inputのところ空にする
     newMessage.value = ''
@@ -140,16 +146,6 @@ const addNewMessage =() :void=> {
 
 console.log(typeof messageList.value)
 console.log(messageList.value)
-
-// messageList.value.timestamp.sort(function(a:any, b:any){
-// 	return (a < b ? 1 : -1);
-// });
-
-// messageList.value.sort((a: any, b: any) => {
-//     return a.messageList.times > b.messageList.times ? -1 : 1;
-//   });
-
-
 
 </script>
 
@@ -171,12 +167,12 @@ console.log(messageList.value)
         <li v-for="mess in messageList" :key="mess.userId" >
         <div v-if="userId === mess.userId " >
         <p class="dmPage-withUserMess">{{ mess.message }}</p>
-        <p class="dmPage-withUserTime">{{ mess.hour}}:{{ mess.min }}</p>
+        <p class="dmPage-withUserTime">{{ mess.hour}}:{{ mess.min }}:{{mess.seco}}</p>
         </div>
 
         <div v-if="userId === mess.withUserId" >
         <p class="dmPage-Mymess">{{ mess.message }}</p>
-        <p class="dmPage-Mytime">{{ mess.hour}}:{{ mess.min }}</p>  
+        <p class="dmPage-Mytime">{{ mess.hour}}:{{ mess.min }}:{{mess.seco}}</p>  
         </div>
 
         </li>
