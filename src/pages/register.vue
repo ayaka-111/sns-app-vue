@@ -5,7 +5,7 @@ import ProfileField from "@/components/atoms/ProfileField.vue";
 import UserNameField from "@/components/atoms/UserNameField.vue";
 import PasswordField from "@/components/atoms/PasswordField.vue";
 import CPasswordField from "../components/atoms/CPasswordField.vue";
-import { onMounted, reactive, ref as vueref } from "vue";
+import { reactive, ref as vueref } from "vue";
 import SubmitButtonState from "@/components/atoms/SubmitBtnState";
 import formValidation from "@/components/molecules/formValidation";
 import {
@@ -17,8 +17,18 @@ import { useRouter } from "vue-router";
 import { storage, auth, db } from "../../firebase";
 import { getDownloadURL, uploadBytesResumable, ref } from "firebase/storage";
 import { collection, doc, getDoc, setDoc } from "@firebase/firestore";
+import type { Ref } from "vue";
+import type { Auth } from "firebase/auth";
+import type { Router } from "vue-router";
 
-let user = reactive({
+let user: {
+  email: string;
+  name: string;
+  profile: string;
+  userName: string;
+  password: string;
+  cPassword: string;
+} = reactive({
   email: "",
   name: "",
   profile: "",
@@ -29,13 +39,12 @@ let user = reactive({
 
 const { error } = formValidation();
 const { isSignupButtonDisabled } = SubmitButtonState(user, error);
-const iconImg: any = vueref("/noicon.png");
-const iconFileName: any = vueref("");
-const currentAuth = getAuth();
-const router = useRouter();
-const file: any = vueref();
-const haveIcon: any = vueref(false);
-const profileValue: any = vueref("");
+const iconImg: Ref<string> = vueref("/noicon.png");
+const iconFileName: Ref<string> = vueref("");
+const currentAuth: Auth = getAuth();
+const router: Router = useRouter();
+const file: Ref<any> = vueref();
+const haveIcon: Ref<boolean> = vueref(false);
 
 // ログイン状態の場合の処理
 onAuthStateChanged(currentAuth, (currentUser) => {
@@ -45,7 +54,7 @@ onAuthStateChanged(currentAuth, (currentUser) => {
 });
 
 // アイコン画像プレビュー処理
-const previewImage = (event: any) => {
+const previewImage: (event: any) => void = (event) => {
   haveIcon.value = true;
   let reader = new FileReader();
   reader.onload = function (e: any) {

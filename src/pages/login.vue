@@ -1,6 +1,6 @@
 <script lang="ts">
-import { reactive, ref, defineComponent } from "vue";
-
+import { reactive, ref, defineComponent, onMounted } from "vue";
+import type { Ref } from "vue";
 import EmailField from "@/components/atoms/EmailField.vue";
 import PasswordField from "@/components/atoms/PasswordField.vue";
 import SubmitButtonState from "@/components/atoms/SubmitBtnState";
@@ -12,6 +12,8 @@ import {
 } from "firebase/auth";
 import { auth } from "../../firebase";
 import { useRouter } from "vue-router";
+import type { Router } from "vue-router";
+import type { Auth } from "firebase/auth";
 
 export default defineComponent({
   components: {
@@ -19,34 +21,35 @@ export default defineComponent({
     PasswordField,
   },
   setup() {
-    let user = reactive({
+    let user: {
+      email: string;
+      password: string;
+    } = reactive({
       email: "",
       password: "",
     });
 
-    const router = useRouter();
-    const loginJudge: any = ref(false);
-    const currentAuth = getAuth();
-    console.log(loginJudge.value);
+    const router: Router = useRouter();
+    const loginJudge: Ref<boolean> = ref(false);
+    const currentAuth: Auth = getAuth();
 
-    onAuthStateChanged(currentAuth, (currentUser) => {
-      if (currentUser) {
-        loginJudge.value = !loginJudge.value;
-      }
-
-      console.log(loginJudge.value);
+    onMounted(() => {
+      onAuthStateChanged(currentAuth, (currentUser) => {
+        if (currentUser) {
+          loginJudge.value = !loginJudge.value;
+        }
+        console.log(`ログイン状態：${loginJudge.value}`);
+      });
     });
 
     const { error } = formValidation();
     const { isSignupButtonDisabled } = SubmitButtonState(user, error);
 
-    const toTop = () => {
+    const toTop: () => void = () => {
       router.push("/home");
     };
 
-    const loginButtonPressed = async () => {
-      console.log(user);
-      console.log("mtouroku");
+    const loginButtonPressed: () => Promise<void> = async () => {
       try {
         await signInWithEmailAndPassword(auth, user.email, user.password).then(
           () => {
@@ -100,14 +103,15 @@ export default defineComponent({
   margin: 150px auto;
   padding: 20px 0;
 }
-.form {
-  margin: 30px 50px;
-}
-
 .icon {
   margin: 0 auto;
 }
-
+.form {
+  margin: 30px 50px;
+}
+.email_input {
+  margin-bottom: 20px;
+}
 .login_button {
   background-color: #1596f7;
   color: white;
@@ -121,10 +125,6 @@ export default defineComponent({
 .login_button:hover {
   cursor: pointer;
 }
-
-.email_input {
-  margin-bottom: 20px;
-}
 .no_account {
   display: flex;
   font-size: 14px;
@@ -133,7 +133,7 @@ export default defineComponent({
 .register {
   font-weight: bold;
   color: #1596f7;
-  margin-left: 10px
+  margin-left: 10px;
 }
 .register:hover {
   opacity: 0.6;

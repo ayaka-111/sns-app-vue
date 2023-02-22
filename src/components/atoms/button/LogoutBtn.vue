@@ -1,6 +1,6 @@
 <script lang="ts">
 import { signOut } from "firebase/auth";
-import { auth } from "../../../firebase";
+import { auth } from "../../../../firebase";
 import { useRouter } from "vue-router";
 
 export default {
