@@ -74,6 +74,7 @@ const change =() :void=> {
 
 <template>
     <Header />
+    <div  class="profileChange-header250"></div>
     <div class="profileChange">
     <form  @submit.prevent="change" >
 
@@ -107,11 +108,85 @@ const change =() :void=> {
 </template>
 
 <style>
+.profileChange-header250{
+    margin-left: 250px;
+}
 .profileChange{
+    margin:auto;
+    width:800px;
+    font-size: 15px;
+    font-weight: bold;
+    border : solid 1px silver;
+}
+.profileChangeIconChange{
+    display: flex;
+    margin-top: 40px;
+    margin-left: 85px;
+    margin-bottom: 50px;
+}
+.profileChangeIconInput{
+    padding-top: 15px;
+    padding-left: 30px;
+    color: #1596F7;
+    font-size: 12px;
+}
+
+.profileChangeButton{
+    background-color: #1596F7;
+    color: white;
+    font-weight: bold;
+    border-radius: 20%;
+    width: 100px;
+    margin:30px;
+    padding: 3px;
+    margin-top: 60px;
+    margin-left: 350px;
+}
+
+.profileChangeIconImg {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    
+}
+
+.profileChangeThreeChange{
+    margin-top: 40px;
+    margin-left: 20px;
+    width:700px;
+
+}
+
+.profileChangeName{
+    margin-left: 74px; 
+    width:100%;
+    margin-top: 40px;
+}
+
+.profileChangeprofile{
+    margin-left: 16px; 
+    margin-top: 40px;
+    width:100%;
+}
+
+.profileChangeUserName{
+    margin-top: 40px;
+    width:100%;
+}
+
+.profileChangeInput{
+    margin-left: 20px;
+    width:70%;
+}
+
+.uploadInput{
+    display:none;
+}
+
+/* .profileChange{
     margin-left: 450px;
     margin-right: 100px;
     margin-top: 50px;
-    /* margin-bottom: 100px; */
     font-size: 15px;
     font-weight: bold;
     border : solid 1px silver;
@@ -153,7 +228,6 @@ const change =() :void=> {
 .profileChangeName{
     margin-top: 40px;
     margin-left: 74px;
-    /* margin-bottom: 10px; */
 }
 .profileChangeprofile{
     margin-top: 40px;
@@ -165,7 +239,7 @@ const change =() :void=> {
 .profileChangeInput{
     margin-left: 20px;
     width:700px
-}
+} */
 
 
 </style>
