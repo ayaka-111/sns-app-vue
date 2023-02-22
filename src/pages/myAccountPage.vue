@@ -34,6 +34,9 @@ onMounted(() => {
     }
   });
 });
+const toProfileEdit = () => {
+  router.push("/profileChange");
+};
 const onClickChangeSwitch = () => {
   displaySwitch.value = !displaySwitch.value;
 };
@@ -54,7 +57,9 @@ console.log(displaySwitch.value);
           <div class="user_detail">
             <div class="flex first_line">
               <p class="user_name">{{ currentUserData.userName }}</p>
-              <button class="profile_edit_btn">プロフィール編集</button>
+              <button @click="toProfileEdit" class="profile_edit_btn">
+                プロフィール編集
+              </button>
             </div>
             <div class="flex">
               <p class="three_amount">
@@ -63,18 +68,22 @@ console.log(displaySwitch.value);
                 }}</span
                 >件
               </p>
-              <p class="three_amount">
-                フォロワー<span class="amount">{{
-                  currentUserData.follower.length
-                }}</span
-                >人
-              </p>
-              <p class="three_amount">
-                フォロー中<span class="amount">{{
-                  currentUserData.follow.length
-                }}</span
-                >人
-              </p>
+              <a v-bind:href="`/followerList/${currentUserId}`">
+                <p class="three_amount">
+                  フォロワー<span class="amount">{{
+                    currentUserData.follower.length
+                  }}</span
+                  >人
+                </p>
+              </a>
+              <a v-bind:href="`/followList/${currentUserId}`">
+                <p class="three_amount">
+                  フォロー中<span class="amount">{{
+                    currentUserData.follow.length
+                  }}</span
+                  >人
+                </p>
+              </a>
             </div>
             <p class="name">{{ currentUserData.name }}</p>
             <p>{{ currentUserData.profile }}</p>
@@ -82,20 +91,40 @@ console.log(displaySwitch.value);
         </div>
       </div>
       <div v-if="displaySwitch" class="displayLavel">
-        <div class="effective">
-          <p>投稿</p>
+        <div class="effective flex">
+          <p>
+            <font-awesome-icon
+              :icon="['fas', 'table-cells']"
+              class="icon"
+            />投稿
+          </p>
         </div>
         <div @click="onClickChangeSwitch" class="noEffect">
-          <p>保存済み</p>
+          <p>
+            <font-awesome-icon
+              :icon="['far', 'bookmark']"
+              class="icon"
+            />保存済み
+          </p>
         </div>
       </div>
 
       <div v-else class="displayLavel">
-        <div @click="onClickChangeSwitch" class="noEffect">
-          <p>投稿</p>
+        <div @click="onClickChangeSwitch" class="noEffect flex">
+          <p>
+            <font-awesome-icon
+              :icon="['fas', 'table-cells']"
+              class="icon"
+            />投稿
+          </p>
         </div>
         <div class="effective">
-          <p>保存済み</p>
+          <p>
+            <font-awesome-icon
+              :icon="['far', 'bookmark']"
+              class="icon"
+            />保存済み
+          </p>
         </div>
       </div>
       <div class="posts" v-if="displaySwitch">
@@ -211,5 +240,8 @@ console.log(displaySwitch.value);
 }
 .noEffect > p:hover {
   cursor: pointer;
+}
+.icon {
+  padding-right: 7px;
 }
 </style>

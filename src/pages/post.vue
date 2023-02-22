@@ -433,12 +433,7 @@ const close = () => {
               />
             </button>
           </div>
-          <button>
-            <font-awesome-icon
-              :icon="['far', 'bookmark']"
-              class="post_bookmark"
-            />
-          </button>
+          <KeepBtn v-bind:postId="postId" />
         </div>
         <div class="post_favorite">
           いいね

@@ -33,6 +33,7 @@ export default {
 <style scoped>
 input {
   width: 100%;
+  height: 35px;
 }
 .error_text {
   color: red;

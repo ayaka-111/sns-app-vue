@@ -8,8 +8,11 @@ import {
   faLeaf,
   faHeart as fasHeart,
   faBookmark as fasBookmark,
+  faEye,
+  faEyeSlash,
   faEllipsis,
   faXmark,
+  faTableCells,
 } from "@fortawesome/free-solid-svg-icons";
 import {
   faHeart as farHeart,
@@ -28,9 +31,12 @@ library.add(
   fasBookmark,
   farBookmark,
   faImages,
+  faEye,
+  faEyeSlash,
   faEllipsis,
   faCircleCheck,
-  faXmark
+  faXmark,
+  faTableCells
 );
 
 const app = createApp(App);
