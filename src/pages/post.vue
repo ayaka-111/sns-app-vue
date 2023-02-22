@@ -16,9 +16,7 @@ import { deleteObject, ref as storageRef } from "firebase/storage";
 import { auth, db, storage } from "../../firebase";
 import { onAuthStateChanged } from "@firebase/auth";
 import { useRoute, useRouter } from "vue-router";
-import Header from "../components/organisms/header.vue";
-// import PostNavModal from "../components/organisms/PostNavModal.vue";
-// import PostNavPanel from "../components/molecules/PostNavPanel.vue";
+import CustomHeader from "../components/organisms/header.vue";
 
 //postIdを受け取る
 const route = useRoute();
@@ -65,6 +63,8 @@ const dateToDate = reactive({
 // 取得を待つ
 const loading = ref(true);
 
+const postDocumentIdArray: any = ref([]);
+
 onMounted(() => {
   //ログイン認証、uid取得
   onAuthStateChanged(auth, (currentUser: any) => {
@@ -93,6 +93,14 @@ onMounted(() => {
 
   // postsコレクションへの参照を取得
   const postCollectionRef = collection(db, "posts");
+
+  // postsのドキュメントId全件取得
+  getDocs(postCollectionRef).then((querySnapshot) => {
+    querySnapshot.forEach((doc) => {
+      postDocumentIdArray.value.push(doc.id);
+    });
+  });
+  console.log(postDocumentIdArray.value);
 
   // 上記を元にドキュメントへの参照を取得(クリックされた投稿のpostIdを指定する)
   const postDocRefId = doc(postCollectionRef, postId);
@@ -285,6 +293,7 @@ const deleteButton = async (e: any) => {
   });
 
   console.log("削除しました");
+
   location.href = "/myAccountPage";
 };
 
@@ -296,176 +305,243 @@ const onClickComment = () => {
 
 // menuの表示切り替え
 const show = ref(false);
-
+// モーダル開く
 const open = () => {
   show.value = true;
 };
-
+// モーダル閉じる
 const close = () => {
   show.value = false;
+};
+// 削除再確認モーダル
+const deleteShow = ref(false);
+const deleteOpen = () => {
+  deleteShow.value = true;
+};
+const deleteClose = () => {
+  deleteShow.value = false;
 };
 </script>
 
 <template>
-  <Header />
+  <CustomHeader />
   <section class="post">
-    <section class="post_wrapper" v-if="!loading">
-      <section>
-        <div class="post_postImg">
-          <img v-bind:src="postData.imageUrl" alt="投稿写真" />
-        </div>
-      </section>
-      <section class="post_content">
-        <div class="post_title">
-          <div class="post_profile" v-if="postData.userId === loginUserUid">
-            <a href="/myAccountPage">
-              <img v-bind:src="postData.icon" alt="icon" class="post_iconImg" />
-            </a>
-            <a href="/myAccountPage">
-              <p class="post_userName">{{ postData.userName }}</p>
-            </a>
+    <section v-if="!loading">
+      <section v-if="postDocumentIdArray.includes(postId)" class="post_wrapper">
+        <section>
+          <div class="post_postImg">
+            <img v-bind:src="postData.imageUrl" alt="投稿写真" />
           </div>
-          <div class="post_profile" v-else>
-            <a v-bind:href="`/accountPage/${postData.userId}`">
-              <img v-bind:src="postData.icon" alt="icon" class="post_iconImg" />
-            </a>
-            <a v-bind:href="`/accountPage/${postData.userId}`">
-              <p class="post_userName">{{ postData.userName }}</p>
-            </a>
-          </div>
+        </section>
+        <section class="post_content">
+          <div class="post_title">
+            <div class="post_profile" v-if="postData.userId === loginUserUid">
+              <a href="/myAccountPage">
+                <img
+                  v-bind:src="postData.icon"
+                  alt="icon"
+                  class="post_iconImg"
+                />
+              </a>
+              <a href="/myAccountPage">
+                <p class="post_userName">{{ postData.userName }}</p>
+              </a>
+            </div>
+            <div class="post_profile" v-else>
+              <a v-bind:href="`/accountPage/${postData.userId}`">
+                <img
+                  v-bind:src="postData.icon"
+                  alt="icon"
+                  class="post_iconImg"
+                />
+              </a>
+              <a v-bind:href="`/accountPage/${postData.userId}`">
+                <p class="post_userName">{{ postData.userName }}</p>
+              </a>
+            </div>
 
-          <div
-            id="postNav"
-            class="postNav"
-            v-if="postData.userId === loginUserUid"
-          >
-            <!--  クリック要素  -->
-            <span @click="open" class="modal_open_btn"
-              ><font-awesome-icon :icon="['fas', 'ellipsis']" class="post_menu"
-            /></span>
+            <div
+              id="postNav"
+              class="postNav"
+              v-if="postData.userId === loginUserUid"
+            >
+              <!--  クリック要素  -->
+              <span @click="open" class="modal_open_btn"
+                ><font-awesome-icon
+                  :icon="['fas', 'ellipsis']"
+                  class="post_menu"
+              /></span>
 
-            <!--  モーダルウィンドウ  -->
-            <div v-show="show" class="modal_contents">
-              <!-- モーダルウィンドウの背景 -->
-              <div @click="close" class="modal_contents_bg"></div>
+              <!--  モーダルウィンドウ  -->
+              <div v-show="show" class="modal_contents">
+                <!-- モーダルウィンドウの背景 -->
+                <div @click="close" class="modal_contents_bg"></div>
 
-              <!--   モーダルウィンドウの中身   -->
-              <div class="modal_contents_wrap">
-                <button @click="deleteButton" class="deleteBtn">削除</button>
+                <!--   モーダルウィンドウの中身   -->
+                <div class="modal_contents_wrap">
+                  <!-- <button @click="deleteButton" class="deleteBtn">削除</button> -->
+                  <button @click="deleteOpen" class="deleteBtn">削除</button>
 
-                <button @click="changeButton" class="updateBtn">編集</button>
-                <!--   モーダルウィンドウを閉じる   -->
-                <button @click="close" class="modal_close_btn">キャンセル</button>
+                  <!--  削除再確認モーダルウィンドウ  -->
+                  <div v-show="deleteShow" class="modal_contents">
+                    <!-- 削除再確認モーダルウィンドウの背景 -->
+                    <div @click="deleteClose" class="modal_contents_bg"></div>
+                    <!-- 削除再確認モーダルの中身 -->
+                    <div class="deleteModal_contents_wrap">
+                      <div class="deleteModal_title">
+                        <h1>投稿を削除しますか？</h1>
+                        <p class="deleteText">この投稿を削除しますか？</p>
+                      </div>
+                      <button
+                        @click="deleteButton"
+                        class="deleteModal_deleteBtn"
+                      >
+                        削除
+                      </button>
+                      <button
+                        @click="deleteClose"
+                        class="deleteModal_close_btn"
+                      >
+                        キャンセル
+                      </button>
+                    </div>
+                  </div>
+
+                  <button @click="changeButton" class="updateBtn">編集</button>
+                  <!--   モーダルウィンドウを閉じる   -->
+                  <button @click="close" class="modal_close_btn">
+                    キャンセル
+                  </button>
+                </div>
               </div>
             </div>
           </div>
-        </div>
 
-        <div class="post_captionContent">
-          <div class="post_commentList" v-if="postData.userId === loginUserUid">
-            <a href="/myAccountPage">
-              <img v-bind:src="postData.icon" alt="icon" class="post_iconImg" />
-            </a>
-            <a href="/myAccountPage">
-              <p class="post_userName">{{ postData.userName }}</p>
-            </a>
-            <div class="post_caption">{{ postData.caption }}</div>
-          </div>
-          <div class="post_commentList" v-else>
-            <a v-bind:href="`/accountPage/${postData.userId}`">
-              <img v-bind:src="postData.icon" alt="icon" class="post_iconImg" />
-            </a>
-            <a v-bind:href="`/accountPage/${postData.userId}`">
-              <p class="post_userName">{{ postData.userName }}</p>
-            </a>
-            <div class="post_caption">{{ postData.caption }}</div>
-          </div>
-
-          <div
-            v-for="comment in commentData"
-            v-bind:key="comment.id"
-            class="post_commentList"
-          >
+          <div class="post_captionContent">
             <div
-              v-if="comment.userId === loginUserUid"
-              class="post_commentIconImg"
+              class="post_commentList"
+              v-if="postData.userId === loginUserUid"
             >
               <a href="/myAccountPage">
-                <img v-bind:src="comment.icon" alt="iconImg" />
+                <img
+                  v-bind:src="postData.icon"
+                  alt="icon"
+                  class="post_iconImg"
+                />
               </a>
-            </div>
-            <div v-else class="post_commentIconImg">
-              <a v-bind:href="`/accountPage/${comment.userId}`">
-                <img v-bind:src="comment.icon" alt="iconImg" />
+              <a href="/myAccountPage">
+                <p class="post_userName">{{ postData.userName }}</p>
               </a>
+              <div class="post_caption">{{ postData.caption }}</div>
             </div>
-            <div class="post_commentContent">
-              <p
+            <div class="post_commentList" v-else>
+              <a v-bind:href="`/accountPage/${postData.userId}`">
+                <img
+                  v-bind:src="postData.icon"
+                  alt="icon"
+                  class="post_iconImg"
+                />
+              </a>
+              <a v-bind:href="`/accountPage/${postData.userId}`">
+                <p class="post_userName">{{ postData.userName }}</p>
+              </a>
+              <div class="post_caption">{{ postData.caption }}</div>
+            </div>
+
+            <div
+              v-for="comment in commentData"
+              v-bind:key="comment.id"
+              class="post_commentList"
+            >
+              <div
                 v-if="comment.userId === loginUserUid"
-                class="post_commentName"
+                class="post_commentIconImg"
               >
-                <a href="/myAccountPage">{{ comment.userName }}</a>
-              </p>
-              <p v-else class="post_commentName">
-                <a v-bind:href="`/accountPage/${comment.userId}`">
-                  {{ comment.userName }}
+                <a href="/myAccountPage">
+                  <img v-bind:src="comment.icon" alt="iconImg" />
                 </a>
-              </p>
-              <p>{{ comment.comment }}</p>
+              </div>
+              <div v-else class="post_commentIconImg">
+                <a v-bind:href="`/accountPage/${comment.userId}`">
+                  <img v-bind:src="comment.icon" alt="iconImg" />
+                </a>
+              </div>
+              <div class="post_commentContent">
+                <p
+                  v-if="comment.userId === loginUserUid"
+                  class="post_commentName"
+                >
+                  <a href="/myAccountPage">{{ comment.userName }}</a>
+                </p>
+                <p v-else class="post_commentName">
+                  <a v-bind:href="`/accountPage/${comment.userId}`">
+                    {{ comment.userName }}
+                  </a>
+                </p>
+                <p>{{ comment.comment }}</p>
+              </div>
             </div>
           </div>
-        </div>
-        <div class="post_buttons">
-          <div class="post_favCom">
-            <button @click="onClickRemoveFavorite" v-if="favorite">
+          <div class="post_buttons">
+            <div class="post_favCom">
+              <button @click="onClickRemoveFavorite" v-if="favorite">
+                <font-awesome-icon
+                  :icon="['fas', 'heart']"
+                  class="post_heart post_redHeart"
+                />
+              </button>
+              <button @click="onClickAddFavorite" v-else>
+                <font-awesome-icon
+                  :icon="['far', 'heart']"
+                  class="post_heart"
+                />
+              </button>
+              <button @click="onClickComment">
+                <font-awesome-icon
+                  :icon="['far', 'comment']"
+                  class="post_comment"
+                />
+              </button>
+            </div>
+            <button>
               <font-awesome-icon
-                :icon="['fas', 'heart']"
-                class="post_heart post_redHeart"
-              />
-            </button>
-            <button @click="onClickAddFavorite" v-else>
-              <font-awesome-icon :icon="['far', 'heart']" class="post_heart" />
-            </button>
-            <button @click="onClickComment">
-              <font-awesome-icon
-                :icon="['far', 'comment']"
-                class="post_comment"
+                :icon="['far', 'bookmark']"
+                class="post_bookmark"
               />
             </button>
           </div>
-          <button>
-            <font-awesome-icon
-              :icon="['far', 'bookmark']"
-              class="post_bookmark"
+          <div class="post_favorite">
+            いいね
+            <span class="post_favoriteLength">{{ postFavoriteLength }} </span>
+            件
+          </div>
+          <div class="post_date">
+            {{ dateToDate.month }}月 {{ dateToDate.date }},
+            {{ dateToDate.year }}
+          </div>
+          <div class="post_addCommentContent">
+            <textarea
+              v-model="inputComment"
+              class="post_commentTextarea"
+              placeholder="コメントを追加..."
+              id="inputComment"
+              maxlength="2200"
             />
-          </button>
-        </div>
-        <div class="post_favorite">
-          いいね
-          <span class="post_favoriteLength">{{ postFavoriteLength }} </span>
-          件
-        </div>
-        <div class="post_date">
-          {{ dateToDate.month }}月 {{ dateToDate.date }}, {{ dateToDate.year }}
-        </div>
-        <div class="post_addCommentContent">
-          <textarea
-            v-model="inputComment"
-            class="post_commentTextarea"
-            placeholder="コメントを追加..."
-            id="inputComment"
-            maxlength="2200"
-          />
-          <button
-            @click="onClickAddComment"
-            class="post_focusCommentBtn"
-            v-if="inputComment.length > 0"
-          >
-            投稿する
-          </button>
-          <button class="post_commentBtn" v-else>投稿する</button>
-        </div>
+            <button
+              @click="onClickAddComment"
+              class="post_focusCommentBtn"
+              v-if="inputComment.length > 0"
+            >
+              投稿する
+            </button>
+            <button class="post_commentBtn" v-else>投稿する</button>
+          </div>
+        </section>
       </section>
+      <section class="post_wrapper" v-else>
+        <p class="post_noPostText">投稿が存在しません</p>
+      </section>
+
     </section>
     <p v-else class="loading_text">loading...</p>
   </section>
@@ -482,6 +558,7 @@ const close = () => {
   margin-left: 330px;
   margin-top: 45px;
   background-color: #ffff;
+  position: relative;
 }
 .post_postImg {
   height: 600px;
@@ -514,6 +591,8 @@ const close = () => {
   height: 35px;
   border-radius: 50%;
   object-fit: cover;
+  border: 1px solid lightgray;
+  background-color: #ffff;
 }
 .post_userName {
   font-weight: bold;
@@ -545,6 +624,8 @@ const close = () => {
   height: 100%;
   border-radius: 50%;
   object-fit: cover;
+  border: 1px solid lightgray;
+  background-color: #ffff;
 }
 .post_commentName {
   font-weight: bold;
@@ -622,7 +703,6 @@ const close = () => {
 button {
   cursor: pointer;
 }
-
 .postNav {
   padding-right: 4%;
 }
@@ -666,6 +746,40 @@ button {
   color: red;
   font-weight: bold;
 }
+.deleteModal_contents_wrap {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  background-color: #fff;
+  width: 100%;
+  height: 100%;
+  margin: auto;
+  transform: translate(-50%, -50%);
+  border-radius: 5%;
+  display: flex;
+  flex-direction: column;
+  text-align: center;
+}
+.deleteModal_title {
+  height: 50%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.deleteText {
+  color: gray;
+}
+.deleteModal_deleteBtn {
+  border-top: 1px solid lightgray;
+  border-bottom: 1px solid lightgray;
+  color: red;
+  font-weight: bold;
+  height: 25%;
+}
+.deleteModal_close_btn {
+  cursor: pointer;
+  height: 25%;
+}
 .updateBtn {
   border-top: 1px solid lightgray;
   border-bottom: 1px solid lightgray;
@@ -675,6 +789,15 @@ button {
 .modal_close_btn {
   cursor: pointer;
   height: 33%;
+}
+.post_noPostText {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  font-weight: bold;
+  font-size: 2rem;
+  color: gray;
+  transform: translate(-50%, -50%);
 }
 .loading_text {
   text-align: center;

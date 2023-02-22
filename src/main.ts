@@ -10,6 +10,10 @@ import {
   faBookmark as fasBookmark,
   faEllipsis,
   faXmark,
+  faHouse,
+  faMagnifyingGlass,
+  faBars,
+  faGear,
 } from "@fortawesome/free-solid-svg-icons";
 import {
   faHeart as farHeart,
@@ -17,6 +21,7 @@ import {
   faBookmark as farBookmark,
   faImages,
   faCircleCheck,
+  faSquarePlus,
 } from "@fortawesome/free-regular-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 
@@ -30,7 +35,12 @@ library.add(
   faImages,
   faEllipsis,
   faCircleCheck,
-  faXmark
+  faXmark,
+  faSquarePlus,
+  faHouse,
+  faMagnifyingGlass,
+  faBars,
+  faGear
 );
 
 const app = createApp(App);

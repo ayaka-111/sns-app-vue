@@ -1,5 +1,5 @@
-<script setup lang="ts">
-import { ref } from "vue";
+<script lang="ts">
+import { defineComponent, ref } from "vue";
 import { onAuthStateChanged } from "@firebase/auth";
 import {
   addDoc,
@@ -16,135 +16,150 @@ import {
   ref as storageRef,
   uploadBytesResumable,
 } from "@firebase/storage";
-import { auth, db, storage } from "../../firebase";
-import CustomHeader from "../components/organisms/header.vue";
+import { auth, db, storage } from "../../../firebase";
+// import Header from "../organisms/header.vue";
 import { useRouter } from "vue-router";
 
-// ログインユーザー
-const loginUser: any = ref("");
+export default defineComponent({
+  name: "NewPost",
+  setup: () => {
+    // ログインユーザー
+    const loginUser: any = ref("");
 
-//ログインユーザーのドキュメント
-const loginUserDocRefId: any = ref("");
+    //ログインユーザーのドキュメント
+    const loginUserDocRefId: any = ref("");
 
-const fileName = ref();
+    const fileName = ref();
 
-const gsRef = ref();
+    const gsRef = ref();
 
-//caption入力内容
-const inputCaption = ref("");
+    //caption入力内容
+    const inputCaption = ref("");
 
-//投稿する画像のurl
-const postUrl = ref("");
+    //投稿する画像のurl
+    const postUrl = ref("");
 
-const router = useRouter();
+    const router = useRouter();
 
-//ログイン認証、user情報取得
-onAuthStateChanged(auth, (currentUser: any) => {
-  if (currentUser) {
-    //ログインユーザーの情報取得
-    const userCollectionRef = collection(db, "users");
+    //ログイン認証、user情報取得
+    onAuthStateChanged(auth, (currentUser: any) => {
+      if (currentUser) {
+        //ログインユーザーの情報取得
+        const userCollectionRef = collection(db, "users");
 
-    // 上記を元にドキュメントへの参照を取得(クリックされた投稿のpostIdを指定する)
-    const userDocRefId = doc(userCollectionRef, currentUser.uid);
+        // 上記を元にドキュメントへの参照を取得(クリックされた投稿のpostIdを指定する)
+        const userDocRefId = doc(userCollectionRef, currentUser.uid);
 
-    loginUserDocRefId.value = userDocRefId;
+        loginUserDocRefId.value = userDocRefId;
 
-    // 上記を元にドキュメントのデータを取得
-    getDoc(userDocRefId).then((data) => {
-      loginUser.value = data.data();
+        // 上記を元にドキュメントのデータを取得
+        getDoc(userDocRefId).then((data) => {
+          loginUser.value = data.data();
+        });
+      }
     });
-  }
-});
 
-// 写真アップロードボタン
-const uploadButton = (e: any) => {
-  const file = e.target.files[0];
-  fileName.value = file;
-  const gsReference = storageRef(
-    storage,
-    `${loginUser.value.userId}/post/postId/${file.name}`
-  );
+    // 写真アップロードボタン
+    const uploadButton = (e: any) => {
+      const file = e.target.files[0];
+      fileName.value = file;
+      const gsReference = storageRef(
+        storage,
+        `${loginUser.value.userId}/post/postId/${file.name}`
+      );
 
-  gsRef.value = gsReference;
+      gsRef.value = gsReference;
 
-  uploadBytesResumable(gsReference, file).then(() => {
-    console.log("追加しました");
-    getDownloadURL(gsReference).then((url) => {
-      // 画面表示で追加されたか判断するためrefに代入
-      postUrl.value = url;
-    });
-  });
-};
-
-const show = ref(false);
-
-// シェアボタン
-const shareButton = async () => {
-  // postsコレクション取得
-  const postsCollectionRef: any = collection(db, "posts");
-
-  // postsに追加する内容
-  const postDoc = await addDoc(postsCollectionRef, {
-    userId: loginUser.value.userId,
-    userName: loginUser.value.userName,
-    caption: inputCaption.value,
-    timestamp: serverTimestamp(),
-    favorites: [],
-    keeps: [],
-    comments: [],
-    icon: loginUser.value.icon,
-  });
-
-  // storageのpath更新(postIdを指定して画像アップロードする)
-  const newGsReference = storageRef(
-    storage,
-    `${loginUser.value.userId}/post/${postDoc.id}/postImg.png`
-  );
-
-  //新しいURL取得
-  uploadBytesResumable(newGsReference, fileName.value).then(() => {
-    console.log("追加しました");
-    getDownloadURL(newGsReference).then((newUrl) => {
-      // addDocで追加した時に自動生成されたドキュメントを参照
-      const newPostDocRefId = doc(db, "posts", postDoc.id);
-      console.log(newUrl);
-      //取得したドキュメントとidとURLを元にpostIdとimageURLを追加
-      updateDoc(newPostDocRefId, {
-        postId: postDoc.id,
-        imageUrl: newUrl,
+      uploadBytesResumable(gsReference, file).then(() => {
+        console.log("追加しました");
+        getDownloadURL(gsReference).then((url) => {
+          // 画面表示で追加されたか判断するためrefに代入
+          postUrl.value = url;
+        });
       });
-    });
-  });
+    };
 
-  // ログインユーザーのusersデータのpostsにpostIdを追加
-  updateDoc(loginUserDocRefId.value, {
-    posts: arrayUnion(postDoc.id),
-  });
+    const show = ref(false);
 
-  // 最初にアップロードしたstorageの画像を削除
-  await deleteObject(gsRef.value)
-    .then(() => {
-      console.log("postIdファイル削除完了");
-    })
-    .catch((err) => {
-      console.log(err);
-    });
+    // シェアボタン
+    const shareButton = async () => {
+      // postsコレクション取得
+      const postsCollectionRef: any = collection(db, "posts");
 
-  console.log("投稿完了");
+      // postsに追加する内容
+      const postDoc = await addDoc(postsCollectionRef, {
+        userId: loginUser.value.userId,
+        userName: loginUser.value.userName,
+        caption: inputCaption.value,
+        timestamp: serverTimestamp(),
+        favorites: [],
+        keeps: [],
+        comments: [],
+        icon: loginUser.value.icon,
+      });
 
-  // home画面に遷移する
-  // location.href = "/home";
-  // モーダル開く
-  show.value = true;
-};
-const close = () => {
-  // show.value = false;
-  router.push("/myAccountPage");
-};
+      // storageのpath更新(postIdを指定して画像アップロードする)
+      const newGsReference = storageRef(
+        storage,
+        `${loginUser.value.userId}/post/${postDoc.id}/postImg.png`
+      );
+
+      //新しいURL取得
+      uploadBytesResumable(newGsReference, fileName.value).then(() => {
+        console.log("追加しました");
+        getDownloadURL(newGsReference).then((newUrl) => {
+          // addDocで追加した時に自動生成されたドキュメントを参照
+          const newPostDocRefId = doc(db, "posts", postDoc.id);
+          console.log(newUrl);
+          //取得したドキュメントとidとURLを元にpostIdとimageURLを追加
+          updateDoc(newPostDocRefId, {
+            postId: postDoc.id,
+            imageUrl: newUrl,
+          });
+        });
+      });
+
+      // ログインユーザーのusersデータのpostsにpostIdを追加
+      updateDoc(loginUserDocRefId.value, {
+        posts: arrayUnion(postDoc.id),
+      });
+
+      // 最初にアップロードしたstorageの画像を削除
+      await deleteObject(gsRef.value)
+        .then(() => {
+          console.log("postIdファイル削除完了");
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+
+      console.log("投稿完了");
+
+      // home画面に遷移する
+      // location.href = "/home";
+      // モーダル開く
+      show.value = true;
+    };
+    const close = () => {
+      // show.value = false;
+      router.push("/myAccountPage");
+    };
+    return {
+      postUrl,
+      uploadButton,
+      shareButton,
+      show,
+      close,
+      open,
+      loginUser,
+      inputCaption,
+    };
+  },
+});
 </script>
 
 <template>
-  <CustomHeader />
+  <!-- <Header /> -->
   <section class="newPost">
     <section v-if="postUrl === ''" class="newPost_uploadingSection">
       <div class="newPost_title">新規投稿を作成</div>
