@@ -17,9 +17,6 @@ const newPassValue:any = ref();
 const errMessage = ref();
 const current:any = ref("");
 
-// const authData = getAuth();
-// const current: any = authData.currentUser;
-
 onAuthStateChanged(auth, (currentUser: any) => {
     current.value=currentUser
     const loginUserData = doc(db, "users", currentUser.uid);
@@ -27,9 +24,10 @@ onAuthStateChanged(auth, (currentUser: any) => {
     userData.value = data.data();
     console.log(current)
     });
-});
+  });
 
-
+// const auth = getAuth();
+// const currentUser: any = auth.currentUser;
 
  // パスワードの変更関数を定義(Authentication)
  const updatePassword = (
@@ -41,6 +39,7 @@ onAuthStateChanged(auth, (currentUser: any) => {
         return reject();
       }
 
+
       // クレデンシャルの取得
       const credential = EmailAuthProvider.credential(
         current.value.email || "",
@@ -51,6 +50,7 @@ onAuthStateChanged(auth, (currentUser: any) => {
       // メールアドレスの再認証
       reauthenticateWithCredential(current.value, credential)
         .then((userCredential) => {
+          console.log(userCredential)
           // パスワードの更新
           firebaseUpdatePassword(userCredential.user, newPassword)
             .then(() => resolve())
@@ -62,17 +62,19 @@ onAuthStateChanged(auth, (currentUser: any) => {
         })
         .catch((error) => reject(errMessage.value=error));
     });  
-
   };
 
+
+
 const passChange :()=> void = () => {
-    updatePassword(nowPassValue, newPassValue);
+    updatePassword(nowPassValue.value, newPassValue.value);
     console.log(nowPassValue)
     console.log(newPassValue)
     console.log(current.value)
 
     // ここにデータベースの更新のコードもかく
 }
+
 
 </script>
 
@@ -89,6 +91,8 @@ const passChange :()=> void = () => {
 </div>
 
 <form  @submit.prevent="passChange" >
+  {{ current.password }}
+  {{ current.email}}
 <div>現在のパスワード<input v-model="nowPassValue"  placeholder="現在のパスワード" /></div> 
 <div>新しいパスワード<input  v-model="newPassValue"   placeholder="半角英小文字、数字を含む6文字以上15文字以内" /></div>
 <div>新しいパスワードを確認<input v-model="newPassValue"  placeholder="確認の為もう一度入力" /></div>

@@ -10,7 +10,7 @@ import {
   getDoc,
   updateDoc,
 } from "@firebase/firestore";
-// import { watch } from "fs";
+import Header from "../components/organisms/header.vue";
 
 const route = useRoute();
 const userId: any = route.params.userId;
@@ -106,64 +106,67 @@ onMounted(() => {
 // };
 </script>
 <template>
-  <div class="follow_wrapper">
-    <p class="title">フォロー中</p>
-    <div v-if="!isLoading">
-      <div v-if="anotherUserData.value !== []">
-        <ol>
-          <div v-for="(anotherUser, index) in anotherUserData" :key="index">
-            <li
-              class="user_data"
-              v-if="anotherUser.value == currentUserId.value"
-            >
-              <a href="/myAccountPage">
-                <div class="user_icon">
-                  <img v-bind:src="anotherUser.icon" alt="ユーザーアイコン" />
-                </div>
-              </a>
-              <a href="/myAccountPage">
-                <div class="user_text_data">
-                  <p class="user_name">{{ anotherUser.userName }}</p>
-                  <p class="name">{{ anotherUser.name }}</p>
-                </div>
-              </a>
-            </li>
-            <li class="user_data" v-else>
-              <a v-bind:href="`/accountPage/${anotherUser.userId}`">
-                <div class="user_icon">
-                  <img v-bind:src="anotherUser.icon" alt="ユーザーアイコン" />
-                </div>
-              </a>
-              <a v-bind:href="`/accountPage/${anotherUser.userId}`">
-                <div class="user_text_data">
-                  <p class="user_name">{{ anotherUser.userName }}</p>
-                  <p class="name">{{ anotherUser.name }}</p>
-                </div>
-              </a>
-            </li>
-            <!-- <button v-if="isFollowing" @click="onClickUnFollow" class="follow_btn">
+  <Header />
+  <div class="header_area">
+    <div class="follow_wrapper">
+      <p class="title">フォロー中</p>
+      <div v-if="!isLoading">
+        <div v-if="anotherUserData.value !== []">
+          <ol>
+            <div v-for="(anotherUser, index) in anotherUserData" :key="index">
+              <li class="user_data" v-if="anotherUser == currentUserId">
+                <a href="/myAccountPage">
+                  <div class="user_icon">
+                    <img v-bind:src="anotherUser.icon" alt="ユーザーアイコン" />
+                  </div>
+                </a>
+                <a href="/myAccountPage">
+                  <div class="user_text_data">
+                    <p class="user_name">{{ anotherUser.userName }}</p>
+                    <p class="name">{{ anotherUser.name }}</p>
+                  </div>
+                </a>
+              </li>
+              <li class="user_data" v-else>
+                <a v-bind:href="`/accountPage/${anotherUser.userId}`">
+                  <div class="user_icon">
+                    <img v-bind:src="anotherUser.icon" alt="ユーザーアイコン" />
+                  </div>
+                </a>
+                <a v-bind:href="`/accountPage/${anotherUser.userId}`">
+                  <div class="user_text_data">
+                    <p class="user_name">{{ anotherUser.userName }}</p>
+                    <p class="name">{{ anotherUser.name }}</p>
+                  </div>
+                </a>
+              </li>
+              <!-- <button v-if="isFollowing" @click="onClickUnFollow" class="follow_btn">
         フォロー中
       </button>
       <button v-else @click="onClickAddFollow" class="un_follow_btn">
         フォローする
       </button> -->
+            </div>
+          </ol>
+        </div>
+        <div v-else>
+          <p class="no_follow">フォローしているユーザーはいません</p>
+          <div class="lets_follow">
+            <a href="/searchPage">Let's follow！</a>
           </div>
-        </ol>
-      </div>
-      <div v-else>
-        <p class="no_follow">フォローしているユーザーはいません</p>
-        <div class="lets_follow">
-          <a href="/searchPage">Let's follow！</a>
         </div>
       </div>
-    </div>
-    <div v-else>
-      <p class="loading">Loading...</p>
+      <div v-else>
+        <p class="loading">Loading...</p>
+      </div>
     </div>
   </div>
 </template>
 
 <style scoped>
+.header_area {
+  margin-left: 250px;
+}
 .title {
   text-align: center;
   font-size: 18px;
@@ -218,5 +221,4 @@ onMounted(() => {
 .lets_follow > a:hover {
   opacity: 0.6;
 }
-
 </style>

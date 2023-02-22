@@ -17,6 +17,7 @@ import { auth, db, storage } from "../../firebase";
 import { onAuthStateChanged } from "@firebase/auth";
 import { useRoute, useRouter } from "vue-router";
 import CustomHeader from "../components/organisms/header.vue";
+import KeepBtn from "../components/atoms/button/keepBtn.vue";
 
 //postIdを受け取る
 const route = useRoute();
@@ -503,12 +504,7 @@ const deleteClose = () => {
                 />
               </button>
             </div>
-            <button>
-              <font-awesome-icon
-                :icon="['far', 'bookmark']"
-                class="post_bookmark"
-              />
-            </button>
+            <KeepBtn v-bind:postId="postId" />
           </div>
           <div class="post_favorite">
             いいね
