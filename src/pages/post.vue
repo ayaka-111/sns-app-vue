@@ -18,6 +18,8 @@ import { onAuthStateChanged } from "@firebase/auth";
 import { useRoute, useRouter } from "vue-router";
 import CustomHeader from "../components/organisms/header.vue";
 import KeepBtn from "../components/atoms/button/keepBtn.vue";
+import DeletePost from "../components/atoms/button/DeletePost.vue";
+import PostFavorite from "../components/atoms/button/PostFavorite.vue";
 
 //postIdを受け取る
 const route = useRoute();
@@ -66,7 +68,11 @@ const loading = ref(true);
 
 const postDocumentIdArray: any = ref([]);
 
+const referrer = ref();
+
 onMounted(() => {
+  referrer.value = document.referrer;
+  console.log(referrer.value);
   //ログイン認証、uid取得
   onAuthStateChanged(auth, (currentUser: any) => {
     if (!currentUser) {
@@ -125,59 +131,6 @@ onMounted(() => {
     dateToDate.min = timestamp.getMinutes();
   });
 });
-// いいねボタンを押された時に監視する
-watch(favorite, () => {
-  if (favorite.value) {
-    addFavorite().then(() => {
-      getDoc(loginUserDoc.value).then((user) => {
-        loginUser.value = user.data();
-      });
-      getDoc(postDoc.value).then((post) => {
-        const data: any = post.data();
-        postData.value = data;
-        postFavoriteLength.value = data.favorites.length;
-      });
-    });
-  } else {
-    removeFavorite().then(() => {
-      getDoc(loginUserDoc.value).then((user) => {
-        loginUser.value = user.data();
-      });
-      getDoc(postDoc.value).then((post) => {
-        const data: any = post.data();
-        postData.value = data;
-        postFavoriteLength.value = data.favorites.length;
-      });
-    });
-  }
-});
-
-// いいね追加
-// ログインユーザーのfavoritePostsにpostIdとpostsのfavoriteにログインユーザーのuserNameを追加
-const addFavorite = async () => {
-  await updateDoc(postDoc.value, {
-    favorites: arrayUnion(loginUserUid.value),
-  });
-  await updateDoc(loginUserDoc.value, {
-    favoritePosts: arrayUnion(postId),
-  });
-};
-// いいね削除
-const removeFavorite = async () => {
-  await updateDoc(postDoc.value, {
-    favorites: arrayRemove(loginUserUid.value),
-  });
-  await updateDoc(loginUserDoc.value, {
-    favoritePosts: arrayRemove(postId),
-  });
-};
-// いいねボタンを押した時にbooleanを反転させる
-const onClickAddFavorite = () => {
-  favorite.value = !favorite.value;
-};
-const onClickRemoveFavorite = () => {
-  favorite.value = !favorite.value;
-};
 
 // 投稿ボタン押された時に監視する
 watch(commentLength, () => {
@@ -211,91 +164,6 @@ const addComment = async () => {
 // ボタンが押されたら1足して情報が変化していることをwatchに伝える
 const onClickAddComment = () => {
   commentLength.value = commentLength.value + 1;
-};
-
-// 削除ボタン
-const deleteButton = async (e: any) => {
-  //postsから削除
-  await deleteDoc(doc(db, "posts", postId));
-
-  // storageから削除
-  console.log(e);
-  // const file = e.target.files[0];→0がタイプエラー
-  const gsReference = storageRef(
-    storage,
-    `${loginUserUid.value}/post/${postId}/postImg.png`
-  );
-  await deleteObject(gsReference);
-
-  // ログインユーザーのusersのpostsから削除
-  console.log(loginUserDoc.value);
-  await updateDoc(loginUserDoc.value, {
-    posts: arrayRemove(postId),
-  });
-
-  // この投稿のpostIdが含まれるusersのfavoritePostsから削除
-  // favoritePostsにpostIdが含まれるusersを全件取得
-  const favoriteCollectionRef: any = query(
-    collection(db, "users"),
-    where("favoritePosts", "array-contains", postId)
-  );
-
-  getDocs(favoriteCollectionRef).then((user: any) => {
-    // data()の形で取得し、userListにpush
-    const userList: any[] = [];
-    user.forEach(async (data: any) => {
-      userList.push(data.data());
-    });
-    userList.map(async (user) => {
-      // 取得したusersデータの中からfavoritePosts,userIdを取得
-      const favoriteArray = user.favoritePosts;
-      const userId = user.userId;
-      // favoritePostsからpostIdを削除(returnを書かないと全部削除されて空の配列が返ってくる)
-      const deleteFavorite = favoriteArray.filter((id: any) => {
-        return id !== postId;
-      });
-      // 対象usersのドキュメントを取得
-      const favoriteRefId = doc(userCollection.value, userId);
-      // 対象usersのfavoritePostsをpostIdを消した配列に更新
-      await updateDoc(favoriteRefId, {
-        favoritePosts: deleteFavorite,
-      });
-    });
-  });
-
-  // この投稿のpostIdが含まれるusersのkeepPostsから削除
-  // keepPostsにpostIdが含まれるusersを全件取得
-  const keepCollectionRef: any = query(
-    collection(db, "users"),
-    where("keepPosts", "array-contains", postId)
-  );
-
-  getDocs(keepCollectionRef).then((user: any) => {
-    // data()の形で取得し、keepUserListにpush
-    const keepUserList: any[] = [];
-    user.forEach(async (data: any) => {
-      keepUserList.push(data.data());
-    });
-    keepUserList.map(async (user) => {
-      // 取得したusersデータの中からkeepPosts,userIdを取得
-      const keepArray = user.keepPosts;
-      const userId = user.userId;
-      // keepPostsからpostIdを削除
-      const deleteKeep = keepArray.filter((id: any) => {
-        return id !== postId;
-      });
-      // 対象usersのドキュメントを取得
-      const keepRefId = doc(userCollection.value, userId);
-      // 対象usersのfavoritePostsをpostIdを消した配列に更新
-      await updateDoc(keepRefId, {
-        keepPosts: deleteKeep,
-      });
-    });
-  });
-
-  console.log("削除しました");
-
-  location.href = "/myAccountPage";
 };
 
 // コメントアイコンボタン
@@ -347,6 +215,12 @@ const deleteClose = () => {
               <a href="/myAccountPage">
                 <p class="post_userName">{{ postData.userName }}</p>
               </a>
+              <p
+                class="post_editedText"
+                v-if="referrer === `http://localhost:5173/postChange/${postId}`"
+              >
+                編集済み
+              </p>
             </div>
             <div class="post_profile" v-else>
               <a v-bind:href="`/accountPage/${postData.userId}`">
@@ -393,12 +267,12 @@ const deleteClose = () => {
                         <h1>投稿を削除しますか？</h1>
                         <p class="deleteText">この投稿を削除しますか？</p>
                       </div>
-                      <button
-                        @click="deleteButton"
-                        class="deleteModal_deleteBtn"
-                      >
-                        削除
-                      </button>
+                      <DeletePost
+                        v-bind:postId="postId"
+                        v-bind:loginUserUid="loginUserUid"
+                        v-bind:loginUserDoc="loginUserDoc"
+                        v-bind:userCollection="userCollection"
+                      />
                       <button
                         @click="deleteClose"
                         class="deleteModal_close_btn"
@@ -485,18 +359,16 @@ const deleteClose = () => {
           </div>
           <div class="post_buttons">
             <div class="post_favCom">
-              <button @click="onClickRemoveFavorite" v-if="favorite">
-                <font-awesome-icon
-                  :icon="['fas', 'heart']"
-                  class="post_heart post_redHeart"
-                />
-              </button>
-              <button @click="onClickAddFavorite" v-else>
-                <font-awesome-icon
-                  :icon="['far', 'heart']"
-                  class="post_heart"
-                />
-              </button>
+              <PostFavorite
+                v-bind:favorite="favorite"
+                v-bind:loginUserDoc="loginUserDoc"
+                v-bind:loginUser="loginUser"
+                v-bind:postDoc="postDoc"
+                v-bind:postData="postData"
+                v-bind:loginUserUid="loginUserUid"
+                v-bind:postId="postId"
+                @response="(length) => (postFavoriteLength = length)"
+              />
               <button @click="onClickComment">
                 <font-awesome-icon
                   :icon="['far', 'comment']"
@@ -537,7 +409,6 @@ const deleteClose = () => {
       <section class="post_wrapper" v-else>
         <p class="post_noPostText">投稿が存在しません</p>
       </section>
-
     </section>
     <p v-else class="loading_text">loading...</p>
   </section>
@@ -592,6 +463,12 @@ const deleteClose = () => {
 }
 .post_userName {
   font-weight: bold;
+}
+.post_editedText {
+  width: fit-content;
+  white-space: nowrap;
+  color: gray;
+  font-size: 1.1rem;
 }
 .post_captionContent {
   overflow-y: scroll;

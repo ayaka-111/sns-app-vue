@@ -313,7 +313,7 @@ const close = () => {
   font-weight: bold;
   font-size: 1.4rem;
   line-height: 5rem;
-  margin-right: 10px;
+  /* margin-right: 10px; */
 }
 .newPost_uploadedContent {
   display: flex;

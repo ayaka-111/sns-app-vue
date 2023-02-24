@@ -2,7 +2,8 @@
 import { db } from "../../firebase";
 import { collection, doc, getDoc, updateDoc } from "firebase/firestore";
 import { ref, watch } from "vue";
-import { useRoute, useRouter } from "vue-router";
+import type { Ref } from "vue";
+import { useRoute, useRouter, RouterLink } from "vue-router";
 import CustomHeader from "../components/organisms/header.vue";
 
 //postIdを受け取る
@@ -34,6 +35,15 @@ getDoc(postDocRefId).then((data) => {
   caption.value = post?.caption;
 });
 
+// const newCaption = ref("");
+// const oldCaption = ref("");
+// const edited = ref("編集");
+// watch(caption, (newValue: string, oldValue: string): void => {
+//   newCaption.value = newValue;
+//   oldCaption.value = oldValue;
+//   edited.value = "編集済み";
+// });
+
 // 更新ボタン
 const updateButton = async () => {
   await updateDoc(postDocRefId, {
@@ -41,8 +51,8 @@ const updateButton = async () => {
   });
   console.log("更新しました");
   location.href = `/post/${postId}`;
+  // router.push({ name: `/post/${postId}`, params: { editedMsg: "テスト" } });
 };
-// watch(caption)
 </script>
 
 <template>
@@ -52,7 +62,9 @@ const updateButton = async () => {
       <div class="postChange_titleContent">
         <button @click="cancelButton" class="cancelBtn">キャンセル</button>
         <div class="postChangeTitle">情報を編集</div>
+        <!-- <RouterLink v-bind:to="{path:`/post/${postId}`}" state="テスト"> -->
         <button @click="updateButton" class="completionBtn">完了</button>
+      <!-- </RouterLink> -->
       </div>
       <div>
         <div class="postChange_content">
