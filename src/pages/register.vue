@@ -16,7 +16,19 @@ import {
 import { useRouter } from "vue-router";
 import { storage, auth, db } from "../../firebase";
 import { getDownloadURL, uploadBytesResumable, ref } from "firebase/storage";
-import { collection, doc, getDoc, setDoc } from "@firebase/firestore";
+import type { StorageReference } from "firebase/storage";
+import {
+  collection,
+  doc,
+  DocumentSnapshot,
+  getDoc,
+  setDoc,
+} from "@firebase/firestore";
+import type {
+  DocumentData,
+  CollectionReference,
+  DocumentReference,
+} from "@firebase/firestore";
 import type { Ref } from "vue";
 import type { Auth } from "firebase/auth";
 import type { Router } from "vue-router";
@@ -56,14 +68,13 @@ onAuthStateChanged(currentAuth, (currentUser) => {
 // アイコン画像プレビュー処理
 const previewImage: (event: any) => void = (event) => {
   haveIcon.value = true;
-  let reader = new FileReader();
+  let reader: FileReader = new FileReader();
   reader.onload = function (e: any) {
     iconImg.value = e.target.result;
   };
   reader.readAsDataURL(event.target.files[0]);
   file.value = event.target.files[0];
   iconFileName.value = event.target.files[0].name;
-  console.log(haveIcon.value);
 };
 
 // 登録ボタンの処理
@@ -73,10 +84,9 @@ const loginButtonPressed = async () => {
     createUserWithEmailAndPassword(auth, user.email, user.password)
       .then(() => {
         // Storageにアイコン登録
-        const auth = getAuth();
-        const currentUserId = auth.currentUser?.uid;
-        console.log(currentUserId);
-        const storageRef = ref(
+        const auth: Auth = getAuth();
+        const currentUserId: string | undefined = auth.currentUser?.uid;
+        const storageRef: StorageReference = ref(
           storage,
           `${currentUserId}/icon/${iconFileName.value}`
         );
@@ -85,19 +95,21 @@ const loginButtonPressed = async () => {
           .then(() => {
             getDownloadURL(storageRef).then((url) => {
               iconImg.value = url;
-              console.log(url);
-              console.log(iconImg.value);
             });
           })
           .then(() => {
             // Firestoreにユーザー情報登録
-            //ログイン済みユーザーのドキュメントへの参照を取得
-            const loginUserCollectionRef = collection(db, "users");
-            const docRef: any = doc(loginUserCollectionRef, currentUserId);
-            console.log(currentUserId);
-            const userDoc: any = getDoc(docRef).then(() => {
+            const loginUserCollectionRef: CollectionReference<DocumentData> =
+              collection(db, "users");
+            const docRef: DocumentReference<DocumentData> = doc(
+              loginUserCollectionRef,
+              currentUserId
+            );
+            const userDoc: Promise<DocumentSnapshot<DocumentData>> =
+              getDoc(docRef);
+            userDoc.then((docSnapshot) => {
               //exists()でドキュメントの存在の有無を確認
-              if (!userDoc.exists) {
+              if (!docSnapshot.exists()) {
                 // アイコンが未登録の場合
                 if (iconImg.value !== "/noicon.png") {
                   //FireStoreにユーザー用のドキュメントが作られていなければ新規作成
@@ -145,17 +157,13 @@ const loginButtonPressed = async () => {
     console.log(e);
   }
 };
-console.log(haveIcon.value);
 </script>
 
 <template>
-  <section class="signup-view">
+  <section>
     <div class="register_wrapper">
       <img src="/mobileLogo.png" alt="firstgram" class="icon" />
       <form @submit.prevent class="form">
-        <!-- <div class="no_user_icon" v-if="!haveIcon.value">
-          <img src="/noIcon.png" alt="noユーザーアイコン" />
-        </div> -->
         <div class="user_icon">
           <img
             :src="iconImg"
@@ -164,7 +172,7 @@ console.log(haveIcon.value);
           />
         </div>
         <div class="icon_form">
-          <label htmlFor="iconPreview" class="label">
+          <label htmlFor="iconPreview">
             <p class="add_icon">+</p>
           </label>
           <input
@@ -209,9 +217,6 @@ console.log(haveIcon.value);
 </template>
 
 <style scoped>
-.icon {
-  margin: 0 auto;
-}
 .register_wrapper {
   width: 400px;
   border: none;
@@ -220,86 +225,12 @@ console.log(haveIcon.value);
   padding-bottom: 20px;
   padding-top: 10px;
 }
+.icon {
+  margin: 0 auto;
+}
 .form {
   margin: 20px 50px 30px 50px;
   position: relative;
-}
-.icon_input {
-  display: none;
-}
-.icon_form {
-  color: #fff; /* ラベルテキストの色を指定する */
-  background-color: #1596f7; /* ラベルの背景色を指定する */
-  padding: 5px 5px 5px 6px; /* ラベルとテキスト間の余白を指定する */
-  border: none; /* ラベルのボーダーを指定する */
-  border-radius: 50%;
-  width: 30px;
-
-  aspect-ratio: 1/1;
-  position: absolute;
-  top: 70px;
-  right: 90px;
-}
-.add_icon {
-  font-size: 27px;
-  font-weight: bold;
-  line-height: 14px;
-}
-.register_button {
-  background-color: #1596f7;
-  color: white;
-  font-weight: bold;
-  border-radius: 10px;
-  width: 100%;
-  margin: 30px 0;
-  padding: 3px;
-  height: 32px;
-}
-
-.register_gray_button {
-  background-color: #67b6fa;
-  color: white;
-  font-weight: bold;
-  border-radius: 10px;
-  width: 100%;
-  margin: 30px 0;
-  padding: 3px;
-  height: 32px;
-  font-size: 14px;
-  text-align: center;
-}
-.register_gray_button:hover {
-  cursor: default;
-}
-.have_account {
-  display: flex;
-  font-size: 14px;
-  justify-content: center;
-}
-.login {
-  font-weight: bold;
-  color: #1596f7;
-  margin-left: 10px;
-}
-.login:hover {
-  opacity: 0.6;
-}
-.margin_bottom {
-  margin-bottom: 5px;
-}
-.no_user_icon {
-  border-radius: 50%;
-  width: 30%;
-  aspect-ratio: 1/1;
-  border: solid 1px lightgray;
-  background-color: lightgray;
-  margin: 0 auto 40px auto;
-}
-.user_icon > img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  border-radius: 50%;
 }
 .user_icon {
   border-radius: 50%;
@@ -315,8 +246,69 @@ console.log(haveIcon.value);
   object-fit: cover;
   border-radius: 50%;
 }
+.icon_form {
+  color: #fff;
+  background-color: #1596f7;
+  padding: 5px 5px 5px 6px;
+  border: none;
+  border-radius: 50%;
+  width: 30px;
+  aspect-ratio: 1/1;
+  position: absolute;
+  top: 70px;
+  right: 90px;
+}
+.add_icon {
+  font-size: 27px;
+  font-weight: bold;
+  line-height: 14px;
+}
+.icon_input {
+  display: none;
+}
+.margin_bottom {
+  margin-bottom: 5px;
+}
 .error_text {
   color: red;
   font-weight: bold;
+}
+.register_gray_button {
+  background-color: #67b6fa;
+  color: white;
+  font-weight: bold;
+  border-radius: 10px;
+  width: 100%;
+  margin: 30px 0;
+  padding: 3px;
+  height: 32px;
+  font-size: 14px;
+  text-align: center;
+}
+.register_gray_button:hover {
+  cursor: default;
+}
+.register_button {
+  background-color: #1596f7;
+  color: white;
+  font-weight: bold;
+  border-radius: 10px;
+  width: 100%;
+  margin: 30px 0;
+  padding: 3px;
+  height: 32px;
+}
+.have_account {
+  display: flex;
+  font-size: 14px;
+  justify-content: center;
+}
+.login {
+  font-weight: bold;
+  color: #1596f7;
+  margin-left: 10px;
+}
+.login:hover {
+  opacity: 0.6;
 }
 </style>

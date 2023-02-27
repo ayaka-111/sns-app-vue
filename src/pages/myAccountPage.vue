@@ -7,13 +7,17 @@ import { useRouter } from "vue-router";
 import UserPostsList from "../components/organisms/UserPostsList.vue";
 import Header from "../components/organisms/header.vue";
 import KeepList from "../components/organisms/keepsList.vue";
+import type { Ref } from "vue";
+import type { Router } from "vue-router";
+import type { User } from "../../types/types";
+import type { DocumentData, DocumentReference } from "@firebase/firestore";
+import UserIcon from "../components/icons/UserIcon.vue";
 
-const router = useRouter();
-
-const currentUserData: any = vueref();
-const currentUserId: any = vueref();
-const isLoading: any = vueref(true);
-const displaySwitch: any = vueref(true);
+const router: Router = useRouter();
+const currentUserData: Ref<User | undefined | unknown> = vueref();
+const currentUserId: Ref<string> = vueref("");
+const isLoading: Ref<boolean> = vueref(true);
+const displaySwitch: Ref<boolean> = vueref(true);
 
 onMounted(() => {
   onAuthStateChanged(auth, async (currentUser) => {
@@ -22,25 +26,25 @@ onMounted(() => {
     } else {
       currentUserId.value = currentUser.uid;
       isLoading.value = false;
-      //ドキュメントへの参照を取得
-      const userDocRef: any = doc(db, "users", currentUser.uid);
-
+      const userDocRef: DocumentReference<DocumentData> = doc(
+        db,
+        "users",
+        currentUser.uid
+      );
       //上記を元にドキュメントのデータを取得
       getDoc(userDocRef).then((userDocData) => {
-        //取得したデータから必要なものを取り出す
-        const userDataId: any = userDocData.data();
-        currentUserData.value = userDataId;
+        currentUserData.value = userDocData.data();
       });
     }
   });
 });
-const toProfileEdit = () => {
+const toProfileEdit: () => void = () => {
   router.push("/profileChange");
 };
-const onClickChangeSwitch = () => {
+const onClickChangeSwitch: () => void = () => {
   displaySwitch.value = !displaySwitch.value;
 };
-console.log(displaySwitch.value);
+console.log(currentUserId.value)
 </script>
 
 <template>
@@ -52,9 +56,11 @@ console.log(displaySwitch.value);
           <div class="user_icon">
             <img v-bind:src="currentUserData.icon" alt="ユーザーアイコン" />
           </div>
+          {{ currentUserId}}
+          <!-- <UserIcon v-bind:userId="currentUserId" /> -->
         </div>
         <div class="user_info_right">
-          <div class="user_detail">
+          <div>
             <div class="flex first_line">
               <p class="user_name">{{ currentUserData.userName }}</p>
               <button @click="toProfileEdit" class="profile_edit_btn">
@@ -108,7 +114,6 @@ console.log(displaySwitch.value);
           </p>
         </div>
       </div>
-
       <div v-else class="displayLavel">
         <div @click="onClickChangeSwitch" class="noEffect flex">
           <p>
@@ -149,16 +154,13 @@ console.log(displaySwitch.value);
   margin: 0 auto;
   padding: 50px;
 }
-.user_info_left {
-  width: 30%;
-}
-.user_info_right {
-  width: 70%;
-}
 .user_info {
   width: 100%;
   padding: 0 20px;
   margin-bottom: 30px;
+}
+.user_info_left {
+  width: 30%;
 }
 .user_icon {
   border-radius: 50%;
@@ -175,8 +177,14 @@ console.log(displaySwitch.value);
   object-fit: cover;
   border-radius: 50%;
 }
+.user_info_right {
+  width: 70%;
+}
 .flex {
   display: flex;
+}
+.first_line {
+  margin-bottom: 20px;
 }
 .user_name {
   font-size: 17px;
@@ -192,9 +200,6 @@ console.log(displaySwitch.value);
 .profile_edit_btn:hover {
   cursor: pointer;
 }
-.first_line {
-  margin-bottom: 20px;
-}
 .three_amount {
   margin-right: 20px;
   font-size: 15px;
@@ -206,12 +211,6 @@ console.log(displaySwitch.value);
   font-size: 12px;
   font-weight: bold;
   margin-top: 20px;
-}
-.loading_text {
-  text-align: center;
-  margin-top: 200px;
-  font-size: 16px;
-  font-weight: bold;
 }
 .displayLavel {
   display: flex;
@@ -225,6 +224,9 @@ console.log(displaySwitch.value);
 .noEffect {
   margin-bottom: 10px;
   width: 150px;
+}
+.icon {
+  padding-right: 7px;
 }
 .effective > p {
   margin: auto;
@@ -241,7 +243,10 @@ console.log(displaySwitch.value);
 .noEffect > p:hover {
   cursor: pointer;
 }
-.icon {
-  padding-right: 7px;
+.loading_text {
+  text-align: center;
+  margin-top: 200px;
+  font-size: 16px;
+  font-weight: bold;
 }
 </style>

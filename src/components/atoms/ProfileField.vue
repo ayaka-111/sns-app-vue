@@ -1,14 +1,16 @@
-<script>
+<script lang="ts">
 import { ref } from "vue";
+import type { Ref } from "vue";
+
 export default {
   setup() {
-    let textarea = ref(null);
+    let textarea: Ref<string> = ref("");
     return { textarea };
   },
 };
 </script>
 <template>
-  <div class="ui left icon input big">
+  <div>
     <textarea
       placeholder="自己紹介"
       autocomplete="off"
