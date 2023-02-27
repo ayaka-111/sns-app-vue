@@ -12,6 +12,10 @@ import {
   faEyeSlash,
   faEllipsis,
   faXmark,
+  faHouse,
+  faMagnifyingGlass,
+  faBars,
+  faGear,
   faTableCells,
 } from "@fortawesome/free-solid-svg-icons";
 import {
@@ -20,6 +24,7 @@ import {
   faBookmark as farBookmark,
   faImages,
   faCircleCheck,
+  faSquarePlus,
 } from "@fortawesome/free-regular-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 
@@ -36,6 +41,11 @@ library.add(
   faEllipsis,
   faCircleCheck,
   faXmark,
+  faSquarePlus,
+  faHouse,
+  faMagnifyingGlass,
+  faBars,
+  faGear,
   faTableCells
 );
 

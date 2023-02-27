@@ -16,6 +16,8 @@ import myAccountPage from "@/pages/myAccountPage.vue";
 import accountPage from "../../src/pages/accountPage.vue";
 import followList from "@/pages/followList.vue";
 import followerList from "@/pages/followerList.vue";
+import Miniheader from "../components/organisms/miniheader.vue"
+import Miniheader2 from "../components/organisms/miniheader2.vue"
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -105,6 +107,16 @@ const router = createRouter({
       path: "/followerList/:userId",
       name: "followerList",
       component: followerList,
+    },
+    {
+      path: "/miniheader",
+      name: "miniheader",
+      component: Miniheader,
+    },
+    {
+      path: "/miniheader2",
+      name: "miniheader2",
+      component: Miniheader2,
     },
   ],
 });

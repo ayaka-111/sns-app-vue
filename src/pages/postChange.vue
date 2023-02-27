@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { db } from "../../firebase";
 import { collection, doc, getDoc, updateDoc } from "firebase/firestore";
-import { ref } from "vue";
+import { ref, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
-import Header from "../components/organisms/header.vue";
+import CustomHeader from "../components/organisms/header.vue";
 
 //postIdを受け取る
 const route = useRoute();
@@ -42,10 +42,11 @@ const updateButton = async () => {
   console.log("更新しました");
   location.href = `/post/${postId}`;
 };
+// watch(caption)
 </script>
 
 <template>
-  <Header />
+  <CustomHeader />
   <section class="postChange">
     <section class="postChange_section">
       <div class="postChange_titleContent">
@@ -142,6 +143,8 @@ const updateButton = async () => {
   width: 30px;
   height: 30px;
   border-radius: 50%;
+  border: 1px solid lightgray;
+  background-color: #ffff;
 }
 .postChange_userName {
   font-weight: bold;

@@ -26,7 +26,7 @@ console.log(userId);
 const newMessage: any = ref("");
 const newMessageList: any = ref([]);
 const messageList: any = ref([]);
-const uid: any = ref("");
+// const uid: any = ref("");
 const withUserData: any = ref("");
 const withUserName: any = ref("");
 const withUserIcon: any = ref("");
@@ -48,15 +48,10 @@ getDoc(userDocRefId).then((data) => {
 // ログイン判定
 const auth = getAuth();
 const currentUserId = auth.currentUser?.uid;
-uid.value = auth.currentUser?.uid;
-const loginUserId = auth.currentUser?.uid;
-//   const userId:any=ref(currentUserId)
-console.log(currentUserId);
-//   console.log(userId)
+const uid = auth.currentUser?.uid;
 
 onAuthStateChanged(auth, (currentUser: any) => {
   // const currentUserId = currentUser?.uid;
-
   // ログインユーザーのデータ取得
   const ownQ = query(
     collection(db, "messages"),
@@ -76,6 +71,11 @@ onAuthStateChanged(auth, (currentUser: any) => {
         timestamp: data.timestamp,
         hour: data.timestamp.toDate().getHours().toString().padStart(2, "0"),
         min: data.timestamp.toDate().getMinutes().toString().padStart(2, "0"),
+        seco: data.timestamp
+          .toDate()
+          .getUTCSeconds()
+          .toString()
+          .padStart(2, "0"),
         withUserId: data.withUserId,
       });
       // 日付順に並び替え
@@ -102,6 +102,11 @@ onAuthStateChanged(auth, (currentUser: any) => {
         timestamp: data.timestamp,
         hour: data.timestamp.toDate().getHours().toString().padStart(2, "0"),
         min: data.timestamp.toDate().getMinutes().toString().padStart(2, "0"),
+        seco: data.timestamp
+          .toDate()
+          .getUTCSeconds()
+          .toString()
+          .padStart(2, "0"),
         withUserId: data.withUserId,
       });
       // 日付順に並び替え
@@ -114,9 +119,17 @@ onAuthStateChanged(auth, (currentUser: any) => {
 
 // inputに入力したものをfirebaseに追加
 const addNewMessage = () => {
+  // ログイン判定
+  const auth = getAuth();
+  const uid = auth.currentUser?.uid;
+
+  console.log(uid);
+  console.log(newMessage.value);
+  console.log(serverTimestamp());
+  console.log(userId);
   // firestoreにデータ追加
   addDoc(collection(db, "messages"), {
-    userId: uid.value,
+    userId: uid,
     message: newMessage.value,
     timestamp: serverTimestamp(),
     withUserId: userId,
@@ -124,7 +137,7 @@ const addNewMessage = () => {
     console.log("a");
   });
 
-  // newMessageList.value.push({ message: newMessage.value })
+  newMessageList.value.push({ message: newMessage.value });
 
   // inputのところ空にする
   newMessage.value = "";
@@ -132,14 +145,6 @@ const addNewMessage = () => {
 
 console.log(typeof messageList.value);
 console.log(messageList.value);
-
-// messageList.value.timestamp.sort(function(a:any, b:any){
-// 	return (a < b ? 1 : -1);
-// });
-
-// messageList.value.sort((a: any, b: any) => {
-//     return a.messageList.times > b.messageList.times ? -1 : 1;
-//   });
 </script>
 
 <template>
@@ -194,7 +199,48 @@ console.log(messageList.value);
         </form>
       </div>
     </div>
+
+    <div class="dmPage-message">
+      <ul>
+        <li v-for="mess in messageList" :key="mess.userId">
+          <div v-if="userId === mess.userId">
+            <p class="dmPage-withUserMess">{{ mess.message }}</p>
+            <p class="dmPage-withUserTime">
+              {{ mess.hour }}:{{ mess.min }}:{{ mess.seco }}
+            </p>
+          </div>
+
+          <div v-if="userId === mess.withUserId">
+            <p class="dmPage-Mymess">{{ mess.message }}</p>
+            <p class="dmPage-Mytime">
+              {{ mess.hour }}:{{ mess.min }}:{{ mess.seco }}
+            </p>
+          </div>
+        </li>
+      </ul>
+
+      <ul>
+        <li v-for="newMess in newMessageList" :key="newMess.userId">
+          <p class="dmPage-Mymess">{{ newMess.message }}</p>
+          <p class="dmPage-Mytime">{{ timeStrRef }}</p>
+        </li>
+      </ul>
+    </div>
+
+    <form @submit.prevent="addNewMessage" class="dmPage-form">
+      <div class="inputButton">
+        <input
+          class="input"
+          v-model="newMessage"
+          placeholder="メッセージを入力..."
+        />
+        <button class="button">送信</button>
+      </div>
+    </form>
   </div>
+
+  <!-- </div>
+</div> -->
 </template>
 
 
