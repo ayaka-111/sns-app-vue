@@ -1,11 +1,11 @@
 <script lang="ts">
-import { defineComponent, reactive, ref } from "vue";
+import { defineComponent, reactive } from "vue";
 
 export default defineComponent({
   name: "Date",
   props: ["date"],
   setup: (props) => {
-    const dateToDate: any = reactive({
+    const dateToDate = reactive({
       year: "",
       month: "",
       date: "",

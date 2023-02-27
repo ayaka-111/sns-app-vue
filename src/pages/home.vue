@@ -11,11 +11,13 @@ import {
 import { auth, db } from "../../firebase";
 import { onAuthStateChanged } from "@firebase/auth";
 import { useRouter } from "vue-router";
+import CommentButton from "@/components/atoms/button/CommentButton.vue";
 import Comment from "../components/molecules/Comment.vue";
 import AllComments from "../components/atoms/button/AllComments.vue";
-import CustomHeader from "../components/organisms/header.vue";
+import FavoriteButton from "@/components/atoms/button/FavoriteButton.vue";
+import Header from "../components/organisms/header.vue";
 import Date from "../components/molecules/Date.vue";
-import ThreeButtons from "../components/molecules/ThreeButtons.vue";
+import KeepBtn from "../components/atoms/button/keepBtn.vue";
 
 // ログインユーザーのuid
 const loginUserUid: any = ref("");
@@ -87,7 +89,7 @@ onMounted(() => {
   });
 });
 
-// 続きを読むボタンクリックでbooleanを管理
+// ボタンクリックでbooleanを管理
 const readMore = ref(true);
 // 続きを読むボタン
 const onRead = () => {
@@ -105,7 +107,7 @@ console.log(postList.value);
 </script>
 
 <template>
-  <CustomHeader />
+  <Header />
   <section v-if="postList.length > 0" class="home">
     <div class="home_wrapper" v-for="post in postList" v-bind:key="post.id">
       <div class="home_titleHeader" v-if="post.userId === loginUserUid">
@@ -131,12 +133,21 @@ console.log(postList.value);
         <img v-bind:src="post.imageUrl" alt="投稿写真" />
       </div>
 
-      <ThreeButtons
-        v-bind:postId="post.postId"
-        v-bind:loginUserDoc="loginUserDoc"
-        v-bind:loginUser="loginUser"
-        v-bind:loginUserUid="loginUserUid"
-      />
+      <div class="home_buttons">
+        <div class="home_favCom">
+          <FavoriteButton
+            v-bind:postId="post.postId"
+            v-bind:loginUserDoc="loginUserDoc"
+            v-bind:loginUser="loginUser"
+            v-bind:loginUserUid="loginUserUid"
+          />
+
+          <CommentButton v-bind:postId="post.postId" />
+        </div>
+        <KeepBtn v-bind:postId="post.postId" />
+      </div>
+
+      <div>{{ post.favorites }}</div>
 
       <div class="home_postContent">
         <p class="home_postUserName" v-if="post.userId === loginUserUid">
@@ -190,8 +201,6 @@ console.log(postList.value);
   height: 40px;
   border-radius: 50%;
   object-fit: cover;
-  border: 1px solid lightgray;
-  background-color: #ffff;
 }
 .home_userName {
   font-weight: bold;

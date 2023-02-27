@@ -1,25 +1,30 @@
 <script setup lang="ts">
 import { onMounted, reactive, ref, watch } from "vue";
 import {
-  arrayRemove,
   arrayUnion,
   collection,
-  deleteDoc,
   doc,
   getDoc,
   getDocs,
-  query,
   updateDoc,
-  where,
 } from "firebase/firestore";
-import { deleteObject, ref as storageRef } from "firebase/storage";
-import { auth, db, storage } from "../../firebase";
+import type { DocumentData } from "firebase/firestore";
+import { auth, db } from "../../firebase";
 import { onAuthStateChanged } from "@firebase/auth";
 import { useRoute, useRouter } from "vue-router";
 import CustomHeader from "../components/organisms/header.vue";
 import KeepBtn from "../components/atoms/button/keepBtn.vue";
 import DeletePost from "../components/atoms/button/DeletePost.vue";
 import PostFavorite from "../components/atoms/button/PostFavorite.vue";
+import type { Post, User } from "../../types/types";
+import type { Ref } from "vue";
+
+interface CommentType {
+  comment: string;
+  userName: string;
+  icon: string;
+  userId: string;
+}
 
 //postIdを受け取る
 const route = useRoute();
@@ -35,24 +40,24 @@ const changeButton = () => {
 const loginUserUid = ref("");
 
 // ログインユーザーの情報
-const loginUser: any = ref("");
+const loginUser: Ref<User | DocumentData | undefined> = ref();
 
 // ログインユーザーのfavoritePostsにpostIdが含まれているかどうか
-const favorite = ref(false);
-const noFavorite = ref(false);
+const favorite: Ref<boolean> = ref(false);
+const noFavorite: Ref<boolean> = ref(false);
 
 // ユーザーコレクション
-const userCollection: any = ref("");
+const userCollection: Ref<DocumentData | undefined> = ref();
 
 // ログインユーザーのドキュメント
-const loginUserDoc: any = ref("");
+const loginUserDoc: Ref<DocumentData | undefined> = ref();
 
 const postDoc: any = ref("");
 //postデータ
-const postData: any = ref("");
-const commentData: any = ref([]);
+const postData: Ref<Post | DocumentData | undefined> = ref();
+const commentData: Ref<CommentType[]> = ref([]);
 const commentLength: any = ref();
-const postFavoriteLength = ref(0);
+const postFavoriteLength: Ref<number | undefined> = ref(0);
 
 //timestampの表記変更
 const dateToDate = reactive({
@@ -66,7 +71,7 @@ const dateToDate = reactive({
 // 取得を待つ
 const loading = ref(true);
 
-const postDocumentIdArray: any = ref([]);
+const postDocumentIdArray: Ref<string[]> = ref([]);
 
 const referrer = ref();
 
@@ -74,7 +79,7 @@ onMounted(() => {
   referrer.value = document.referrer;
   console.log(referrer.value);
   //ログイン認証、uid取得
-  onAuthStateChanged(auth, (currentUser: any) => {
+  onAuthStateChanged(auth, (currentUser) => {
     if (!currentUser) {
       router.push("/login");
     } else {
@@ -137,7 +142,7 @@ watch(commentLength, () => {
   console.log(commentLength.value);
   addComment().then(() => {
     getDoc(postDoc.value).then((data) => {
-      const post: any = data.data();
+      const post:any = data.data();
       postData.value = post;
       commentData.value = post.comments;
       console.log(post.comments);
@@ -152,8 +157,8 @@ const inputComment = ref("");
 const addComment = async () => {
   await updateDoc(postDoc.value, {
     comments: arrayUnion({
-      userName: loginUser.value.userName,
-      icon: loginUser.value.icon,
+      userName: loginUser.value?.userName,
+      icon: loginUser.value?.icon,
       comment: inputComment.value,
       userId: loginUserUid.value,
       // timestamp: serverTimestamp(),
@@ -199,17 +204,24 @@ const deleteClose = () => {
       <section v-if="postDocumentIdArray.includes(postId)" class="post_wrapper">
         <section>
           <div class="post_postImg">
-            <img v-bind:src="postData.imageUrl" alt="投稿写真" />
+            <img v-bind:src="postData?.imageUrl" alt="投稿写真" />
           </div>
         </section>
         <section class="post_content">
           <div class="post_title">
-            <div class="post_profile" v-if="postData.userId === loginUserUid">
+            <div class="post_profile" v-if="postData?.userId === loginUserUid">
               <a href="/myAccountPage">
+                <img
+                  src="/noIcon.png"
+                  alt="noIcon"
+                  class="post_iconImg"
+                  v-if="postData.icon === ''"
+                />
                 <img
                   v-bind:src="postData.icon"
                   alt="icon"
                   class="post_iconImg"
+                  v-else
                 />
               </a>
               <a href="/myAccountPage">
@@ -223,22 +235,29 @@ const deleteClose = () => {
               </p>
             </div>
             <div class="post_profile" v-else>
-              <a v-bind:href="`/accountPage/${postData.userId}`">
+              <a v-bind:href="`/accountPage/${postData?.userId}`">
                 <img
-                  v-bind:src="postData.icon"
+                  src="/noIcon.png"
+                  alt="noIcon"
+                  class="post_iconImg"
+                  v-if="postData?.icon === ''"
+                />
+                <img
+                  v-bind:src="postData?.icon"
                   alt="icon"
                   class="post_iconImg"
+                  v-else
                 />
               </a>
-              <a v-bind:href="`/accountPage/${postData.userId}`">
-                <p class="post_userName">{{ postData.userName }}</p>
+              <a v-bind:href="`/accountPage/${postData?.userId}`">
+                <p class="post_userName">{{ postData?.userName }}</p>
               </a>
             </div>
 
             <div
               id="postNav"
               class="postNav"
-              v-if="postData.userId === loginUserUid"
+              v-if="postData?.userId === loginUserUid"
             >
               <!--  クリック要素  -->
               <span @click="open" class="modal_open_btn"
@@ -295,13 +314,20 @@ const deleteClose = () => {
           <div class="post_captionContent">
             <div
               class="post_commentList"
-              v-if="postData.userId === loginUserUid"
+              v-if="postData?.userId === loginUserUid"
             >
               <a href="/myAccountPage">
+                <img
+                  src="/noIcon.png"
+                  alt="noIcon"
+                  class="post_iconImg"
+                  v-if="postData.icon === ''"
+                />
                 <img
                   v-bind:src="postData.icon"
                   alt="icon"
                   class="post_iconImg"
+                  v-else
                 />
               </a>
               <a href="/myAccountPage">
@@ -310,22 +336,29 @@ const deleteClose = () => {
               <div class="post_caption">{{ postData.caption }}</div>
             </div>
             <div class="post_commentList" v-else>
-              <a v-bind:href="`/accountPage/${postData.userId}`">
+              <a v-bind:href="`/accountPage/${postData?.userId}`">
                 <img
-                  v-bind:src="postData.icon"
+                  src="/noIcon.png"
+                  alt="noIcon"
+                  class="post_iconImg"
+                  v-if="postData?.icon === ''"
+                />
+                <img
+                  v-bind:src="postData?.icon"
                   alt="icon"
                   class="post_iconImg"
+                  v-else
                 />
               </a>
-              <a v-bind:href="`/accountPage/${postData.userId}`">
-                <p class="post_userName">{{ postData.userName }}</p>
+              <a v-bind:href="`/accountPage/${postData?.userId}`">
+                <p class="post_userName">{{ postData?.userName }}</p>
               </a>
-              <div class="post_caption">{{ postData.caption }}</div>
+              <div class="post_caption">{{ postData?.caption }}</div>
             </div>
 
             <div
-              v-for="comment in commentData"
-              v-bind:key="comment.id"
+              v-for="(comment, index) in commentData"
+              v-bind:key="index"
               class="post_commentList"
             >
               <div
@@ -333,12 +366,22 @@ const deleteClose = () => {
                 class="post_commentIconImg"
               >
                 <a href="/myAccountPage">
-                  <img v-bind:src="comment.icon" alt="iconImg" />
+                  <img
+                    src="/noIcon.png"
+                    alt="noIcon"
+                    v-if="comment.icon === ''"
+                  />
+                  <img v-bind:src="comment.icon" alt="iconImg" v-else />
                 </a>
               </div>
               <div v-else class="post_commentIconImg">
                 <a v-bind:href="`/accountPage/${comment.userId}`">
-                  <img v-bind:src="comment.icon" alt="iconImg" />
+                  <img
+                    src="/noIcon.png"
+                    alt="noIcon"
+                    v-if="comment.icon === ''"
+                  />
+                  <img v-bind:src="comment.icon" alt="iconImg" v-else />
                 </a>
               </div>
               <div class="post_commentContent">

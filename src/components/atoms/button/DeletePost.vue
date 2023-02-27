@@ -44,18 +44,18 @@ export default defineComponent({
         .then(() => {
           // この投稿のpostIdが含まれるusersのfavoritePostsから削除
           // favoritePostsにpostIdが含まれるusersを全件取得
-          const favoriteCollectionRef: any = query(
+          const favoriteCollectionRef = query(
             collection(db, "users"),
             where("favoritePosts", "array-contains", props.postId)
           );
 
           console.log(favoriteCollectionRef);
-          getDocs(favoriteCollectionRef).then((user: any) => {
+          getDocs(favoriteCollectionRef).then((user) => {
             console.log(user);
             // data()の形で取得し、userListにpush
             const userList: any[] = [];
             console.log(userList);
-            user.forEach(async (data: any) => {
+            user.forEach(async (data) => {
               userList.push(data.data());
             });
             console.log(userList);
@@ -66,7 +66,7 @@ export default defineComponent({
               console.log(favoriteArray);
               console.log(userId);
               // favoritePostsからpostIdを削除(returnを書かないと全部削除されて空の配列が返ってくる)
-              const deleteFavorite = favoriteArray.filter((id: any) => {
+              const deleteFavorite = favoriteArray.filter((id: string) => {
                 return id !== props.postId;
               });
               console.log(props.userCollection);
@@ -83,12 +83,12 @@ export default defineComponent({
         .then(() => {
           // この投稿のpostIdが含まれるusersのkeepPostsから削除
           // keepPostsにpostIdが含まれるusersを全件取得
-          const keepCollectionRef: any = query(
+          const keepCollectionRef = query(
             collection(db, "users"),
             where("keepPosts", "array-contains", props.postId)
           );
 
-          getDocs(keepCollectionRef).then((user: any) => {
+          getDocs(keepCollectionRef).then((user) => {
             // data()の形で取得し、keepUserListにpush
             const keepUserList: any[] = [];
             user.forEach(async (data: any) => {
@@ -99,7 +99,7 @@ export default defineComponent({
               const keepArray = user.keepPosts;
               const userId = user.userId;
               // keepPostsからpostIdを削除
-              const deleteKeep = keepArray.filter((id: any) => {
+              const deleteKeep = keepArray.filter((id: string) => {
                 return id !== props.postId;
               });
               // 対象usersのドキュメントを取得

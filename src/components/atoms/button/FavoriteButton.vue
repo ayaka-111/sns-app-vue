@@ -28,6 +28,7 @@ export default defineComponent({
     const postCollectionRef = collection(db, "posts");
 
     // 上記を元にドキュメントへの参照を取得(クリックされた投稿のpostIdを指定する)
+    console.log(props.postId);
     const postDocRefId = doc(postCollectionRef, props.postId);
 
     getDoc(postDocRefId).then((post) => {

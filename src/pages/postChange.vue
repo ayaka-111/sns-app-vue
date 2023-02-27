@@ -5,6 +5,9 @@ import { ref, watch } from "vue";
 import type { Ref } from "vue";
 import { useRoute, useRouter, RouterLink } from "vue-router";
 import CustomHeader from "../components/organisms/header.vue";
+import type { Post } from "../../types/types";
+import type { DocumentData } from "firebase/firestore";
+
 
 //postIdを受け取る
 const route = useRoute();
@@ -18,12 +21,12 @@ const cancelButton = () => {
 };
 
 //postデータ
-const postData: any = ref("");
+const postData: Ref<Post | DocumentData | undefined> = ref();
 
 const caption = ref("");
 
 // postsコレクションへの参照を取得
-const postCollectionRef: any = collection(db, "posts");
+const postCollectionRef = collection(db, "posts");
 
 // 上記を元にドキュメントへの参照を取得(クリックされた投稿のpostIdを指定する)
 const postDocRefId = doc(postCollectionRef, postId);
@@ -64,21 +67,32 @@ const updateButton = async () => {
         <div class="postChangeTitle">情報を編集</div>
         <!-- <RouterLink v-bind:to="{path:`/post/${postId}`}" state="テスト"> -->
         <button @click="updateButton" class="completionBtn">完了</button>
-      <!-- </RouterLink> -->
+        <!-- </RouterLink> -->
       </div>
       <div>
         <div class="postChange_content">
           <div class="postChange_post">
             <img
-              v-bind:src="postData.imageUrl"
+              v-bind:src="postData?.imageUrl"
               alt="投稿写真"
               class="postChange_postImg"
             />
           </div>
           <div>
             <div class="postChange_iconName">
-              <img v-bind:src="postData.icon" alt="icon" class="iconImg" />
-              <p class="postChange_userName">{{ postData.userName }}</p>
+              <img
+                src="/noIcon.png"
+                alt="noIcon"
+                class="iconImg"
+                v-if="postData?.icon === ''"
+              />
+              <img
+                v-bind:src="postData?.icon"
+                alt="icon"
+                class="iconImg"
+                v-else
+              />
+              <p class="postChange_userName">{{ postData?.userName }}</p>
             </div>
             <div>
               <textarea
