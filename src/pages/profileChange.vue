@@ -10,6 +10,7 @@ import {
 } from "@firebase/storage";
 import { auth, db, storage } from "../../firebase";
 import Header from "../components/organisms/header.vue"
+import Miniheader from "../components/organisms/miniheader.vue"
 
 const name = ref();
 const userName =ref();
@@ -74,8 +75,12 @@ const change =() :void=> {
 
 <template>
     <Header />
-    <div  class="profileChange-header250"></div>
+    
+    <Miniheader />
+    <div  class="profileChange-header250">
+   
     <div class="profileChange">
+        
     <form  @submit.prevent="change" >
 
     <div class="profileChangeIconChange">
@@ -105,11 +110,13 @@ const change =() :void=> {
         <button class="profileChangeButton">変更</button>         
     </form>
 </div>
+</div>
 </template>
 
 <style>
 .profileChange-header250{
-    margin-left: 250px;
+    margin-left: 490px;
+    margin-top: 50px;
 }
 .profileChange{
     margin:auto;
