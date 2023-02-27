@@ -133,4 +133,7 @@ export default defineComponent({
 .favoriteBold {
   font-weight: bold;
 }
+button {
+  cursor: pointer;
+}
 </style>
