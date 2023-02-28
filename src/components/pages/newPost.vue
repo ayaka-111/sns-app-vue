@@ -142,7 +142,7 @@ export default defineComponent({
     };
     const close = () => {
       // show.value = false;
-      router.push("/myAccountPage");
+      router.push("/myAccountPage/post");
     };
     return {
       postUrl,

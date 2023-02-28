@@ -1,23 +1,31 @@
 <script setup lang="ts">
 import { onMounted, reactive, ref, watch } from "vue";
 import {
-  arrayRemove,
   arrayUnion,
   collection,
-  deleteDoc,
   doc,
   getDoc,
   getDocs,
-  query,
   updateDoc,
-  where,
 } from "firebase/firestore";
-import { deleteObject, ref as storageRef } from "firebase/storage";
-import { auth, db, storage } from "../../firebase";
+import type { DocumentData } from "firebase/firestore";
+import { auth, db } from "../../firebase";
 import { onAuthStateChanged } from "@firebase/auth";
 import { useRoute, useRouter } from "vue-router";
 import CustomHeader from "../components/organisms/header.vue";
 import KeepBtn from "../components/atoms/button/keepBtn.vue";
+import DeletePost from "../components/atoms/button/DeletePost.vue";
+import PostFavorite from "../components/atoms/button/PostFavorite.vue";
+import type { Post, User } from "../../types/types";
+import type { Ref } from "vue";
+import UserIcon from "../components/icons/UserIcon.vue";
+
+interface CommentType {
+  comment: string;
+  userName: string;
+  icon: string;
+  userId: string;
+}
 
 //postIdを受け取る
 const route = useRoute();
@@ -33,24 +41,24 @@ const changeButton = () => {
 const loginUserUid = ref("");
 
 // ログインユーザーの情報
-const loginUser: any = ref("");
+const loginUser: Ref<User | DocumentData | undefined> = ref();
 
 // ログインユーザーのfavoritePostsにpostIdが含まれているかどうか
-const favorite = ref(false);
-const noFavorite = ref(false);
+const favorite: Ref<boolean> = ref(false);
+const noFavorite: Ref<boolean> = ref(false);
 
 // ユーザーコレクション
-const userCollection: any = ref("");
+const userCollection: Ref<DocumentData | undefined> = ref();
 
 // ログインユーザーのドキュメント
-const loginUserDoc: any = ref("");
+const loginUserDoc: Ref<DocumentData | undefined> = ref();
 
 const postDoc: any = ref("");
 //postデータ
-const postData: any = ref("");
-const commentData: any = ref([]);
+const postData: Ref<Post | DocumentData | undefined> = ref();
+const commentData: Ref<CommentType[]> = ref([]);
 const commentLength: any = ref();
-const postFavoriteLength = ref(0);
+const postFavoriteLength: Ref<number | undefined> = ref(0);
 
 //timestampの表記変更
 const dateToDate = reactive({
@@ -64,11 +72,18 @@ const dateToDate = reactive({
 // 取得を待つ
 const loading = ref(true);
 
-const postDocumentIdArray: any = ref([]);
+const postDocumentIdArray: Ref<string[]> = ref([]);
+
+const referrer = ref();
+
+// iconの大きさ
+const iconStyle: Ref<string> = ref("35px");
 
 onMounted(() => {
+  referrer.value = document.referrer;
+  console.log(referrer.value);
   //ログイン認証、uid取得
-  onAuthStateChanged(auth, (currentUser: any) => {
+  onAuthStateChanged(auth, (currentUser) => {
     if (!currentUser) {
       router.push("/login");
     } else {
@@ -101,7 +116,7 @@ onMounted(() => {
       postDocumentIdArray.value.push(doc.id);
     });
   });
-  console.log(postDocumentIdArray.value);
+  // console.log(postDocumentIdArray.value);
 
   // 上記を元にドキュメントへの参照を取得(クリックされた投稿のpostIdを指定する)
   const postDocRefId = doc(postCollectionRef, postId);
@@ -114,7 +129,6 @@ onMounted(() => {
     postFavoriteLength.value = data.data()?.favorites.length;
     commentLength.value = data.data()?.comments.length;
     // comment.value = true;
-    console.log(data.data()?.comments);
     //timestamp取得
     const dataList = data.data();
     const timestamp = dataList?.timestamp.toDate();
@@ -125,63 +139,10 @@ onMounted(() => {
     dateToDate.min = timestamp.getMinutes();
   });
 });
-// いいねボタンを押された時に監視する
-watch(favorite, () => {
-  if (favorite.value) {
-    addFavorite().then(() => {
-      getDoc(loginUserDoc.value).then((user) => {
-        loginUser.value = user.data();
-      });
-      getDoc(postDoc.value).then((post) => {
-        const data: any = post.data();
-        postData.value = data;
-        postFavoriteLength.value = data.favorites.length;
-      });
-    });
-  } else {
-    removeFavorite().then(() => {
-      getDoc(loginUserDoc.value).then((user) => {
-        loginUser.value = user.data();
-      });
-      getDoc(postDoc.value).then((post) => {
-        const data: any = post.data();
-        postData.value = data;
-        postFavoriteLength.value = data.favorites.length;
-      });
-    });
-  }
-});
-
-// いいね追加
-// ログインユーザーのfavoritePostsにpostIdとpostsのfavoriteにログインユーザーのuserNameを追加
-const addFavorite = async () => {
-  await updateDoc(postDoc.value, {
-    favorites: arrayUnion(loginUserUid.value),
-  });
-  await updateDoc(loginUserDoc.value, {
-    favoritePosts: arrayUnion(postId),
-  });
-};
-// いいね削除
-const removeFavorite = async () => {
-  await updateDoc(postDoc.value, {
-    favorites: arrayRemove(loginUserUid.value),
-  });
-  await updateDoc(loginUserDoc.value, {
-    favoritePosts: arrayRemove(postId),
-  });
-};
-// いいねボタンを押した時にbooleanを反転させる
-const onClickAddFavorite = () => {
-  favorite.value = !favorite.value;
-};
-const onClickRemoveFavorite = () => {
-  favorite.value = !favorite.value;
-};
 
 // 投稿ボタン押された時に監視する
 watch(commentLength, () => {
-  console.log(commentLength.value);
+  // console.log(commentLength.value);
   addComment().then(() => {
     getDoc(postDoc.value).then((data) => {
       const post: any = data.data();
@@ -199,8 +160,8 @@ const inputComment = ref("");
 const addComment = async () => {
   await updateDoc(postDoc.value, {
     comments: arrayUnion({
-      userName: loginUser.value.userName,
-      icon: loginUser.value.icon,
+      userName: loginUser.value?.userName,
+      icon: loginUser.value?.icon,
       comment: inputComment.value,
       userId: loginUserUid.value,
       // timestamp: serverTimestamp(),
@@ -211,91 +172,6 @@ const addComment = async () => {
 // ボタンが押されたら1足して情報が変化していることをwatchに伝える
 const onClickAddComment = () => {
   commentLength.value = commentLength.value + 1;
-};
-
-// 削除ボタン
-const deleteButton = async (e: any) => {
-  //postsから削除
-  await deleteDoc(doc(db, "posts", postId));
-
-  // storageから削除
-  console.log(e);
-  // const file = e.target.files[0];→0がタイプエラー
-  const gsReference = storageRef(
-    storage,
-    `${loginUserUid.value}/post/${postId}/postImg.png`
-  );
-  await deleteObject(gsReference);
-
-  // ログインユーザーのusersのpostsから削除
-  console.log(loginUserDoc.value);
-  await updateDoc(loginUserDoc.value, {
-    posts: arrayRemove(postId),
-  });
-
-  // この投稿のpostIdが含まれるusersのfavoritePostsから削除
-  // favoritePostsにpostIdが含まれるusersを全件取得
-  const favoriteCollectionRef: any = query(
-    collection(db, "users"),
-    where("favoritePosts", "array-contains", postId)
-  );
-
-  getDocs(favoriteCollectionRef).then((user: any) => {
-    // data()の形で取得し、userListにpush
-    const userList: any[] = [];
-    user.forEach(async (data: any) => {
-      userList.push(data.data());
-    });
-    userList.map(async (user) => {
-      // 取得したusersデータの中からfavoritePosts,userIdを取得
-      const favoriteArray = user.favoritePosts;
-      const userId = user.userId;
-      // favoritePostsからpostIdを削除(returnを書かないと全部削除されて空の配列が返ってくる)
-      const deleteFavorite = favoriteArray.filter((id: any) => {
-        return id !== postId;
-      });
-      // 対象usersのドキュメントを取得
-      const favoriteRefId = doc(userCollection.value, userId);
-      // 対象usersのfavoritePostsをpostIdを消した配列に更新
-      await updateDoc(favoriteRefId, {
-        favoritePosts: deleteFavorite,
-      });
-    });
-  });
-
-  // この投稿のpostIdが含まれるusersのkeepPostsから削除
-  // keepPostsにpostIdが含まれるusersを全件取得
-  const keepCollectionRef: any = query(
-    collection(db, "users"),
-    where("keepPosts", "array-contains", postId)
-  );
-
-  getDocs(keepCollectionRef).then((user: any) => {
-    // data()の形で取得し、keepUserListにpush
-    const keepUserList: any[] = [];
-    user.forEach(async (data: any) => {
-      keepUserList.push(data.data());
-    });
-    keepUserList.map(async (user) => {
-      // 取得したusersデータの中からkeepPosts,userIdを取得
-      const keepArray = user.keepPosts;
-      const userId = user.userId;
-      // keepPostsからpostIdを削除
-      const deleteKeep = keepArray.filter((id: any) => {
-        return id !== postId;
-      });
-      // 対象usersのドキュメントを取得
-      const keepRefId = doc(userCollection.value, userId);
-      // 対象usersのfavoritePostsをpostIdを消した配列に更新
-      await updateDoc(keepRefId, {
-        keepPosts: deleteKeep,
-      });
-    });
-  });
-
-  console.log("削除しました");
-
-  location.href = "/myAccountPage";
 };
 
 // コメントアイコンボタン
@@ -331,40 +207,52 @@ const deleteClose = () => {
       <section v-if="postDocumentIdArray.includes(postId)" class="post_wrapper">
         <section>
           <div class="post_postImg">
-            <img v-bind:src="postData.imageUrl" alt="投稿写真" />
+            <img v-bind:src="postData?.imageUrl" alt="投稿写真" />
           </div>
         </section>
         <section class="post_content">
           <div class="post_title">
-            <div class="post_profile" v-if="postData.userId === loginUserUid">
-              <a href="/myAccountPage">
-                <img
-                  v-bind:src="postData.icon"
-                  alt="icon"
-                  class="post_iconImg"
+            <div class="post_profile" v-if="postData?.userId === loginUserUid">
+              <a href="/myAccountPage/post">
+                <UserIcon
+                  v-bind:userId="postData?.userId"
+                  v-bind:iconStyle="iconStyle"
                 />
               </a>
-              <a href="/myAccountPage">
+              <a href="/myAccountPage/post">
                 <p class="post_userName">{{ postData.userName }}</p>
               </a>
+              <p
+                class="post_editedText"
+                v-if="referrer === `http://localhost:5173/postChange/${postId}`"
+              >
+                編集済み
+              </p>
             </div>
             <div class="post_profile" v-else>
-              <a v-bind:href="`/accountPage/${postData.userId}`">
+              <a v-bind:href="`/accountPage/${postData?.userId}`">
                 <img
-                  v-bind:src="postData.icon"
+                  src="/noIcon.png"
+                  alt="noIcon"
+                  class="post_iconImg"
+                  v-if="postData?.icon === ''"
+                />
+                <img
+                  v-bind:src="postData?.icon"
                   alt="icon"
                   class="post_iconImg"
+                  v-else
                 />
               </a>
-              <a v-bind:href="`/accountPage/${postData.userId}`">
-                <p class="post_userName">{{ postData.userName }}</p>
+              <a v-bind:href="`/accountPage/${postData?.userId}`">
+                <p class="post_userName">{{ postData?.userName }}</p>
               </a>
             </div>
 
             <div
               id="postNav"
               class="postNav"
-              v-if="postData.userId === loginUserUid"
+              v-if="postData?.userId === loginUserUid"
             >
               <!--  クリック要素  -->
               <span @click="open" class="modal_open_btn"
@@ -393,12 +281,12 @@ const deleteClose = () => {
                         <h1>投稿を削除しますか？</h1>
                         <p class="deleteText">この投稿を削除しますか？</p>
                       </div>
-                      <button
-                        @click="deleteButton"
-                        class="deleteModal_deleteBtn"
-                      >
-                        削除
-                      </button>
+                      <DeletePost
+                        v-bind:postId="postId"
+                        v-bind:loginUserUid="loginUserUid"
+                        v-bind:loginUserDoc="loginUserDoc"
+                        v-bind:userCollection="userCollection"
+                      />
                       <button
                         @click="deleteClose"
                         class="deleteModal_close_btn"
@@ -421,50 +309,62 @@ const deleteClose = () => {
           <div class="post_captionContent">
             <div
               class="post_commentList"
-              v-if="postData.userId === loginUserUid"
+              v-if="postData?.userId === loginUserUid"
             >
-              <a href="/myAccountPage">
-                <img
-                  v-bind:src="postData.icon"
-                  alt="icon"
-                  class="post_iconImg"
+              <a href="/myAccountPage/post">
+                <UserIcon
+                  v-bind:userId="postData.userId"
+                  v-bind:iconStyle="iconStyle"
                 />
               </a>
-              <a href="/myAccountPage">
+              <a href="/myAccountPage/post">
                 <p class="post_userName">{{ postData.userName }}</p>
               </a>
               <div class="post_caption">{{ postData.caption }}</div>
             </div>
             <div class="post_commentList" v-else>
-              <a v-bind:href="`/accountPage/${postData.userId}`">
+              <a v-bind:href="`/accountPage/${postData?.userId}`">
                 <img
-                  v-bind:src="postData.icon"
+                  src="/noIcon.png"
+                  alt="noIcon"
+                  class="post_iconImg"
+                  v-if="postData?.icon === ''"
+                />
+                <img
+                  v-bind:src="postData?.icon"
                   alt="icon"
                   class="post_iconImg"
+                  v-else
                 />
               </a>
-              <a v-bind:href="`/accountPage/${postData.userId}`">
-                <p class="post_userName">{{ postData.userName }}</p>
+              <a v-bind:href="`/accountPage/${postData?.userId}`">
+                <p class="post_userName">{{ postData?.userName }}</p>
               </a>
-              <div class="post_caption">{{ postData.caption }}</div>
+              <div class="post_caption">{{ postData?.caption }}</div>
             </div>
 
             <div
-              v-for="comment in commentData"
-              v-bind:key="comment.id"
+              v-for="(comment, index) in commentData"
+              v-bind:key="index"
               class="post_commentList"
             >
               <div
                 v-if="comment.userId === loginUserUid"
                 class="post_commentIconImg"
               >
-                <a href="/myAccountPage">
-                  <img v-bind:src="comment.icon" alt="iconImg" />
+                <a href="/myAccountPage/post">
+                  <UserIcon
+                    v-bind:userId="comment.userId"
+                    v-bind:iconStyle="iconStyle"
+                  />
                 </a>
               </div>
               <div v-else class="post_commentIconImg">
                 <a v-bind:href="`/accountPage/${comment.userId}`">
-                  <img v-bind:src="comment.icon" alt="iconImg" />
+                  <UserIcon
+                    v-bind:userId="comment.userId"
+                    v-bind:iconStyle="iconStyle"
+                  />
                 </a>
               </div>
               <div class="post_commentContent">
@@ -472,7 +372,7 @@ const deleteClose = () => {
                   v-if="comment.userId === loginUserUid"
                   class="post_commentName"
                 >
-                  <a href="/myAccountPage">{{ comment.userName }}</a>
+                  <a href="/myAccountPage/post">{{ comment.userName }}</a>
                 </p>
                 <p v-else class="post_commentName">
                   <a v-bind:href="`/accountPage/${comment.userId}`">
@@ -485,18 +385,16 @@ const deleteClose = () => {
           </div>
           <div class="post_buttons">
             <div class="post_favCom">
-              <button @click="onClickRemoveFavorite" v-if="favorite">
-                <font-awesome-icon
-                  :icon="['fas', 'heart']"
-                  class="post_heart post_redHeart"
-                />
-              </button>
-              <button @click="onClickAddFavorite" v-else>
-                <font-awesome-icon
-                  :icon="['far', 'heart']"
-                  class="post_heart"
-                />
-              </button>
+              <PostFavorite
+                v-bind:favorite="favorite"
+                v-bind:loginUserDoc="loginUserDoc"
+                v-bind:loginUser="loginUser"
+                v-bind:postDoc="postDoc"
+                v-bind:postData="postData"
+                v-bind:loginUserUid="loginUserUid"
+                v-bind:postId="postId"
+                @response="(length) => (postFavoriteLength = length)"
+              />
               <button @click="onClickComment">
                 <font-awesome-icon
                   :icon="['far', 'comment']"
@@ -537,7 +435,6 @@ const deleteClose = () => {
       <section class="post_wrapper" v-else>
         <p class="post_noPostText">投稿が存在しません</p>
       </section>
-
     </section>
     <p v-else class="loading_text">loading...</p>
   </section>
@@ -592,6 +489,12 @@ const deleteClose = () => {
 }
 .post_userName {
   font-weight: bold;
+}
+.post_editedText {
+  width: fit-content;
+  white-space: nowrap;
+  color: gray;
+  font-size: 1.1rem;
 }
 .post_captionContent {
   overflow-y: scroll;

@@ -1,31 +1,32 @@
+import type { Timestamp } from "firebase/firestore";
+
 export type User = {
-  user_id: string;
-  user_name: string;
+  userId: string;
+  userName: string;
   name: string;
   icon: string;
   email: string;
   password: string;
-  cpassword: string;
+  Cpassword: string;
   follow: string[]; //userIdを格納
   follower: string[]; //userIdを格納
-  favorite_posts: string[]; //postIdを格納
+  favoritePosts: string[]; //postIdを格納
   posts: string[]; //postドキュメントidを格納
   profile: string;
-  keep_posts: string[]; //postIdを格納
+  keepPosts: string[]; //postIdを格納
 };
 
 export type Post = {
-  post_id: string;
-  user_id: string; //ユーザーのuserId
+  postId: string;
+  userId: string; //ユーザーのuserId
+  userName: string;
   imageUrl: string;
   caption: string;
-  postDate: Date;
-  timestamp: Date;
+  timestamp: Timestamp;
   favorites: string[]; //userNameを格納
   keeps: string[]; //userIdを格納
-  // comments: string[];
-  // icon:string;
-  // userName:string;
+  comments: string[];
+  icon: string;
 };
 
 export type Comment = {
