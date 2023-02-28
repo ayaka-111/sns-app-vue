@@ -1,15 +1,17 @@
-<script>
+<script lang="ts">
 import { ref } from "vue";
 import formValidation from "../molecules/formValidation";
+import type { Ref } from "vue";
+
 export default {
   setup() {
-    let input = ref(null);
-    const showPassword = ref(false);
+    let input: Ref<string> = ref("");
+    const showPassword: Ref<boolean> = ref(false);
     const { validatePasswordField, error } = formValidation();
-    const validateInput = () => {
+    const validateInput: () => void = () => {
       validatePasswordField("password", input.value);
     };
-    const toggleShowPassword = () => {
+    const toggleShowPassword: () => void = () => {
       showPassword.value = !showPassword.value;
     };
     return { input, error, validateInput, toggleShowPassword, showPassword };
@@ -17,7 +19,7 @@ export default {
 };
 </script>
 <template>
-  <div class="field">
+  <div>
     <div class="password_field">
       <input
         :type="showPassword ? 'text' : 'password'"
@@ -41,20 +43,20 @@ export default {
 </template>
 
 <style scoped>
+.password_field {
+  position: relative;
+}
 input {
   width: 100%;
   height: 35px;
-}
-.error_text {
-  color: red;
-  font-weight: bold;
-}
-.password_field {
-  position: relative;
 }
 .eye_icon {
   position: absolute;
   top: 10px;
   right: 5px;
+}
+.error_text {
+  color: red;
+  font-weight: bold;
 }
 </style>

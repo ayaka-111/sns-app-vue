@@ -3,28 +3,30 @@ import { onAuthStateChanged } from "@firebase/auth";
 import {
   arrayRemove,
   arrayUnion,
-  collection,
   doc,
   getDoc,
-  getDocs,
-  query,
   updateDoc,
-  where,
 } from "@firebase/firestore";
-import { faL } from "@fortawesome/free-solid-svg-icons";
 import { watch, defineComponent, onMounted, ref as vueref } from "vue";
 import { useRouter } from "vue-router";
 import { auth, db } from "../../../../firebase";
+import type { Ref } from "vue";
+import type { Router } from "vue-router";
+import type {
+  DocumentData,
+  DocumentReference,
+  DocumentSnapshot,
+} from "@firebase/firestore";
 
 export default defineComponent({
   name: "keepBtn",
   props: { postId: String },
   setup: (props) => {
-    const isKeeped: any = vueref(false);
-    const thePostKeepsArr: any = vueref(null);
-    const thePostId: any = vueref(props.postId);
-    const currentUserId: any = vueref("");
-    const router = useRouter();
+    const isKeeped: Ref<boolean> = vueref(false);
+    const thePostKeepsArr: Ref<string[]> = vueref([]);
+    const thePostId: Ref<any> = vueref(props.postId);
+    const currentUserId: Ref<string> = vueref("");
+    const router: Router = useRouter();
 
     onMounted(() => {
       onAuthStateChanged(auth, (currentUser: any) => {
@@ -32,14 +34,17 @@ export default defineComponent({
           router.push("/login");
         } else {
           currentUserId.value = currentUser.uid;
-          const postDocRefId = doc(db, "posts", thePostId.value);
-          getDoc(postDocRefId).then((post) => {
-            const postData = post.data();
+          const postDocRefId: DocumentReference<DocumentData> = doc(
+            db,
+            "posts",
+            thePostId.value
+          );
+          getDoc(postDocRefId).then((post: DocumentSnapshot<DocumentData>) => {
+            const postData: DocumentData | undefined = post.data();
             thePostKeepsArr.value = postData?.keeps ?? [];
             if (postData?.keeps.includes(currentUser.uid)) {
               isKeeped.value = true;
             }
-            console.log(thePostKeepsArr.value);
           });
         }
       });
@@ -48,31 +53,47 @@ export default defineComponent({
     watch(isKeeped, () => {
       if (isKeeped.value) {
         addKeepFunc().then(() => {
-          const postDocRefId = doc(db, "posts", thePostId.value);
-          getDoc(postDocRefId).then((post) => {
-            const postData = post.data();
+          const postDocRefId: DocumentReference<DocumentData> = doc(
+            db,
+            "posts",
+            thePostId.value
+          );
+          getDoc(postDocRefId).then((post: DocumentSnapshot<DocumentData>) => {
+            const postData: DocumentData | undefined = post.data();
             thePostKeepsArr.value = postData?.keeps ?? [];
           });
         });
       } else {
         deleteKeepFunc().then(() => {
-          const postDocRefId = doc(db, "posts", thePostId.value);
-          getDoc(postDocRefId).then((post) => {
-            const postData = post.data();
+          const postDocRefId: DocumentReference<DocumentData> = doc(
+            db,
+            "posts",
+            thePostId.value
+          );
+          getDoc(postDocRefId).then((post: DocumentSnapshot<DocumentData>) => {
+            const postData: DocumentData | undefined = post.data();
             thePostKeepsArr.value = postData?.keeps ?? [];
           });
         });
       }
     });
 
-    const addKeepFunc = async () => {
+    const addKeepFunc: () => Promise<void> = async () => {
       //   postsのkeepsにcurrentUserIdを追加
-      const thePostRef = doc(db, "posts", thePostId.value);
+      const thePostRef: DocumentReference<DocumentData> = doc(
+        db,
+        "posts",
+        thePostId.value
+      );
       await updateDoc(thePostRef, {
         keeps: arrayUnion(currentUserId.value),
       });
       // usersのkeepPostsにpostIdを追加
-      const currentUserRef = doc(db, "users", currentUserId.value);
+      const currentUserRef: DocumentReference<DocumentData> = doc(
+        db,
+        "users",
+        currentUserId.value
+      );
       await updateDoc(currentUserRef, {
         keepPosts: arrayUnion(thePostId.value),
       });
@@ -80,12 +101,20 @@ export default defineComponent({
 
     const deleteKeepFunc = async () => {
       //   postsのkeepsからcurrentUserIdを削除
-      const thePostRef = doc(db, "posts", thePostId.value);
+      const thePostRef: DocumentReference<DocumentData> = doc(
+        db,
+        "posts",
+        thePostId.value
+      );
       await updateDoc(thePostRef, {
         keeps: arrayRemove(currentUserId.value),
       });
       // usersのkeepPostsからpostIdを削除
-      const currentUserRef = doc(db, "users", currentUserId.value);
+      const currentUserRef: DocumentReference<DocumentData> = doc(
+        db,
+        "users",
+        currentUserId.value
+      );
       await updateDoc(currentUserRef, {
         keepPosts: arrayRemove(thePostId.value),
       });
