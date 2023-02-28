@@ -11,9 +11,9 @@ import { db } from "../../../../firebase";
 import { defineComponent, ref, watch } from "vue";
 
 export default defineComponent({
-  name: "FavoriteButton",
+  name: "PostFavorite",
   props: ["postId", "loginUserDoc", "loginUser", "loginUserUid"],
-  setup: (props) => {
+  setup: (props, { emit }) => {
     // 各postの全データ
     const postData: any = ref("");
 
@@ -33,7 +33,6 @@ export default defineComponent({
     getDoc(postDocRefId).then((post) => {
       postData.value = post.data();
       postFavoriteLength.value = post.data()?.favorites.length;
-      // context.emit("response", postFavoriteLength.value);
       if (post.data()?.favorites.includes(props.loginUserUid)) {
         favorite.value = true;
         console.log(`${props.postId}含まれている`);
@@ -44,12 +43,12 @@ export default defineComponent({
     });
 
     watch(favorite, () => {
+      console.log(favorite.value);
       if (favorite.value) {
         addFavorite().then(() => {
           getDoc(postDocRefId).then((post) => {
             postData.value = post.data();
             postFavoriteLength.value = post.data()?.favorites.length;
-            // context.emit("response", postFavoriteLength.value);
           });
         });
       } else {
@@ -57,7 +56,6 @@ export default defineComponent({
           getDoc(postDocRefId).then((post) => {
             postData.value = post.data();
             postFavoriteLength.value = post.data()?.favorites.length;
-            // context.emit("response", postFavoriteLength.value);
           });
         });
       }
@@ -88,49 +86,34 @@ export default defineComponent({
     const onClickRemoveFavorite = () => {
       favorite.value = !favorite.value;
     };
+
+    emit("response", postFavoriteLength);
     return {
       onClickAddFavorite,
       onClickRemoveFavorite,
       postData,
       favorite,
-      postFavoriteLength,
     };
   },
 });
 </script>
 
 <template>
-  <div class="favBtnNum">
-    <button @click="onClickRemoveFavorite" v-if="favorite">
-      <font-awesome-icon :icon="['fas', 'heart']" class="removeHeart heart" />
-    </button>
-    <button @click="onClickAddFavorite" v-else>
-      <font-awesome-icon :icon="['far', 'heart']" class="heart" />
-    </button>
-    <div>
-      いいね<span class="favoriteBold">{{ postFavoriteLength }}</span
-      >件
-    </div>
-  </div>
+  <button @click="onClickRemoveFavorite" v-if="favorite">
+    <font-awesome-icon :icon="['fas', 'heart']" class="removeHeart heart" />
+  </button>
+  <button @click="onClickAddFavorite" v-else>
+    <font-awesome-icon :icon="['far', 'heart']" class="heart" />
+  </button>
 </template>
 
 <style scoped>
-.favBtnNum {
-  display: flex;
-  flex-direction: column;
-  width: 67px;
-  height: 60px;
-  justify-content: space-between;
-}
 .removeHeart {
   color: red;
 }
 .heart {
   width: 25px;
   height: auto;
-}
-.favoriteBold {
-  font-weight: bold;
 }
 button {
   cursor: pointer;

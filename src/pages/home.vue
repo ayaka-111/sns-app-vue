@@ -18,6 +18,8 @@ import FavoriteButton from "@/components/atoms/button/FavoriteButton.vue";
 import CustomHeader from "../components/organisms/header.vue";
 import Date from "../components/molecules/Date.vue";
 import KeepBtn from "../components/atoms/button/keepBtn.vue";
+import UserIcon from "../components/icons/UserIcon.vue";
+import type { Ref } from "vue";
 
 // ログインユーザーのuid
 const loginUserUid: any = ref("");
@@ -33,6 +35,8 @@ const postList: any = ref([]);
 const loading = ref(true);
 
 const router = useRouter();
+
+const iconStyle: Ref<string> = ref("40px");
 
 onMounted(() => {
   //ログイン認証、一覧で表示するデータ取得
@@ -102,26 +106,24 @@ const onRead = () => {
   button[0].setAttribute("id", "home_captionId");
 };
 console.log(readMore.value);
-
-console.log(postList.value);
 </script>
 
 <template>
   <CustomHeader />
   <section v-if="postList.length > 0" class="home">
-    <div class="home_wrapper" v-for="post in postList" v-bind:key="post.id">
+    <div class="home_wrapper" v-for="post in postList" v-bind:key="post">
       <div class="home_titleHeader" v-if="post.userId === loginUserUid">
-        <a href="/myAccountPage">
-          <img v-bind:src="post.icon" alt="icon" class="home_iconImg" />
+        <a href="/myAccountPage/post">
+          <UserIcon v-bind:userId="post.userId" v-bind:iconStyle="iconStyle" />
         </a>
-        <a href="/myAccountPage">
+        <a href="/myAccountPage/post">
           <p class="home_userName">{{ post.userName }}</p>
         </a>
         <Date v-bind:date="post.timestamp" />
       </div>
       <div class="home_titleHeader" v-else>
         <a v-bind:href="`/accountPage/${post.userId}`">
-          <img v-bind:src="post.icon" alt="icon" class="home_iconImg" />
+          <UserIcon v-bind:userId="post.userId" v-bind:iconStyle="iconStyle" />
         </a>
         <a v-bind:href="`/accountPage/${post.userId}`">
           <p class="home_userName">{{ post.userName }}</p>
@@ -149,7 +151,7 @@ console.log(postList.value);
 
       <div class="home_postContent">
         <p class="home_postUserName" v-if="post.userId === loginUserUid">
-          <a href="/myAccountPage">{{ post.userName }}</a>
+          <a href="/myAccountPage/post">{{ post.userName }}</a>
         </p>
         <p class="home_postUserName" v-else>
           <a v-bind:href="`/accountPage/${post.userId}`">{{ post.userName }}</a>
