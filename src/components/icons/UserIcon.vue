@@ -22,6 +22,7 @@ export default defineComponent({
       const theUserData: DocumentData | undefined = theUserDocData.data();
       theUserIcon.value = theUserData?.icon;
     });
+    console.log(sideLength.value)
     return {
       theUserIcon,
       theUserId,

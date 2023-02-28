@@ -5,13 +5,13 @@ import { onMounted, ref as vueref } from "vue";
 import { auth, db } from "../../firebase";
 import { useRoute, useRouter } from "vue-router";
 import UserPostsList from "../components/organisms/UserPostsList.vue";
-import Header from "../components/organisms/header.vue";
+import CustomHeader from "../components/organisms/header.vue";
 import KeepList from "../components/organisms/keepsList.vue";
 import type { Ref } from "vue";
 import type { Router, RouteLocationNormalizedLoaded } from "vue-router";
 import type { User } from "../../types/types";
 import type { DocumentData, DocumentReference } from "@firebase/firestore";
-import UserIcon from "../components/icons/UserIcon.vue";
+import UserIcon from "@/components/icons/UserIcon.vue";
 import { watch } from "vue";
 
 const router: Router = useRouter();
@@ -66,7 +66,7 @@ const onClickSaved: () => void = () => {
 </script>
 
 <template>
-  <Header
+  <CustomHeader
     @displaySwitchFalse="(ReceivedValue) => (displaySwitch = ReceivedValue)"
   />
   <div class="header_area">
@@ -110,7 +110,7 @@ const onClickSaved: () => void = () => {
                 </p>
               </a>
             </div>
-            <p class="name">{{ currentUserData.name }}</p>
+            <p class="userName">{{ currentUserData.name }}</p>
             <p>{{ currentUserData.profile }}</p>
           </div>
         </div>
@@ -230,7 +230,7 @@ const onClickSaved: () => void = () => {
 .amount {
   font-weight: bold;
 }
-.name {
+.userName {
   font-size: 12px;
   font-weight: bold;
   margin-top: 20px;
