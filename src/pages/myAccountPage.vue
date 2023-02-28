@@ -66,9 +66,9 @@ const onClickSaved: () => void = () => {
 </script>
 
 <template>
-  <!-- <CustomHeader
+  <CustomHeader
     @displaySwitchFalse="(ReceivedValue) => (displaySwitch = ReceivedValue)"
-  /> -->
+  />
   <div class="header_area">
     <div v-if="!isLoading" class="myPage_wrapper">
       <div class="user_info flex">
