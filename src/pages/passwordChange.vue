@@ -235,7 +235,7 @@ const toggleShowCPassword: () => void = () => {
   background-color: #1596f7;
   color: white;
   font-weight: bold;
-  border-radius: 20%;
+  border-radius: 5px;
   padding: 5px;
   margin-left: 350px;
   margin-top: 60px;
