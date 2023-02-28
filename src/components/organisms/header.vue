@@ -3,9 +3,7 @@ import { onAuthStateChanged } from "@firebase/auth";
 import { doc, getDoc } from "@firebase/firestore";
 import { auth, db } from "../../../firebase";
 import { defineComponent, onMounted, ref } from "vue";
-import NewPost from "../pages/newPost.vue";
 import LogoutBtn from "../atoms/button/LogoutBtn.vue";
-import UserIcon from "../icons/UserIcon.vue";
 import type { Ref } from "vue";
 
 export default defineComponent({
@@ -35,14 +33,6 @@ export default defineComponent({
       console.log(sonotaKanri.value);
     };
 
-    // モーダル
-    const show = ref(false);
-    const open = () => {
-      show.value = true;
-    };
-    const close = () => {
-      show.value = false;
-    };
     // 保存済みリストへの処理
     const toKeepList = () => {
       emit("displaySwitchFalse", false);
@@ -62,12 +52,15 @@ export default defineComponent({
       <router-link to="/home">
         <li class="li">
           <div>
-            <p>
-              <font-awesome-icon
-                :icon="['fas', 'house']"
-                class="headerIcon"
-              />&nbsp;&nbsp;ホーム
-            </p>
+            <div class="headerMenu">
+              <div class="iconImg">
+                <font-awesome-icon
+                  :icon="['fas', 'house']"
+                  class="headerIcon"
+                />
+              </div>
+              <p class="menuTitle">ホーム</p>
+            </div>
           </div>
         </li>
       </router-link>
@@ -75,12 +68,15 @@ export default defineComponent({
       <router-link to="/searchPage">
         <li class="li">
           <div>
-            <p>
-              <font-awesome-icon
-                :icon="['fas', 'magnifying-glass']"
-                class="headerIcon"
-              />&nbsp;&nbsp;検索
-            </p>
+            <div class="headerMenu">
+              <div class="iconImg">
+                <font-awesome-icon
+                  :icon="['fas', 'magnifying-glass']"
+                  class="headerIcon"
+                />
+              </div>
+              <p class="menuTitle">検索</p>
+            </div>
           </div>
         </li>
       </router-link>
@@ -88,34 +84,18 @@ export default defineComponent({
       <router-link to="/newPost">
         <li class="li">
           <div>
-            <p>
-              <font-awesome-icon
-                :icon="['far', 'square-plus']"
-                class="headerIcon"
-              />&nbsp;&nbsp;作成
-            </p>
+            <div class="headerMenu">
+              <div class="iconImg">
+                <font-awesome-icon
+                  :icon="['far', 'square-plus']"
+                  class="headerIcon"
+                />
+              </div>
+              <p class="menuTitle">作成</p>
+            </div>
           </div>
         </li>
       </router-link>
-      <!-- <div id="newPostModal" class="newPostModal">
-        <button @click="open" class="newPostModal_open_btn">作成</button> -->
-
-      <!--  モーダルウィンドウ  -->
-      <!-- <div v-show="show" class="newPostModal_contents"> -->
-      <!-- モーダルウィンドウの背景 -->
-      <!-- <div @click="close" class="newPostModal_contents_bg">
-            <font-awesome-icon :icon="['fas', 'xmark']" class="newPostXmark" />
-          </div> -->
-
-      <!--   モーダルウィンドウを閉じる   -->
-      <!-- <button @click="close" class="newPostModal_close_btn"></button> -->
-
-      <!--   モーダルウィンドウの中身   -->
-      <!-- <div class="newPostModal_contents_wrap">
-            <NewPost />
-          </div>
-        </div>
-      </div> -->
 
       <router-link to="/myAccountPage/post">
         <li class="li">
@@ -137,31 +117,37 @@ export default defineComponent({
       <li class="liEnd">
         <div v-if="sonotaKanri">
           <button class="other" @click="sonota">
-            <p>
-              <font-awesome-icon
-                :icon="['fas', 'bars']"
-                class="headerIcon"
-              />&nbsp;&nbsp;その他
-            </p>
+            <div class="headerMenu">
+              <div class="iconImg">
+                <font-awesome-icon :icon="['fas', 'bars']" class="headerIcon" />
+              </div>
+              <p class="menuTitle">その他</p>
+            </div>
           </button>
           <div class="ul2">
             <router-link to="/profileChange">
-              <p class="li">
-                <font-awesome-icon
-                  :icon="['fas', 'gear']"
-                  class="headerIcon"
-                />&nbsp;&nbsp;設定
-              </p>
+              <div class="liMenu">
+                <div class="showMenuIcon">
+                  <font-awesome-icon
+                    :icon="['fas', 'gear']"
+                    class="headerIcon"
+                  />
+                </div>
+                <p>設定</p>
+              </div>
             </router-link>
             <!-- <router-link to="/profileChange"> -->
             <router-link to="/myAccountPage/saved">
               <div @click="toKeepList">
-                <p class="li">
-                  <font-awesome-icon
-                    :icon="['far', 'bookmark']"
-                    class="headerBookMarkIcon"
-                  />&nbsp;&nbsp;保存済み
-                </p>
+                <div class="liMenu">
+                  <div class="showMenuIcon">
+                    <font-awesome-icon
+                      :icon="['far', 'bookmark']"
+                      class="headerBookMarkIcon"
+                    />
+                  </div>
+                  <p>保存済み</p>
+                </div>
               </div>
             </router-link>
             <!-- </router-link> -->
@@ -171,12 +157,12 @@ export default defineComponent({
 
         <div v-else>
           <button class="other" @click="sonota">
-            <p>
-              <font-awesome-icon
-                :icon="['fas', 'bars']"
-                class="headerIcon"
-              />&nbsp;&nbsp;その他
-            </p>
+            <div class="headerMenu">
+              <div class="iconImg">
+                <font-awesome-icon :icon="['fas', 'bars']" class="headerIcon" />
+              </div>
+              <p class="menuTitle">その他</p>
+            </div>
           </button>
         </div>
       </li>
@@ -239,6 +225,14 @@ export default defineComponent({
   width: 100%;
   list-style: none;
 }
+.liMenu {
+  margin: 0 auto;
+  padding: 0;
+  padding-left: 10px;
+  width: 100%;
+  list-style: none;
+  display: flex;
+}
 .liEnd {
   margin: 0 auto;
   padding: 0;
@@ -256,6 +250,17 @@ export default defineComponent({
   display: flex;
 }
 /* icon */
+.headerMenu {
+  display: flex;
+}
+.menuTitle {
+  margin-left: 10px;
+}
+.iconImg {
+  width: 40px;
+  height: 40px;
+  text-align: center;
+}
 .headerIcon {
   width: 20px;
   height: auto;
@@ -275,71 +280,8 @@ button {
   opacity: 1;
   cursor: pointer;
 }
-/* モーダル */
-.newPostModal {
-  padding-right: 4%;
-}
-/* モーダルウィンドウを開く要素 */
-.newPostModal_open_btn {
-  cursor: pointer;
-}
-/* モーダルウィンドウ要素 */
-.newPostModal_contents {
-  position: absolute;
-  top: 0;
-  left: 0;
-  z-index: 100;
-  width: 100%;
-  height: 100%;
-}
-/* モーダルウィンドウの背景要素 */
-.newPostModal_contents_bg {
-  position: fixed;
-  background: rgba(0, 0, 0, 0.8);
-  width: 100%;
-  height: 100%;
-  top: 0;
-  bottom: 0;
-  right: 0;
-  left: 0;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
-}
-.newPostXmark {
-  display: flex;
-  margin-right: 2%;
-  margin-left: auto;
-  padding-top: 2%;
-  width: 20px;
+.showMenuIcon {
+  width: 25px;
   height: auto;
-  color: #ffff;
-  cursor: pointer;
-  position: absolute;
-  top: 2%;
-  right: 2%;
-}
-/* モーダルウィンドウの中身*/
-.newPostModal_contents_wrap {
-  /* position: absolute;
-  top: 50%;
-  left: 50%;
-  background-color: #fff;
-  width: 35%;
-  height: 70%;
-  margin: auto;
-  transform: translate(-50%, -50%);
-  border-radius: 5%;
-  display: flex;
-  flex-direction: column;
-  text-align: center; */
-  z-index: 2000;
-}
-/* モーダルウィンドウを閉じる要素 */
-.newPostModal_close_btn {
-  cursor: pointer;
-  height: 33%;
-  color: #ffff;
 }
 </style>

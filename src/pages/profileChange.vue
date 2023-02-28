@@ -1,6 +1,19 @@
 <script setup lang="ts">
 import { onAuthStateChanged } from "@firebase/auth";
-import { doc, getDoc, updateDoc } from "@firebase/firestore";
+// import { doc, getDoc, updateDoc } from "@firebase/firestore";
+import {
+  updateDoc,
+  addDoc,
+  collection,
+  doc,
+  getDoc,
+  getDocs,
+  limit,
+  query,
+  serverTimestamp,
+  setDoc,
+  where,
+} from "@firebase/firestore";
 import { ref } from "vue";
 import {
   deleteObject,
@@ -27,6 +40,8 @@ const uid = ref();
 const fileName = ref();
 const gsRef = ref();
 const iconUrl = ref();
+const postList = ref([]);
+const postListComments = ref([]);
 
 const show = ref(false);
 
@@ -43,7 +58,48 @@ onAuthStateChanged(auth, (currentUser: any) => {
     userName.value = userData.value.userName;
     profile.value = userData.value.profile;
   });
+
+
+const anotherQ = query(
+    collection(db, "posts"),
+    where("userId", "==", uid.value),
+  );
+
+  getDocs(anotherQ).then((ownQSnapshot) => {
+    ownQSnapshot.forEach((docdata) => {
+      const data = (docdata.id, " => ", docdata.data());
+      postList.value.push(
+        data.postId
+      );
+    });
+  });
+
+ 
+
+
+  // const another = query(
+  //   collection(db, "posts"),
+  //   // where("userId", "==", uid.value),
+  // );
+
+  // getDocs(another).then((ownQSnapshot) => {
+  //   ownQSnapshot.forEach((docdata) => {
+  //     const data = (docdata.id, " => ", docdata.data());
+  //     if( data.comments !== []){
+  //       postListComments.value.push(
+  //       data.comments
+  //     );
+  //     }else{
+  //       console.log(kara)
+  //     }
+
+  //   });
+  // });
+
+  // console.log(postListComments.value)
 });
+
+
 
 const uploadButton = (e: any): void => {
   const file = e.target.files[0];
@@ -61,6 +117,7 @@ const uploadButton = (e: any): void => {
   });
 };
 
+
 const change = (): void => {
   updateDoc(doc(db, "users", uid.value), {
     name: name.value,
@@ -71,12 +128,28 @@ const change = (): void => {
 
   router.push("/myAccountPage/post");
 
-  show.value = true;
+  postList.value.forEach((postid)=>{
+    updateDoc(doc(db, "posts", postid), {
+    userName: userName.value,
+    icon: iconUrl.value,
+  });
+
+  })
+
+  // updateDoc(anotherQ, {
+  //   userName: userName.value,
+  //   icon: iconUrl.value,
+  // });
+
+
+
+  // show.value = true;
 };
-const close = () => {
+
+// const close = () => {
   // show.value = false;
-  router.push("/myAccountPage/post");
-};
+  // router.push("/myAccountPage/post");
+// };
 </script>
 
 <template>
@@ -179,7 +252,7 @@ const close = () => {
   background-color: #1596f7;
   color: white;
   font-weight: bold;
-  border-radius: 20%;
+  border-radius: 5px;
   width: 100px;
   margin: 30px;
   padding: 3px;
@@ -191,6 +264,8 @@ const close = () => {
   width: 50px;
   height: 50px;
   border-radius: 50%;
+   border: solid 1px silver;
+  background-color: white;
 }
 
 .profileChangeThreeChange {
