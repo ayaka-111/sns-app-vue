@@ -4,7 +4,7 @@ import { doc, getDoc, updateDoc } from '@firebase/firestore';
 import { auth, db } from '../../firebase';
 import {
   getAuth,
-  onAuthStateChanged, 
+  onAuthStateChanged,
   EmailAuthProvider,
   reauthenticateWithCredential,
   updatePassword as firebaseUpdatePassword,
@@ -30,6 +30,8 @@ onAuthStateChanged(auth, (currentUser: any) => {
 
 // const auth = getAuth();
 // const currentUser: any = auth.currentUser;
+console.log(current.value)
+
 
  // パスワードの変更関数を定義(Authentication)
  const updatePassword = (
@@ -63,7 +65,7 @@ onAuthStateChanged(auth, (currentUser: any) => {
             );
         })
         .catch((error) => reject(errMessage.value=error));
-    });  
+    });
   };
 
 
@@ -104,7 +106,7 @@ const passChange :()=> void = () => {
 
 <div class="passwordChangeThreeChange">
 <form  @submit.prevent="passChange" >
-<div class="passwordChange-old">現在のパスワード<input class="passwordChangeInput" v-model="nowPassValue"  placeholder="現在のパスワード" /></div> 
+<div class="passwordChange-old">現在のパスワード<input class="passwordChangeInput" v-model="nowPassValue"  placeholder="現在のパスワード" /></div>
 <div class="passwordChange-new">新しいパスワード<input class="passwordChangeInput" v-model="newPassValue"   placeholder="半角英小文字、数字を含む6文字以上15文字以内" /></div>
 <div class="passwordChange-new2">新しいパスワード(確認)<input class="passwordChangeInput" v-model="CPassValue"  placeholder="確認の為もう一度入力" /></div>
 <div v-if="newPassValue !== CPassValue ">
@@ -190,18 +192,18 @@ const passChange :()=> void = () => {
     width:700px;
 }
 .passwordChange-old{
-  margin-left: 54px; 
+  margin-left: 54px;
     width:100%;
     margin-top: 40px;
 }
 
 .passwordChange-new{
-  margin-left: 54px; 
+  margin-left: 54px;
     margin-top: 40px;
     width:100%;
 }
 .passwordChange-new2{
-  margin-left: 11px; 
+  margin-left: 11px;
     margin-top: 40px;
     width:100%;
 }
