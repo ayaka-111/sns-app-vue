@@ -19,6 +19,7 @@ import PostFavorite from "../components/atoms/button/PostFavorite.vue";
 import type { Post, User } from "../../types/types";
 import type { Ref } from "vue";
 import UserIcon from "../components/icons/UserIcon.vue";
+import CommentUserName from "../components/atoms/CommentUserName.vue";
 
 interface CommentType {
   comment: string;
@@ -160,10 +161,10 @@ const inputComment = ref("");
 const addComment = async () => {
   await updateDoc(postDoc.value, {
     comments: arrayUnion({
-      userName: loginUser.value?.userName,
-      icon: loginUser.value?.icon,
+      // userName: loginUser.value?.userName,
+      // icon: loginUser.value?.icon,
       comment: inputComment.value,
-      userId: loginUserUid.value,
+      userId: loginUser.value?.userId,
       // timestamp: serverTimestamp(),
     }),
   });
@@ -224,7 +225,10 @@ const deleteClose = () => {
               </a>
               <p
                 class="post_editedText"
-                v-if="referrer === `http://localhost:5173/postChange/${postId}`"
+                v-if="
+                  referrer === `http://127.0.0.1:5173/postChange/${postId}` ||
+                  `http://localhost:5173/postChange/${postId}`
+                "
               >
                 編集済み
               </p>
@@ -372,11 +376,15 @@ const deleteClose = () => {
                   v-if="comment.userId === loginUserUid"
                   class="post_commentName"
                 >
-                  <a href="/myAccountPage/post">{{ comment.userName }}</a>
+                  <a href="/myAccountPage/post">
+                    <!-- {{ comment.userName }} -->
+                    <CommentUserName v-bind:userId="comment.userId" />
+                  </a>
                 </p>
                 <p v-else class="post_commentName">
                   <a v-bind:href="`/accountPage/${comment.userId}`">
-                    {{ comment.userName }}
+                    <!-- {{ comment.userName }} -->
+                    <CommentUserName v-bind:userId="comment.userId" />
                   </a>
                 </p>
                 <p>{{ comment.comment }}</p>
