@@ -5,14 +5,16 @@ import { auth, db } from "../../../firebase";
 import { defineComponent, ref } from "vue";
 import NewPost from "../pages/newPost.vue";
 import LogoutBtn from "../atoms/button/LogoutBtn.vue";
+import UserIcon from "@/components/icons/UserIcon.vue";
 
 export default defineComponent({
   name: "CustomHeader",
-  components: { LogoutBtn },
+  components: { LogoutBtn, UserIcon },
   setup: (props, { emit }) => {
     const userData: any = ref();
     const iconUrl: any = ref();
     const sonotaKanri: any = ref(false);
+    const iconStyle: any = ref("40px");
 
     onAuthStateChanged(auth, (currentUser: any) => {
       console.log(currentUser.uid);
@@ -40,7 +42,7 @@ export default defineComponent({
     const toKeepList = () => {
       emit("displaySwitchFalse", false);
     };
-    return { iconUrl, sonotaKanri, sonota, toKeepList };
+    return { iconUrl, sonotaKanri, sonota, toKeepList, iconStyle, userData };
   },
 });
 </script>
@@ -114,7 +116,12 @@ export default defineComponent({
         <li class="li">
           <div>
             <div class="prof">
-              <img v-bind:src="iconUrl" alt="icon" class="icon" />
+              <div>
+                <UserIcon
+                  v-bind:userId="userData.userId"
+                  v-bind:iconStyle="iconStyle"
+                />
+              </div>
               <p class="profName">プロフィール</p>
             </div>
           </div>

@@ -11,7 +11,7 @@ import type { Ref } from "vue";
 import type { Router, RouteLocationNormalizedLoaded } from "vue-router";
 import type { User } from "../../types/types";
 import type { DocumentData, DocumentReference } from "@firebase/firestore";
-import UserIcon from "../components/icons/UserIcon.vue";
+import UserIcon from "@/components/icons/UserIcon.vue";
 import { watch } from "vue";
 
 const router: Router = useRouter();
@@ -110,7 +110,7 @@ const onClickSaved: () => void = () => {
                 </p>
               </a>
             </div>
-            <p class="name">{{ currentUserData.name }}</p>
+            <p class="userName">{{ currentUserData.name }}</p>
             <p>{{ currentUserData.profile }}</p>
           </div>
         </div>
@@ -230,7 +230,7 @@ const onClickSaved: () => void = () => {
 .amount {
   font-weight: bold;
 }
-.name {
+.userName {
   font-size: 12px;
   font-weight: bold;
   margin-top: 20px;
