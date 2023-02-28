@@ -15,7 +15,7 @@ import {
 import { createApp, ref, reactive } from "vue";
 import { useRoute } from "vue-router";
 import { db } from "../../firebase";
-import Header from "../components/organisms/header.vue";
+import CustomHeader from "../components/organisms/header.vue";
 
 //userIdを受け取る
 const route = useRoute();
@@ -148,7 +148,7 @@ console.log(messageList.value);
 </script>
 
 <template>
-  <Header />
+  <CustomHeader />
   <div class="dmPage-header250">
     <div class="dmPage-auto">
       <div class="dmPage-50">

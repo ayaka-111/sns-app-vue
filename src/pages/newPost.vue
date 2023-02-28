@@ -139,7 +139,7 @@ const shareButton = async () => {
 };
 const close = () => {
   // show.value = false;
-  router.push("/myAccountPage");
+  router.push("/myAccountPage/post");
 };
 </script>
 
