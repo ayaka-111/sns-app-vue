@@ -1,11 +1,13 @@
-<script>
+<script lang="ts">
 import { ref } from "vue";
 import formValidation from "../molecules/formValidation";
+import type { Ref } from "vue";
+
 export default {
   setup() {
-    let input = ref(null);
+    let input: Ref<string> = ref("");
     const { validateNameField, error } = formValidation();
-    const validateInput = () => {
+    const validateInput: () => void = () => {
       validateNameField("name", input.value);
     };
     return { input, error, validateInput };
@@ -13,8 +15,8 @@ export default {
 };
 </script>
 <template>
-  <div class="field">
-    <div class="ui left icon input big">
+  <div>
+    <div>
       <input
         type="text"
         placeholder="フルネーム"
