@@ -22,6 +22,7 @@ export default defineComponent({
       const theUserData: DocumentData | undefined = theUserDocData.data();
       theUserIcon.value = theUserData?.icon;
     });
+    console.log(sideLength.value)
     return {
       theUserIcon,
       theUserId,
@@ -36,7 +37,7 @@ export default defineComponent({
     <img v-bind:src="theUserIcon" alt="ユーザーアイコン" />
   </div>
   <div class="user_icon" v-else>
-    <img src="/noicon.png" alt="ユーザーアイコン" />
+    <img src="/noIcon.png" alt="ユーザーアイコン" />
   </div>
 </template>
 

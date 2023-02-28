@@ -9,7 +9,7 @@ import {
   uploadBytesResumable,
 } from "@firebase/storage";
 import { auth, db, storage } from "../../firebase";
-import Header from "../components/organisms/header.vue";
+import CustomHeader from "../components/organisms/header.vue";
 import Miniheader from "../components/organisms/miniheader.vue";
 // import router from "@/router";
 import { useRouter } from "vue-router";
@@ -69,6 +69,8 @@ const change = (): void => {
     icon: iconUrl.value,
   });
 
+  router.push("/myAccountPage/post");
+
   show.value = true;
 };
 const close = () => {
@@ -78,15 +80,22 @@ const close = () => {
 </script>
 
 <template>
-  <Header />
 
+  <CustomHeader />
   <Miniheader />
+
+  <div class = "soto">
+
+  
   <div class="profileChange-header250">
     <div class="profileChange">
       <form @submit.prevent="change">
         <div class="profileChangeIconChange">
-          <div>
+            <div v-if="iconUrl !== '' ">
             <img v-bind:src="iconUrl" alt="icon" class="profileChangeIconImg" />
+          </div>
+          <div v-else>
+            <img src="../../public/noIcon.png" alt="icon" class="profileChangeIconImg" />
           </div>
           <div class="profileChangeIconInput">
             <label htmlFor="iconUpload">プロフィール写真を変更</label>
@@ -119,35 +128,39 @@ const close = () => {
         <button class="profileChangeButton">変更</button>
 
               <!--  モーダルウィンドウ  -->
-  <div v-show="show">
+  <!-- <div v-show="show"> -->
     <!--   モーダルウィンドウを閉じる   -->
-    <button @click="close">×</button>
+    <!-- <button @click="close">×</button> -->
     <!--   モーダルウィンドウの中身   -->
-    <p>変更が完了されました</p>
-  </div>
+    <!-- <p>変更が完了されました</p> -->
+  <!-- </div> -->
 
       </form>
     </div>
-
-
-
-
   </div>
 
-
+</div>
 </template>
 
 <style>
+.soto{
+    overflow: hidden;
+    
+}
 .profileChange-header250 {
   margin-left: 490px;
   margin-top: 50px;
+  height: 425px;
+  border: solid 1px silver;
+  width: 800px;
 }
 .profileChange {
   margin: auto;
   width: 800px;
   font-size: 15px;
   font-weight: bold;
-  border: solid 1px silver;
+  /* border: solid 1px silver; */
+  /* height: 425px; */
 }
 .profileChangeIconChange {
   display: flex;

@@ -9,8 +9,12 @@ import {
   reauthenticateWithCredential,
   updatePassword as firebaseUpdatePassword,
 } from "firebase/auth";
-import Header from "../components/organisms/header.vue"
+import CustomHeader from "../components/organisms/header.vue"
 import Miniheader2 from "../components/organisms/miniheader2.vue"
+import UserIcon from "@/components/icons/UserIcon.vue";
+import { useRouter } from "vue-router";
+
+const router = useRouter()
 
 const userData = ref();
 const nowPassValue:any =ref();
@@ -18,39 +22,47 @@ const newPassValue:any = ref();
 const CPassValue:any = ref();
 const errMessage = ref();
 const current:any = ref("");
+const iconStyle: any= ref("50px");
 
 onAuthStateChanged(auth, (currentUser: any) => {
-    current.value=currentUser.uid
-    const loginUserData = doc(db, "users", currentUser.uid);
+
+ 
+  const loginUserData = doc(db, "users", currentUser.uid);
     getDoc(loginUserData).then((data) => {
     userData.value = data.data();
-    console.log(current)
     });
+
+    current.value=currentUser.uid;
   });
 
-// const auth = getAuth();
-// const currentUser: any = auth.currentUser;
+const Auth = getAuth();
+const currentUser: any = Auth.currentUser;
 
  // パスワードの変更関数を定義(Authentication)
  const updatePassword = (
+  
     oldPassword: string,
     newPassword: string
   ): Promise<void> => {
     return new Promise((resolve, reject) => {
-      if (current.value == null) {
+
+      if (currentUser == null) {
         return reject();
       }
+     
 
 
       // クレデンシャルの取得
       const credential = EmailAuthProvider.credential(
-        current.value.email || "",
+        
+      currentUser.email || "",
         oldPassword
         // current.value.password
       );
 
+  
       // メールアドレスの再認証
-      reauthenticateWithCredential(current.value, credential)
+      reauthenticateWithCredential(currentUser, credential)
         .then((userCredential) => {
           console.log(userCredential)
           // パスワードの更新
@@ -82,7 +94,7 @@ const passChange :()=> void = () => {
       Cpassword:newPassValue.value,
     });
 
-
+    router.push("/myAccountPage/post");
 }
 
 
@@ -90,17 +102,25 @@ const passChange :()=> void = () => {
 
 <template>
 
-<Header />
+<!-- <Header /> -->
+<CustomHeader />
 
 <Miniheader2 />
 
+<div class="soto">
 <div class="passwordChange-header">
 
 <div class="passwordChange">
 <p>{{ current.email }}</p>
 
 <div class="passwordChangeNameset">
-<img v-bind:src="userData.icon" alt="icon" class="iconImg" />
+  <div>
+              <UserIcon 
+            v-bind:userId="current"
+            v-bind:iconStyle="iconStyle"
+          />
+        </div>
+<!-- <img v-bind:src="userData.icon" alt="icon" class="iconImg" /> -->
 <p class="name"> {{ userData.name }}</p>
 </div>
 
@@ -109,8 +129,7 @@ const passChange :()=> void = () => {
 <div class="passwordChange-old">現在のパスワード<input class="passwordChangeInput" v-model="nowPassValue"  placeholder="現在のパスワード" /></div> 
 <div class="passwordChange-new">新しいパスワード<input class="passwordChangeInput" v-model="newPassValue"   placeholder="半角英小文字、数字を含む6文字以上15文字以内" /></div>
 <div class="passwordChange-new2">新しいパスワード(確認)<input class="passwordChangeInput" v-model="CPassValue"  placeholder="確認の為もう一度入力" /></div>
-<div v-if="newPassValue !== CPassValue ">
-  <!-- CPassValue.length > 0 && -->
+<div v-if="newPassValue !== CPassValue && CPassValue.length > 0  ">
   <p class="passwordChange-not">
     新しいパスワードと新しいパワード(確認)が一致していません
   </p>
@@ -127,20 +146,26 @@ const passChange :()=> void = () => {
 
 </div>
 </div>
+</div>
 </template>
 
 
 <style>
+.soto{
+  overflow: hidden;
+}
 .passwordChange-header{
   margin-left: 490px;
     margin-top: 50px;
+    border: solid 1px silver;
+  width: 800px;
 }
 .passwordChange{
     margin:auto;
     width:800px;
     font-size: 15px;
     font-weight: bold;
-    border : solid 1px silver;
+    /* border : solid 1px silver; */
 }
 .passwordChange-not{
   margin-left: 200px;
