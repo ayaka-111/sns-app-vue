@@ -8,12 +8,10 @@ import LogoutBtn from "../atoms/button/LogoutBtn.vue";
 import UserIcon from "../icons/UserIcon.vue";
 import type { Ref } from "vue";
 
-
-
 export default defineComponent({
   
   name: "CustomHeader",
-  components: { LogoutBtn, UserIcon },
+  components: { LogoutBtn },
   setup: (props, { emit }) => {
     const userData: any = ref();
     const iconUrl: any = ref();

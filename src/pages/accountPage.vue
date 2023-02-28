@@ -16,6 +16,7 @@ import type { Ref } from "vue";
 import type { Router } from "vue-router";
 import type { RouteLocationNormalizedLoaded } from "vue-router";
 import type { DocumentData, DocumentReference } from "firebase/firestore";
+import UserIcon from "@/components/icons/UserIcon.vue";
 
 //postIdを受け取る
 const route: RouteLocationNormalizedLoaded = useRoute();
@@ -32,6 +33,7 @@ const currentUserId: Ref<string> = vueref("");
 const isLoading: Ref<boolean> = vueref(true);
 const isFollowing: Ref<boolean> = vueref(false);
 const numberOfFollower: Ref<number | unknown> = vueref(0);
+const iconStyle: Ref<string> = vueref("150px");
 
 onMounted(() => {
   onAuthStateChanged(auth, (currentUser) => {
@@ -141,9 +143,10 @@ const onClickUnFollow: () => void = () => {
     <div v-if="!isLoading" class="accountPage_wrapper">
       <div class="user_info flex">
         <div class="user_info_left">
-          <div class="user_icon">
-            <img v-bind:src="anotherUserData.icon" alt="ユーザーアイコン" />
-          </div>
+          <UserIcon
+            v-bind:userId="anotherUserData.userId"
+            v-bind:iconStyle="iconStyle"
+          />
         </div>
         <div class="user_info_right">
           <div>
@@ -185,7 +188,7 @@ const onClickUnFollow: () => void = () => {
                 </p>
               </a>
             </div>
-            <p class="name">{{ anotherUserData.name }}</p>
+            <p class="userName">{{ anotherUserData.name }}</p>
             <p>{{ anotherUserData.profile }}</p>
           </div>
         </div>
@@ -271,7 +274,7 @@ const onClickUnFollow: () => void = () => {
 .amount {
   font-weight: bold;
 }
-.name {
+.userName {
   font-size: 12px;
   font-weight: bold;
   margin-top: 20px;
