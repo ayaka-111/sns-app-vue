@@ -19,12 +19,16 @@ import {
 import { auth, db, storage } from "../../firebase";
 import CustomHeader from "../components/organisms/header.vue";
 import { useRouter } from "vue-router";
+import type { User } from "../../types/types";
+import type { Ref } from "vue";
+import type { DocumentData } from "firebase/firestore";
+import UserIcon from "../components/icons/UserIcon.vue";
 
 // ログインユーザー
-const loginUser: any = ref("");
+const loginUser: Ref<User | DocumentData | undefined> = ref();
 
 //ログインユーザーのドキュメント
-const loginUserDocRefId: any = ref("");
+const loginUserDocRefId: any = ref();
 
 const fileName = ref();
 
@@ -38,8 +42,10 @@ const postUrl = ref("");
 
 const router = useRouter();
 
+const iconStyle: Ref<string> = ref("30px");
+
 //ログイン認証、user情報取得
-onAuthStateChanged(auth, (currentUser: any) => {
+onAuthStateChanged(auth, (currentUser) => {
   if (currentUser) {
     //ログインユーザーの情報取得
     const userCollectionRef = collection(db, "users");
@@ -62,7 +68,7 @@ const uploadButton = (e: any) => {
   fileName.value = file;
   const gsReference = storageRef(
     storage,
-    `${loginUser.value.userId}/post/postId/${file.name}`
+    `${loginUser.value?.userId}/post/postId/${file.name}`
   );
 
   gsRef.value = gsReference;
@@ -81,24 +87,24 @@ const show = ref(false);
 // シェアボタン
 const shareButton = async () => {
   // postsコレクション取得
-  const postsCollectionRef: any = collection(db, "posts");
+  const postsCollectionRef = collection(db, "posts");
 
   // postsに追加する内容
   const postDoc = await addDoc(postsCollectionRef, {
-    userId: loginUser.value.userId,
-    userName: loginUser.value.userName,
+    userId: loginUser.value?.userId,
+    userName: loginUser.value?.userName,
     caption: inputCaption.value,
     timestamp: serverTimestamp(),
     favorites: [],
     keeps: [],
     comments: [],
-    icon: loginUser.value.icon,
+    icon: loginUser.value?.icon,
   });
 
   // storageのpath更新(postIdを指定して画像アップロードする)
   const newGsReference = storageRef(
     storage,
-    `${loginUser.value.userId}/post/${postDoc.id}/postImg.png`
+    `${loginUser.value?.userId}/post/${postDoc.id}/postImg.png`
   );
 
   //新しいURL取得
@@ -175,13 +181,8 @@ const close = () => {
       <div class="newPost_uploadedTitleContent">
         <div class="newPost_uploadedTitle">新規投稿を作成</div>
 
-        <!-- <button @click="shareButton" class="share">シェア</button> -->
-
         <div id="shareModal" class="shareModal">
           <!--  クリック要素  -->
-          <!-- <span @click="open" class="modal_open_btn"
-              ><font-awesome-icon :icon="['fas', 'ellipsis']" class="post_menu"
-            /></span> -->
           <button @click="shareButton" class="share modal_open_btn">
             シェア
           </button>
@@ -217,8 +218,12 @@ const close = () => {
         </div>
         <div>
           <div class="newPost_iconName">
-            <img v-bind:src="loginUser.icon" alt="icon" class="iconImg" />
-            <p class="newPost_userName">{{ loginUser.userName }}</p>
+            <UserIcon
+              v-bind:userId="loginUser?.userId"
+              v-bind:iconStyle="iconStyle"
+              id="iconImg"
+            />
+            <p class="newPost_userName">{{ loginUser?.userName }}</p>
           </div>
           <div>
             <textarea
@@ -313,7 +318,7 @@ const close = () => {
   font-weight: bold;
   font-size: 1.4rem;
   line-height: 5rem;
-  margin-right: 10px;
+  /* margin-right: 10px; */
 }
 .newPost_uploadedContent {
   display: flex;
@@ -335,12 +340,13 @@ const close = () => {
   gap: 5%;
   margin-top: 20px;
 }
-.iconImg {
-  width: 30px;
+#iconImg {
+  /* width: 30px;
   height: 30px;
   border-radius: 50%;
   border: 1px solid lightgray;
-  background-color: #ffff;
+  background-color: #ffff; */
+  margin: 0 0;
 }
 .newPost_userName {
   font-weight: bold;
