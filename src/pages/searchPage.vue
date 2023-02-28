@@ -11,7 +11,7 @@ import {
 import { db } from "../../firebase";
 
 import { ref } from "vue";
-import Header from "../components/organisms/header.vue";
+import CustomHeader  from "../components/organisms/header.vue";
 import { connectStorageEmulator } from "@firebase/storage";
 import { useRoute, useRouter } from "vue-router";
 import UserIcon from "../components/icons/UserIcon.vue";
@@ -109,7 +109,7 @@ const search:() => void =()=> {
 </script>
 
 <template>
-  <Header />
+  <CustomHeader  />
 
   <div class="searchPage-250px">
     <div class="searchPage-auto">

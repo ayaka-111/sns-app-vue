@@ -15,7 +15,7 @@ import {
 import { createApp, ref, reactive } from "vue";
 import { useRoute } from "vue-router";
 import { db } from "../../firebase";
-import Header from "../components/organisms/header.vue";
+import CustomHeader from "../components/organisms/header.vue";
 
 //userIdを受け取る
 const route = useRoute();
@@ -57,8 +57,8 @@ onAuthStateChanged(auth, (currentUser: any) => {
     collection(db, "messages"),
     //   ログインユーザーのID
     where("userId", "==", currentUser?.uid),
-    where("withUserId", "==", userId)
-    //   limit(5)
+    where("withUserId", "==", userId),
+      limit(5)
   );
   // const ownQSnapshot = await getDocs(ownQ);
   getDocs(ownQ).then((ownQSnapshot) => {
@@ -90,8 +90,8 @@ onAuthStateChanged(auth, (currentUser: any) => {
     collection(db, "messages"),
     where("userId", "==", userId),
     //   ログインユーザーのID
-    where("withUserId", "==", currentUser?.uid)
-    // limit(5)
+    where("withUserId", "==", currentUser?.uid),
+    limit(5)
   );
   getDocs(anotherQ).then((ownQSnapshot) => {
     ownQSnapshot.forEach((docdata) => {
@@ -148,7 +148,8 @@ console.log(messageList.value);
 </script>
 
 <template>
-  <Header />
+  <CustomHeader />
+  <div class="soto">
   <div class="dmPage-header250">
     <div class="dmPage-auto">
       <div class="dmPage-50">
@@ -168,13 +169,13 @@ console.log(messageList.value);
               <div v-if="userId === mess.userId">
                 <p class="dmPage-withUserMess">{{ mess.message }}</p>
                 <p class="dmPage-withUserTime">
-                  {{ mess.hour }}:{{ mess.min }}
+                  {{ mess.hour }}:{{ mess.min }}:{{ mess.seco }}
                 </p>
               </div>
 
               <div v-if="userId === mess.withUserId">
                 <p class="dmPage-Mymess">{{ mess.message }}</p>
-                <p class="dmPage-Mytime">{{ mess.hour }}:{{ mess.min }}</p>
+                <p class="dmPage-Mytime">{{ mess.hour }}:{{ mess.min }}:{{ mess.seco }}</p>
               </div>
             </li>
           </ul>
@@ -188,6 +189,7 @@ console.log(messageList.value);
         </div>
 
         <form @submit.prevent="addNewMessage" class="dmPage-form">
+
           <div class="inputButton">
             <input
               class="input"
@@ -200,51 +202,16 @@ console.log(messageList.value);
       </div>
     </div>
 
-    <div class="dmPage-message">
-      <ul>
-        <li v-for="mess in messageList" :key="mess.userId">
-          <div v-if="userId === mess.userId">
-            <p class="dmPage-withUserMess">{{ mess.message }}</p>
-            <p class="dmPage-withUserTime">
-              {{ mess.hour }}:{{ mess.min }}:{{ mess.seco }}
-            </p>
-          </div>
-
-          <div v-if="userId === mess.withUserId">
-            <p class="dmPage-Mymess">{{ mess.message }}</p>
-            <p class="dmPage-Mytime">
-              {{ mess.hour }}:{{ mess.min }}:{{ mess.seco }}
-            </p>
-          </div>
-        </li>
-      </ul>
-
-      <ul>
-        <li v-for="newMess in newMessageList" :key="newMess.userId">
-          <p class="dmPage-Mymess">{{ newMess.message }}</p>
-          <p class="dmPage-Mytime">{{ timeStrRef }}</p>
-        </li>
-      </ul>
-    </div>
-
-    <form @submit.prevent="addNewMessage" class="dmPage-form">
-      <div class="inputButton">
-        <input
-          class="input"
-          v-model="newMessage"
-          placeholder="メッセージを入力..."
-        />
-        <button class="button">送信</button>
-      </div>
-    </form>
   </div>
+</div>
 
-  <!-- </div>
-</div> -->
 </template>
 
 
 <style scoped>
+.soto{
+  overflow:hidden;
+}
 .dmPage-header25 {
   margin-left: 259px;
 }
@@ -257,27 +224,33 @@ console.log(messageList.value);
   background-color: white;
   width: 100%;
   margin-left: 10%;
-  margin-top: 5%;
-  margin-bottom: 5%;
-  /* height:600px; */
+  margin-top: 20px;
+  /* margin-bottom: 5%;s */
+  height:650px;
 }
 .dmPage-withUser {
   display: flex;
   margin-top: 5px;
   margin-left: 10px;
-  margin-bottom: 5px;
+  margin-bottom: 10px;
+  margin-right:10px;
+  border-bottom: solid 1px silver;
 }
 .dmPage-withUserIcon {
   /* background-color: #c0c0c0; */
   border-radius: 50%;
   width: 40px;
   height: 40px;
+  border: solid 1px silver;
+  background-color: white;
+  margin-bottom: 10px;
 }
 .dmPage-withUserName {
   display: grid;
   place-items: center;
   margin-left: 10px;
   /* font-weight: bold; */
+  margin-bottom:10px;
 }
 
 .dmPage-withUserMess {
@@ -304,6 +277,7 @@ console.log(messageList.value);
   width: 40%;
   margin-left: auto;
   margin-right: 10%;
+  /* margin-top:10px; */
 }
 .dmPage-Mytime {
   display: block;
@@ -325,7 +299,7 @@ console.log(messageList.value);
 .input {
   width: 85%;
   margin-bottom: 20px;
-  margin-top: 30px;
+  margin-top: 350px;
 }
 
 .button {

@@ -104,9 +104,15 @@ export default defineComponent({
             v-bind:userId="userId"
             v-bind:iconStyle="iconStyle"
           /> -->
-              <!-- {{ userId }}{{ iconStyle }} -->
+
+          <!-- {{ userId }}{{ iconStyle }} -->
+              <div v-if="iconUrl !== ''">
 
               <img v-bind:src="iconUrl" alt="icon" class="icon" />
+              </div>
+              <div v-else>
+              <img src="../../../public/noIcon.png" alt="icon" class="icon" />
+              </div>
               <p class="profName">プロフィール</p>
             </div>
           </div>
