@@ -7,9 +7,9 @@ export default function SubmitButtonState(
   isSignupButtonDisabled: ComputedRef<boolean>;
 } {
   const isSignupButtonDisabled = computed(() => {
-    let disabled = true;
+    let disabled: boolean = true;
     for (const prop in user) {
-      if(prop == 'profile') {
+      if (prop == "profile") {
         continue;
       }
       if (!user[prop] || errors[prop]) {

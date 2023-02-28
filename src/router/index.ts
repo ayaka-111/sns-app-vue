@@ -7,7 +7,7 @@ import Post from "../pages/post.vue";
 import Home from "../pages/home.vue";
 import Header from "../components/organisms/header.vue";
 import SearchPage from "../pages/searchPage.vue";
-import LogoutBtn from "@/components/atoms/LogoutBtn.vue";
+import LogoutBtn from "@/components/atoms/button/LogoutBtn.vue";
 import newPost from "../pages/newPost.vue";
 import postChange from "../pages/postChange.vue";
 import ProfileChange from "../pages/profileChange.vue";
@@ -69,7 +69,7 @@ const router = createRouter({
       component: postChange,
     },
     {
-      path: "/myAccountPage",
+      path: "/myAccountPage/:page",
       name: "myAccountPage",
       component: myAccountPage,
     },

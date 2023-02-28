@@ -3,6 +3,11 @@ import { doc, getDoc } from "@firebase/firestore";
 import { auth, db } from "../../../firebase";
 import { defineComponent, onMounted, ref as vueref } from "vue";
 import type { Ref } from "vue";
+import type {
+  DocumentData,
+  DocumentReference,
+  DocumentSnapshot,
+} from "firebase/firestore";
 
 interface NeedPostData {
   postId: string;
@@ -14,38 +19,47 @@ export default defineComponent({
   name: "keepList",
   props: { userId: String },
   setup: (props) => {
-    const currentUserData: any = vueref();
-    const currentUserId: any = vueref(props.userId);
-    const isLoading: any = vueref(true);
+    const currentUserData: Ref<any> = vueref();
+    const currentUserId: Ref<any> = vueref(props.userId);
+    const isLoading: Ref<boolean> = vueref(true);
     const currentKeepsData: Ref<NeedPostData[]> = vueref([]);
-    const currentUserKeepPostIds: any = vueref();
+    const currentUserKeepPostIds: Ref<string[] | undefined> = vueref();
 
     isLoading.value = false;
-    const userDocRef: any = doc(db, "users", currentUserId.value);
+    const userDocRef: DocumentReference<DocumentData> = doc(
+      db,
+      "users",
+      currentUserId.value
+    );
     getDoc(userDocRef)
-      .then((userDocData) => {
-        const userData: any = userDocData.data();
+      .then((userDocData: DocumentSnapshot<DocumentData>) => {
+        const userData: DocumentData | undefined = userDocData.data();
         currentUserData.value = userData;
-        currentUserKeepPostIds.value = userData.keepPosts;
-        console.log(currentUserKeepPostIds.value);
+        currentUserKeepPostIds.value = userData?.keepPosts;
       })
       .then(() => {
-        currentUserKeepPostIds.value.forEach((currentUserKeepPostId: any) => {
-          const postDocRef: any = doc(db, "posts", currentUserKeepPostId);
-          getDoc(postDocRef).then((postDocData) => {
-            const postData: any = postDocData.data();
-            console.log(postData.postId);
-            currentKeepsData.value.push({
-              postId: postData.postId,
-              timestamp: postData.timestamp,
-              imageUrl: postData.imageUrl,
-            });
-            currentKeepsData.value.sort((a: any, b: any) => {
-              return a.timestamp.toDate() > b.timestamp.toDate() ? -1 : 1;
-            });
-            console.log(currentKeepsData.value[0].postId);
-          });
-        });
+        currentUserKeepPostIds.value?.forEach(
+          (currentUserKeepPostId: string) => {
+            const postDocRef: DocumentReference<DocumentData> = doc(
+              db,
+              "posts",
+              currentUserKeepPostId
+            );
+            getDoc(postDocRef).then(
+              (postDocData: DocumentSnapshot<DocumentData>) => {
+                const postData: DocumentData | undefined = postDocData.data();
+                currentKeepsData.value.push({
+                  postId: postData?.postId,
+                  timestamp: postData?.timestamp,
+                  imageUrl: postData?.imageUrl,
+                });
+                currentKeepsData.value.sort((a: any, b: any) => {
+                  return a.timestamp.toDate() > b.timestamp.toDate() ? -1 : 1;
+                });
+              }
+            );
+          }
+        );
       });
 
     return {
@@ -60,7 +74,7 @@ export default defineComponent({
 </script>
 
 <template>
-  <div v-if="currentKeepsData">
+  <div v-if="currentKeepsData.length > 0">
     <div v-if="!isLoading" class="threeRowsPostList">
       <div
         v-for="(currentKeepData, index) in currentKeepsData"
@@ -93,16 +107,16 @@ export default defineComponent({
   aspect-ratio: 1/1;
   margin-right: 0;
 }
+.post_img {
+  width: 100%;
+  object-fit: cover;
+  height: 100%;
+}
 .threeRowsPostList__image:hover {
   opacity: 0.7;
 }
 .threeRowsPostList__message {
   margin-top: 10%;
   text-align: center;
-}
-.post_img {
-  width: 100%;
-  object-fit: cover;
-  height: 100%;
 }
 </style>
