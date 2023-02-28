@@ -14,6 +14,7 @@ const firebaseConfig = {
   apiKey: "AIzaSyAJWioeX_h5q9PKdc78g98kjoIyLAmTKpA",
   authDomain: "sns-app-vue.firebaseapp.com",
   projectId: "sns-app-vue",
+
   storageBucket: "sns-app-vue.appspot.com",
   messagingSenderId: "463668609725",
   appId: "1:463668609725:web:c2d636c9eff06c43056dd4"

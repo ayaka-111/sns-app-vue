@@ -198,8 +198,10 @@ const toggleShowCPassword: () => void = () => {
   </div>
 </template>
 
-<style>
-.soto {
+
+
+<style scoped>
+.soto{
   overflow: hidden;
 }
 .passwordChange-header {

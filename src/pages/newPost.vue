@@ -247,7 +247,7 @@ const close = () => {
   overflow: hidden;
 }
 .newPost_uploadingSection {
-  margin-left: 500px;
+  margin-left: 570px;
   margin-top: 100px;
   width: 500px;
   height: 500px;
