@@ -74,7 +74,7 @@ export default defineComponent({
 </script>
 
 <template>
-  <div v-if="currentKeepsData">
+  <div v-if="currentKeepsData.length > 0">
     <div v-if="!isLoading" class="threeRowsPostList">
       <div
         v-for="(currentKeepData, index) in currentKeepsData"

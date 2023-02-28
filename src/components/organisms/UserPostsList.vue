@@ -31,6 +31,7 @@ export default defineComponent({
         });
       });
     });
+    console.log(theUserPostsData.value)
     return {
       theUserPostsData,
       theUserId,
@@ -40,7 +41,7 @@ export default defineComponent({
 </script>
 
 <template>
-  <div v-if="theUserPostsData">
+  <div v-if="theUserPostsData.length > 0">
     <div v-if="theUserId" class="threeRowsPostList">
       <div
         v-for="(theUserPost, index) in theUserPostsData"

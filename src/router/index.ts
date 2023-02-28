@@ -69,7 +69,7 @@ const router = createRouter({
       component: postChange,
     },
     {
-      path: "/myAccountPage",
+      path: "/myAccountPage/:page",
       name: "myAccountPage",
       component: myAccountPage,
     },

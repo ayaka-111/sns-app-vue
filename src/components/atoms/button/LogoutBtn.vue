@@ -19,6 +19,17 @@ export default {
 
 <template>
   <div>
-    <button type="button" @click="onClickLogout">ログアウト</button>
+    <button class="logout_btn" type="button" @click="onClickLogout">ログアウト</button>
   </div>
 </template>
+
+<style scoped>
+.logout_btn {
+  font-size: 16px;
+  font-weight: bold;
+}
+.logout_btn:hover {
+  opacity: 1;
+  cursor: pointer;
+}
+</style>

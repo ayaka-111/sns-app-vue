@@ -1,45 +1,31 @@
 <script lang="ts">
-import {
-  collection,
-  doc,
-  getDoc,
-  getDocs,
-  query,
-  where,
-} from "@firebase/firestore";
+import { doc, getDoc } from "@firebase/firestore";
 import { defineComponent, ref as vueref } from "vue";
 import { db } from "../../../firebase";
 import type { Ref } from "vue";
-import type {
-  DocumentData,
-  Query,
-  QuerySnapshot,
-  QueryDocumentSnapshot,
-  DocumentReference,
-} from "@firebase/firestore";
+import type { DocumentData, DocumentReference } from "@firebase/firestore";
 
 export default defineComponent({
   name: "UserIcon",
-  props: { userId: String },
+  props: { userId: String, iconStyle: String },
   setup: (props) => {
     const theUserId: any = vueref(props.userId);
     const theUserIcon: Ref<string> = vueref("");
-    console.log(props.userId)
+    const sideLength: Ref<string | undefined> = vueref(props.iconStyle);
     // currentUserのpostデータ取得
     const theUserDocRef: DocumentReference<DocumentData> = doc(
       db,
       "users",
-      theUserId
+      theUserId.value
     );
     getDoc(theUserDocRef).then((theUserDocData: any) => {
       const theUserData: DocumentData | undefined = theUserDocData.data();
       theUserIcon.value = theUserData?.icon;
-      console.log(theUserData.icon)
     });
-    console.log(theUserIcon.value);
     return {
       theUserIcon,
       theUserId,
+      sideLength,
     };
   },
 });
@@ -54,13 +40,11 @@ export default defineComponent({
   </div>
 </template>
 
-
-
 <style>
 .user_icon {
   border-radius: 50%;
-  width: 150px;
-  height: 150px;
+  width: v-bind(iconStyle);
+  height: v-bind(iconStyle);
   aspect-ratio: 1/1;
   border: solid 1px lightgray;
   background-color: #ffff;
@@ -73,5 +57,3 @@ export default defineComponent({
   border-radius: 50%;
 }
 </style>
-
-// userIdとstyleのサイズを渡したい

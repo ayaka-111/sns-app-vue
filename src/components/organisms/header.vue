@@ -4,10 +4,12 @@ import { doc, getDoc } from "@firebase/firestore";
 import { auth, db } from "../../../firebase";
 import { defineComponent, ref } from "vue";
 import NewPost from "../pages/newPost.vue";
+import LogoutBtn from "../atoms/button/LogoutBtn.vue";
 
 export default defineComponent({
   name: "CustomHeader",
-  setup: () => {
+  components: { LogoutBtn },
+  setup: (props, { emit }) => {
     const userData: any = ref();
     const iconUrl: any = ref();
     const sonotaKanri: any = ref(false);
@@ -34,7 +36,11 @@ export default defineComponent({
     const close = () => {
       show.value = false;
     };
-    return { iconUrl, sonotaKanri, sonota };
+    // 保存済みリストへの処理
+    const toKeepList = () => {
+      emit("displaySwitchFalse", false);
+    };
+    return { iconUrl, sonotaKanri, sonota, toKeepList };
   },
 });
 </script>
@@ -104,7 +110,7 @@ export default defineComponent({
         </div>
       </div> -->
 
-      <router-link to="/myAccountPage">
+      <router-link to="/myAccountPage/post">
         <li class="li">
           <div>
             <div class="prof">
@@ -117,7 +123,7 @@ export default defineComponent({
 
       <li class="liEnd">
         <div v-if="sonotaKanri">
-          <button @click="sonota">
+          <button class="other" @click="sonota">
             <p>
               <font-awesome-icon
                 :icon="['fas', 'bars']"
@@ -135,19 +141,23 @@ export default defineComponent({
               </p>
             </router-link>
             <!-- <router-link to="/profileChange"> -->
-            <p class="li">
-              <font-awesome-icon
-                :icon="['far', 'bookmark']"
-                class="headerBookMarkIcon"
-              />&nbsp;&nbsp;保存済み
-            </p>
+            <router-link to="/myAccountPage/saved">
+              <div @click="toKeepList">
+                <p class="li">
+                  <font-awesome-icon
+                    :icon="['far', 'bookmark']"
+                    class="headerBookMarkIcon"
+                  />&nbsp;&nbsp;保存済み
+                </p>
+              </div>
+            </router-link>
             <!-- </router-link> -->
             <LogoutBtn />
           </div>
         </div>
 
         <div v-else>
-          <button @click="sonota">
+          <button class="other" @click="sonota">
             <p>
               <font-awesome-icon
                 :icon="['fas', 'bars']"
@@ -242,6 +252,14 @@ export default defineComponent({
   height: auto;
 }
 button {
+  cursor: pointer;
+}
+.other {
+  font-size: 16px;
+  font-weight: bold;
+}
+.other:hover {
+  opacity: 1;
   cursor: pointer;
 }
 /* モーダル */

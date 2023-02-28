@@ -3,22 +3,28 @@ import { onAuthStateChanged } from "@firebase/auth";
 import { doc, getDoc } from "@firebase/firestore";
 import { onMounted, ref as vueref } from "vue";
 import { auth, db } from "../../firebase";
-import { useRouter } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import UserPostsList from "../components/organisms/UserPostsList.vue";
 import Header from "../components/organisms/header.vue";
 import KeepList from "../components/organisms/keepsList.vue";
 import type { Ref } from "vue";
-import type { Router } from "vue-router";
+import type { Router, RouteLocationNormalizedLoaded } from "vue-router";
 import type { User } from "../../types/types";
 import type { DocumentData, DocumentReference } from "@firebase/firestore";
 import UserIcon from "../components/icons/UserIcon.vue";
+import { watch } from "vue";
 
 const router: Router = useRouter();
+const route: RouteLocationNormalizedLoaded = useRoute();
+const paramsPage: any = route.params.page;
 const currentUserData: Ref<User | undefined | unknown> = vueref();
 const currentUserId: Ref<string> = vueref("");
 const isLoading: Ref<boolean> = vueref(true);
-const displaySwitch: Ref<boolean> = vueref(true);
+const displaySwitch: Ref<any> = vueref(true);
+const iconStyle: Ref<string> = vueref("150px");
+const params: Ref<any> = vueref(paramsPage);
 
+console.log(params.value);
 onMounted(() => {
   onAuthStateChanged(auth, async (currentUser) => {
     if (!currentUser) {
@@ -38,26 +44,39 @@ onMounted(() => {
     }
   });
 });
+if (params.value === "saved") {
+  displaySwitch.value = false;
+}
+watch(displaySwitch, () => {
+  if (params.value === "saved") {
+    params.value = "post";
+  } else {
+    params.value = "saved";
+  }
+});
 const toProfileEdit: () => void = () => {
   router.push("/profileChange");
 };
-const onClickChangeSwitch: () => void = () => {
-  displaySwitch.value = !displaySwitch.value;
+const onClickPost: () => void = () => {
+  displaySwitch.value = true;
 };
-console.log(currentUserId.value)
+const onClickSaved: () => void = () => {
+  displaySwitch.value = false;
+};
 </script>
 
 <template>
-  <Header />
+  <Header
+    @displaySwitchFalse="(ReceivedValue) => (displaySwitch = ReceivedValue)"
+  />
   <div class="header_area">
     <div v-if="!isLoading" class="myPage_wrapper">
       <div class="user_info flex">
         <div class="user_info_left">
-          <div class="user_icon">
-            <img v-bind:src="currentUserData.icon" alt="ユーザーアイコン" />
-          </div>
-          {{ currentUserId}}
-          <!-- <UserIcon v-bind:userId="currentUserId" /> -->
+          <UserIcon
+            v-bind:userId="currentUserId"
+            v-bind:iconStyle="iconStyle"
+          />
         </div>
         <div class="user_info_right">
           <div>
@@ -105,24 +124,28 @@ console.log(currentUserId.value)
             />投稿
           </p>
         </div>
-        <div @click="onClickChangeSwitch" class="noEffect">
-          <p>
-            <font-awesome-icon
-              :icon="['far', 'bookmark']"
-              class="icon"
-            />保存済み
-          </p>
-        </div>
+        <router-link to="/myAccountPage/saved">
+          <div @click="onClickSaved" class="noEffect">
+            <p>
+              <font-awesome-icon
+                :icon="['far', 'bookmark']"
+                class="icon"
+              />保存済み
+            </p>
+          </div>
+        </router-link>
       </div>
       <div v-else class="displayLavel">
-        <div @click="onClickChangeSwitch" class="noEffect flex">
-          <p>
-            <font-awesome-icon
-              :icon="['fas', 'table-cells']"
-              class="icon"
-            />投稿
-          </p>
-        </div>
+        <router-link to="/myAccountPage/post">
+          <div @click="onClickPost" class="noEffect flex">
+            <p>
+              <font-awesome-icon
+                :icon="['fas', 'table-cells']"
+                class="icon"
+              />投稿
+            </p>
+          </div>
+        </router-link>
         <div class="effective">
           <p>
             <font-awesome-icon
