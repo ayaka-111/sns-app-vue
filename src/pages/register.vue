@@ -5,7 +5,7 @@ import ProfileField from "@/components/atoms/ProfileField.vue";
 import UserNameField from "@/components/atoms/UserNameField.vue";
 import PasswordField from "@/components/atoms/PasswordField.vue";
 import CPasswordField from "../components/atoms/CPasswordField.vue";
-import { reactive, ref as vueref } from "vue";
+import { onMounted, reactive, ref as vueref } from "vue";
 import SubmitButtonState from "@/components/atoms/SubmitBtnState";
 import formValidation from "@/components/molecules/formValidation";
 import {
@@ -32,6 +32,7 @@ import type {
 import type { Ref } from "vue";
 import type { Auth } from "firebase/auth";
 import type { Router } from "vue-router";
+import UserIcon from "@/components/icons/UserIcon.vue";
 
 let user: {
   email: string;
@@ -51,18 +52,21 @@ let user: {
 
 const { error } = formValidation();
 const { isSignupButtonDisabled } = SubmitButtonState(user, error);
-const iconImg: Ref<string> = vueref("/noicon.png");
+const iconImg: Ref<string> = vueref("/noIcon.png");
 const iconFileName: Ref<string> = vueref("");
 const currentAuth: Auth = getAuth();
 const router: Router = useRouter();
 const file: Ref<any> = vueref();
 const haveIcon: Ref<boolean> = vueref(false);
+const iconStyle: Ref<string> = vueref("90px");
 
 // ログイン状態の場合の処理
-onAuthStateChanged(currentAuth, (currentUser) => {
-  if (currentUser) {
-    router.push("/home");
-  }
+onMounted(() => {
+  onAuthStateChanged(currentAuth, (currentUser) => {
+    if (currentUser) {
+      router.push("/home");
+    }
+  });
 });
 
 // アイコン画像プレビュー処理
@@ -147,6 +151,9 @@ const loginButtonPressed = async () => {
                 }
               }
             });
+          })
+          .then(() => {
+            router.push("/home");
           });
       })
       .catch((err) => {
@@ -234,7 +241,8 @@ const loginButtonPressed = async () => {
 }
 .user_icon {
   border-radius: 50%;
-  width: 30%;
+  width: 90px;
+  height: 90px;
   aspect-ratio: 1/1;
   border: solid 1px lightgray;
   background-color: #fff;

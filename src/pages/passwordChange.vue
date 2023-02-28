@@ -151,7 +151,6 @@ const toggleShowCPassword: () => void = () => {
             </button>
           </div>
 
-
           <div class="passwordChange-new2">
             新しいパスワード(確認)
 
@@ -173,7 +172,7 @@ const toggleShowCPassword: () => void = () => {
               v-else
               class="passwordChange-eye_icon2"
             >
-              <font-awesome-icon :icon="['fas', 'eye-slash']"  />
+              <font-awesome-icon :icon="['fas', 'eye-slash']" />
             </button>
           </div>
           <div v-if="newPassValue !== CPassValue">
@@ -198,10 +197,8 @@ const toggleShowCPassword: () => void = () => {
   </div>
 </template>
 
-
-
 <style scoped>
-.soto{
+.soto {
   overflow: hidden;
 }
 .passwordChange-header {
@@ -238,7 +235,7 @@ const toggleShowCPassword: () => void = () => {
   background-color: #1596f7;
   color: white;
   font-weight: bold;
-  border-radius: 20%;
+  border-radius: 5px;
   padding: 5px;
   margin-left: 350px;
   margin-top: 60px;
@@ -276,31 +273,29 @@ const toggleShowCPassword: () => void = () => {
   margin-left: 54px;
   margin-top: 40px;
   width: 100%;
-  position:relative;
+  position: relative;
 }
 .passwordChange-new2 {
   margin-left: 11px;
   margin-top: 40px;
   width: 100%;
-  position:relative;
+  position: relative;
 }
 
 .passwordChangeInput {
   margin-left: 20px;
   width: 70%;
-  
 }
 .passwordChange-eye_icon {
-  position:absolute;
-  top:6px;
-  left:600px;
-  z-index:10;
+  position: absolute;
+  top: 6px;
+  left: 600px;
+  z-index: 10;
 }
-.passwordChange-eye_icon2{
-  position:absolute;
-  top:6px;
-  left:642px;
-  z-index:10;
+.passwordChange-eye_icon2 {
+  position: absolute;
+  top: 6px;
+  left: 642px;
+  z-index: 10;
 }
-
 </style>

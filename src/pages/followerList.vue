@@ -9,6 +9,7 @@ import type { Ref } from "vue";
 import type { Router, RouteLocationNormalizedLoaded } from "vue-router";
 import type { User } from "../../types/types";
 import type { DocumentData, DocumentReference } from "@firebase/firestore";
+import UserIcon from "@/components/icons/UserIcon.vue";
 
 const route: RouteLocationNormalizedLoaded = useRoute();
 const userId: any = route.params.userId;
@@ -16,6 +17,7 @@ const router: Router = useRouter();
 const anotherUserData: Ref<User[]> = vueref([]);
 const currentUserId: Ref<string | undefined> = vueref();
 const isLoading: Ref<boolean> = vueref(true);
+const iconStyle: Ref<string> = vueref("50px");
 
 let followerUserIds: string[] = [];
 onMounted(() => {
@@ -61,13 +63,26 @@ onMounted(() => {
         <div v-if="anotherUserData.value !== []">
           <ol>
             <div v-for="(anotherUser, index) in anotherUserData" :key="index">
-              <li class="user_data" v-if="anotherUser == currentUserId">
-                <a href="/myAccountPage">
+              <li class="user_data" v-if="anotherUser.userId === currentUserId">
+                <a href="/myAccountPage/post">
                   <div class="user_icon">
-                    <img v-bind:src="anotherUser.icon" alt="ユーザーアイコン" />
+                    <img
+                      v-if="anotherUser.icon === ''"
+                      src="/noIcon.png"
+                      alt="アイコン"
+                    />
+                    <img
+                      v-else
+                      v-bind:src="anotherUser.icon"
+                      alt="ユーザーアイコン"
+                    />
                   </div>
+                  <!-- <UserIcon
+            v-bind:userId="currentUserId"
+            v-bind:iconStyle="iconStyle"
+          /> -->
                 </a>
-                <a href="/myAccountPage">
+                <a href="/myAccountPage/post">
                   <div class="user_text_data">
                     <p class="user_name">{{ anotherUser.userName }}</p>
                     <p class="name">{{ anotherUser.name }}</p>
@@ -77,8 +92,22 @@ onMounted(() => {
               <li class="user_data" v-else>
                 <a v-bind:href="`/accountPage/${anotherUser.userId}`">
                   <div class="user_icon">
-                    <img v-bind:src="anotherUser.icon" alt="ユーザーアイコン" />
+                    <img
+                      v-if="anotherUser.icon === ''"
+                      src="/noIcon.png"
+                      alt="アイコン"
+                    />
+                    <img
+                      v-else
+                      v-bind:src="anotherUser.icon"
+                      alt="ユーザーアイコン"
+                    />
                   </div>
+                  <!-- a{{anotherUser.icon}}{{iconStyle}} -->
+                  <!-- <UserIcon
+            v-bind:userId="anotherUser.icon"
+            v-bind:iconStyle="iconStyle"
+          /> -->
                 </a>
                 <a v-bind:href="`/accountPage/${anotherUser.userId}`">
                   <div class="user_text_data">
@@ -108,12 +137,18 @@ onMounted(() => {
 .follower_wrapper {
   width: 500px;
   margin: auto;
+  background-color: #fff;
+  height: 700px;
 }
 .title {
   text-align: center;
   font-size: 18px;
   font-weight: bold;
   margin: 30px 0;
+  padding-top: 30px;
+}
+ol {
+  padding-bottom: 30px;
 }
 .user_data {
   display: flex;

@@ -7,8 +7,12 @@ export default {
   setup() {
     const router: Router = useRouter();
     const onClickLogout: () => Promise<void> = async () => {
-      await signOut(auth);
-      router.push("/login");
+      if (confirm("本当にログアウトしますか？")) {
+        await signOut(auth);
+        router.push("/login");
+      } else {
+        console.log("ログアウトをキャンセルしました");
+      }
     };
     return {
       onClickLogout,
@@ -19,7 +23,9 @@ export default {
 
 <template>
   <div>
-    <button class="logout_btn" type="button" @click="onClickLogout">ログアウト</button>
+    <button class="logout_btn" type="button" @click="onClickLogout">
+      ログアウト
+    </button>
   </div>
 </template>
 

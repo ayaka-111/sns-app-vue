@@ -2,9 +2,8 @@
 import { onAuthStateChanged } from "@firebase/auth";
 import { doc, getDoc } from "@firebase/firestore";
 import { auth, db } from "../../../firebase";
-import { defineComponent, ref } from "vue";
+import { defineComponent, onMounted, ref } from "vue";
 import LogoutBtn from "../atoms/button/LogoutBtn.vue";
-import UserIcon from "../icons/UserIcon.vue";
 import type { Ref } from "vue";
 
 export default defineComponent({
@@ -12,18 +11,20 @@ export default defineComponent({
   components: { LogoutBtn },
   setup: (props, { emit }) => {
     const userData: any = ref();
-    const iconUrl: any = ref();
+    const iconUrl: any = ref("");
     const sonotaKanri: any = ref(false);
     const iconStyle: Ref<string> = ref("40px");
     const userId: Ref<string | undefined> = ref("");
 
-    onAuthStateChanged(auth, (currentUser: any) => {
-      userId.value = currentUser.uid;
-      console.log(currentUser.uid);
-      const loginUserData = doc(db, "users", currentUser.uid);
-      getDoc(loginUserData).then((data) => {
-        userData.value = data.data();
-        iconUrl.value = userData.value.icon;
+    onMounted(() => {
+      onAuthStateChanged(auth, (currentUser: any) => {
+        userId.value = currentUser.uid;
+        console.log(currentUser.uid);
+        const loginUserData = doc(db, "users", currentUser.uid);
+        getDoc(loginUserData).then((data) => {
+          userData.value = data.data();
+          iconUrl.value = userData.value.icon;
+        });
       });
     });
 
@@ -100,19 +101,13 @@ export default defineComponent({
         <li class="li">
           <div>
             <div class="prof">
-              <!-- <UserIcon
-            v-bind:userId="userId"
-            v-bind:iconStyle="iconStyle"
-          /> -->
-
-          <!-- {{ userId }}{{ iconStyle }} -->
-              <div v-if="iconUrl !== ''">
-
-              <img v-bind:src="iconUrl" alt="icon" class="icon" />
-              </div>
-              <div v-else>
-              <img src="../../../public/noIcon.png" alt="icon" class="icon" />
-              </div>
+              <img
+                v-if="iconUrl === ''"
+                src="/noIcon.png"
+                alt="アイコン"
+                class="icon"
+              />
+              <img v-else v-bind:src="iconUrl" alt="icon" class="icon" />
               <p class="profName">プロフィール</p>
             </div>
           </div>
