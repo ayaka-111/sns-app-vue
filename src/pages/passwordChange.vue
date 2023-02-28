@@ -70,10 +70,12 @@ onAuthStateChanged(auth, (currentUser: any) => {
 
 const passChange :()=> void = () => {
 
-  updatePassword(nowPassValue.value, newPassValue.value);
-    console.log(nowPassValue)
+  console.log(nowPassValue)
     console.log(newPassValue)
     console.log(current.value)
+
+  updatePassword(nowPassValue.value, newPassValue.value);
+
 
       updateDoc(doc(db, "users", current.value), {
       password:newPassValue.value,

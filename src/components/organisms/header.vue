@@ -105,7 +105,7 @@ export default defineComponent({
         </div>
       </div> -->
 
-      <router-link to="/myAccountPage">
+      <router-link to="/myAccountPage/post">
         <li class="li">
           <div>
             <div class="prof">
