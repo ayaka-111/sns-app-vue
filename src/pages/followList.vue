@@ -61,13 +61,22 @@ onMounted(() => {
         <div v-if="anotherUserData.value !== []">
           <ol>
             <div v-for="(anotherUser, index) in anotherUserData" :key="index">
-              <li class="user_data" v-if="anotherUser == currentUserId">
-                <a href="/myAccountPage">
+              <li class="user_data" v-if="anotherUser.userId == currentUserId">
+                <a href="/myAccountPage/post">
                   <div class="user_icon">
-                    <img v-bind:src="anotherUser.icon" alt="ユーザーアイコン" />
+                    <img
+                      v-if="anotherUser.icon === ''"
+                      src="/noIcon.png"
+                      alt="アイコン"
+                    />
+                    <img
+                      v-else
+                      v-bind:src="anotherUser.icon"
+                      alt="ユーザーアイコン"
+                    />
                   </div>
                 </a>
-                <a href="/myAccountPage">
+                <a href="/myAccountPage/post">
                   <div class="user_text_data">
                     <p class="user_name">{{ anotherUser.userName }}</p>
                     <p class="name">{{ anotherUser.name }}</p>
@@ -77,7 +86,16 @@ onMounted(() => {
               <li class="user_data" v-else>
                 <a v-bind:href="`/accountPage/${anotherUser.userId}`">
                   <div class="user_icon">
-                    <img v-bind:src="anotherUser.icon" alt="ユーザーアイコン" />
+                    <img
+                      v-if="anotherUser.icon === ''"
+                      src="/noIcon.png"
+                      alt="アイコン"
+                    />
+                    <img
+                      v-else
+                      v-bind:src="anotherUser.icon"
+                      alt="ユーザーアイコン"
+                    />
                   </div>
                 </a>
                 <a v-bind:href="`/accountPage/${anotherUser.userId}`">
@@ -111,12 +129,18 @@ onMounted(() => {
 .follow_wrapper {
   width: 500px;
   margin: auto;
+  background: #fff;
+  height: 700px;
 }
 .title {
   text-align: center;
   font-size: 18px;
   font-weight: bold;
   margin: 30px 0;
+  padding-top: 30px;
+}
+ol {
+  padding-bottom: 30px;
 }
 .user_data {
   display: flex;
