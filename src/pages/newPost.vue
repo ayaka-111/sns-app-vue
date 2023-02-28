@@ -22,6 +22,7 @@ import { useRouter } from "vue-router";
 import type { User } from "../../types/types";
 import type { Ref } from "vue";
 import type { DocumentData } from "firebase/firestore";
+import UserIcon from "../components/icons/UserIcon.vue";
 
 // ログインユーザー
 const loginUser: Ref<User | DocumentData | undefined> = ref();
@@ -40,6 +41,8 @@ const inputCaption = ref("");
 const postUrl = ref("");
 
 const router = useRouter();
+
+const iconStyle: Ref<string> = ref("30px");
 
 //ログイン認証、user情報取得
 onAuthStateChanged(auth, (currentUser) => {
@@ -215,17 +218,10 @@ const close = () => {
         </div>
         <div>
           <div class="newPost_iconName">
-            <img
-              src="/noIcon.png"
-              alt="noIcon"
-              class="iconImg"
-              v-if="loginUser?.icon === ''"
-            />
-            <img
-              v-bind:src="loginUser?.icon"
-              alt="icon"
-              class="iconImg"
-              v-else
+            <UserIcon
+              v-bind:userId="loginUser?.userId"
+              v-bind:iconStyle="iconStyle"
+              id="iconImg"
             />
             <p class="newPost_userName">{{ loginUser?.userName }}</p>
           </div>
@@ -344,12 +340,13 @@ const close = () => {
   gap: 5%;
   margin-top: 20px;
 }
-.iconImg {
-  width: 30px;
+#iconImg {
+  /* width: 30px;
   height: 30px;
   border-radius: 50%;
   border: 1px solid lightgray;
-  background-color: #ffff;
+  background-color: #ffff; */
+  margin: 0 0;
 }
 .newPost_userName {
   font-weight: bold;

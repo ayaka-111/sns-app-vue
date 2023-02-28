@@ -8,7 +8,6 @@ import CustomHeader from "../components/organisms/header.vue";
 import type { Post } from "../../types/types";
 import type { DocumentData } from "firebase/firestore";
 
-
 //postIdを受け取る
 const route = useRoute();
 const postId: any = route.params.postId;
@@ -65,9 +64,7 @@ const updateButton = async () => {
       <div class="postChange_titleContent">
         <button @click="cancelButton" class="cancelBtn">キャンセル</button>
         <div class="postChangeTitle">情報を編集</div>
-        <!-- <RouterLink v-bind:to="{path:`/post/${postId}`}" state="テスト"> -->
         <button @click="updateButton" class="completionBtn">完了</button>
-        <!-- </RouterLink> -->
       </div>
       <div>
         <div class="postChange_content">

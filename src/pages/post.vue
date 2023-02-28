@@ -18,6 +18,7 @@ import DeletePost from "../components/atoms/button/DeletePost.vue";
 import PostFavorite from "../components/atoms/button/PostFavorite.vue";
 import type { Post, User } from "../../types/types";
 import type { Ref } from "vue";
+import UserIcon from "../components/icons/UserIcon.vue";
 
 interface CommentType {
   comment: string;
@@ -74,6 +75,9 @@ const loading = ref(true);
 const postDocumentIdArray: Ref<string[]> = ref([]);
 
 const referrer = ref();
+
+// iconの大きさ
+const iconStyle: Ref<string> = ref("35px");
 
 onMounted(() => {
   referrer.value = document.referrer;
@@ -141,7 +145,7 @@ watch(commentLength, () => {
   // console.log(commentLength.value);
   addComment().then(() => {
     getDoc(postDoc.value).then((data) => {
-      const post:any = data.data();
+      const post: any = data.data();
       postData.value = post;
       commentData.value = post.comments;
       console.log(post.comments);
@@ -210,20 +214,12 @@ const deleteClose = () => {
           <div class="post_title">
             <div class="post_profile" v-if="postData?.userId === loginUserUid">
               <a href="/myAccountPage/post">
-                <img
-                  src="/noIcon.png"
-                  alt="noIcon"
-                  class="post_iconImg"
-                  v-if="postData.icon === ''"
-                />
-                <img
-                  v-bind:src="postData.icon"
-                  alt="icon"
-                  class="post_iconImg"
-                  v-else
+                <UserIcon
+                  v-bind:userId="postData?.userId"
+                  v-bind:iconStyle="iconStyle"
                 />
               </a>
-              <a href="/myAccountPage">
+              <a href="/myAccountPage/post">
                 <p class="post_userName">{{ postData.userName }}</p>
               </a>
               <p
@@ -316,17 +312,9 @@ const deleteClose = () => {
               v-if="postData?.userId === loginUserUid"
             >
               <a href="/myAccountPage/post">
-                <img
-                  src="/noIcon.png"
-                  alt="noIcon"
-                  class="post_iconImg"
-                  v-if="postData.icon === ''"
-                />
-                <img
-                  v-bind:src="postData.icon"
-                  alt="icon"
-                  class="post_iconImg"
-                  v-else
+                <UserIcon
+                  v-bind:userId="postData.userId"
+                  v-bind:iconStyle="iconStyle"
                 />
               </a>
               <a href="/myAccountPage/post">
@@ -365,22 +353,18 @@ const deleteClose = () => {
                 class="post_commentIconImg"
               >
                 <a href="/myAccountPage/post">
-                  <img
-                    src="/noIcon.png"
-                    alt="noIcon"
-                    v-if="comment.icon === ''"
+                  <UserIcon
+                    v-bind:userId="comment.userId"
+                    v-bind:iconStyle="iconStyle"
                   />
-                  <img v-bind:src="comment.icon" alt="iconImg" v-else />
                 </a>
               </div>
               <div v-else class="post_commentIconImg">
                 <a v-bind:href="`/accountPage/${comment.userId}`">
-                  <img
-                    src="/noIcon.png"
-                    alt="noIcon"
-                    v-if="comment.icon === ''"
+                  <UserIcon
+                    v-bind:userId="comment.userId"
+                    v-bind:iconStyle="iconStyle"
                   />
-                  <img v-bind:src="comment.icon" alt="iconImg" v-else />
                 </a>
               </div>
               <div class="post_commentContent">
