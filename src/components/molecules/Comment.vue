@@ -35,8 +35,8 @@ export default defineComponent({
 
       await updateDoc(postDocRefId, {
         comments: arrayUnion({
-          userName: props.loginUser.userName,
-          icon: props.loginUser.icon,
+          // userName: props.loginUser.userName,
+          // icon: props.loginUser.icon,
           comment: inputComment.value,
           userId: props.loginUser.userId,
           // timestamp: serverTimestamp(),

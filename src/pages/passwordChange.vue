@@ -151,7 +151,7 @@ const passChange :()=> void = () => {
 </template>
 
 
-<style>
+<style scoped>
 .soto{
   overflow: hidden;
 }
