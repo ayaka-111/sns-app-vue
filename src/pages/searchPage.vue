@@ -14,8 +14,10 @@ import { ref } from "vue";
 import Header from "../components/organisms/header.vue";
 import { connectStorageEmulator } from "@firebase/storage";
 import { useRoute, useRouter } from "vue-router";
+import UserIcon from "../components/icons/UserIcon.vue";
 // import searchResult from "@/components/organisms/searchResult.vue";
 
+const iconStyle: any= ref("50px");
 const allUserData: any = [];
 const searchText: any = ref();
 const searchResultUserId: any = [];
@@ -128,10 +130,21 @@ const search:() => void =()=> {
         (userDataResult,index) in userDataArr"
         :key="index"
       >
-        <a v-bind:href="`/accountPage/${userDataResult.userId}`">
-          <img v-bind:src="userDataResult.icon" alt="icon" class="searchPage-iconImg" />
-        </a>
 
+      <div class="searchPage-iconImg">
+        <a v-bind:href="`/accountPage/${userDataResult.userId}`">
+          <UserIcon 
+            v-bind:userId="userDataResult.userId"
+            v-bind:iconStyle="iconStyle"
+          />
+          <!-- <div v-if = "userDataResult.icon !== ''" >
+          <img v-bind:src="userDataResult.icon" alt="icon" class="searchPage-iconImg" />
+        </div>
+        <div v-else>
+          <img src= "../../public/noIcon.png" alt="icon" class="searchPage-iconImg" />
+        </div> -->
+        </a>
+      </div>
 
         <div class="searchPageNameSet">
           <p class="searchPageUserName">{{ userDataResult.userName }}</p>
@@ -186,9 +199,12 @@ const search:() => void =()=> {
 }
 
 .searchPage-iconImg{
-  width: 50px;
-  height: 50px;
-  border-radius: 50%;
+margin-left: 10px;
+margin-top: 5px;
+margin-right: 10px;
+/* width: 50px;
+height: 50px;
+border-radius: 50%; */
 }
 .searchPageNameSet{
   margin-top: 5px;

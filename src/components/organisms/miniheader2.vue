@@ -25,19 +25,18 @@
 
 <style>
 .miniheader2{
+    margin-top: 50px;
     margin-left: 330px;
-    /* width: 85px; */
     height: 425px;
-    /* max-width: 350px; */
-    min-width: 200px;
+    min-width: 160px;
     border-left: 1px solid silver;
     border-top: 1px solid silver;
     border-bottom: 1px solid silver;
-
     position: fixed;
     font-size: 15px;
-    /* font-weight: bold; */
 }
+
+
 /* .prosoto{
     border-bottom: 1px solid silver;
 } */

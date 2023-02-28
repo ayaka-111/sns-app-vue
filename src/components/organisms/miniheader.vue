@@ -23,9 +23,10 @@
 
 <style>
 .miniheader{
+    margin-top: 50px;
     margin-left: 330px;
     height: 425px;
-    min-width: 200px;
+    min-width: 160px;
     border-left: 1px solid silver;
     border-top: 1px solid silver;
     border-bottom: 1px solid silver;
