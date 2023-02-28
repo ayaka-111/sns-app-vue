@@ -112,7 +112,7 @@ onMounted(() => {
       postDocumentIdArray.value.push(doc.id);
     });
   });
-  console.log(postDocumentIdArray.value);
+  // console.log(postDocumentIdArray.value);
 
   // 上記を元にドキュメントへの参照を取得(クリックされた投稿のpostIdを指定する)
   const postDocRefId = doc(postCollectionRef, postId);
@@ -125,7 +125,6 @@ onMounted(() => {
     postFavoriteLength.value = data.data()?.favorites.length;
     commentLength.value = data.data()?.comments.length;
     // comment.value = true;
-    console.log(data.data()?.comments);
     //timestamp取得
     const dataList = data.data();
     const timestamp = dataList?.timestamp.toDate();
@@ -139,7 +138,7 @@ onMounted(() => {
 
 // 投稿ボタン押された時に監視する
 watch(commentLength, () => {
-  console.log(commentLength.value);
+  // console.log(commentLength.value);
   addComment().then(() => {
     getDoc(postDoc.value).then((data) => {
       const post:any = data.data();
@@ -210,7 +209,7 @@ const deleteClose = () => {
         <section class="post_content">
           <div class="post_title">
             <div class="post_profile" v-if="postData?.userId === loginUserUid">
-              <a href="/myAccountPage">
+              <a href="/myAccountPage/post">
                 <img
                   src="/noIcon.png"
                   alt="noIcon"
@@ -316,7 +315,7 @@ const deleteClose = () => {
               class="post_commentList"
               v-if="postData?.userId === loginUserUid"
             >
-              <a href="/myAccountPage">
+              <a href="/myAccountPage/post">
                 <img
                   src="/noIcon.png"
                   alt="noIcon"
@@ -330,7 +329,7 @@ const deleteClose = () => {
                   v-else
                 />
               </a>
-              <a href="/myAccountPage">
+              <a href="/myAccountPage/post">
                 <p class="post_userName">{{ postData.userName }}</p>
               </a>
               <div class="post_caption">{{ postData.caption }}</div>
@@ -365,7 +364,7 @@ const deleteClose = () => {
                 v-if="comment.userId === loginUserUid"
                 class="post_commentIconImg"
               >
-                <a href="/myAccountPage">
+                <a href="/myAccountPage/post">
                   <img
                     src="/noIcon.png"
                     alt="noIcon"
@@ -389,7 +388,7 @@ const deleteClose = () => {
                   v-if="comment.userId === loginUserUid"
                   class="post_commentName"
                 >
-                  <a href="/myAccountPage">{{ comment.userName }}</a>
+                  <a href="/myAccountPage/post">{{ comment.userName }}</a>
                 </p>
                 <p v-else class="post_commentName">
                   <a v-bind:href="`/accountPage/${comment.userId}`">

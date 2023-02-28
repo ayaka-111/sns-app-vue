@@ -113,7 +113,7 @@ export default defineComponent({
         })
         .then(() => {
           console.log("削除しました");
-          router.push("/myAccountPage");
+          router.push("/myAccountPage/post");
         });
     };
 

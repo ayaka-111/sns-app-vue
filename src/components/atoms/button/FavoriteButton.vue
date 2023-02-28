@@ -44,7 +44,6 @@ export default defineComponent({
     });
 
     watch(favorite, () => {
-      console.log(favorite.value);
       if (favorite.value) {
         addFavorite().then(() => {
           getDoc(postDocRefId).then((post) => {

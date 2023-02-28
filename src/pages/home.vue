@@ -102,26 +102,36 @@ const onRead = () => {
   button[0].setAttribute("id", "home_captionId");
 };
 console.log(readMore.value);
-
-console.log(postList.value);
 </script>
 
 <template>
   <CustomHeader />
   <section v-if="postList.length > 0" class="home">
-    <div class="home_wrapper" v-for="post in postList" v-bind:key="post.id">
+    <div class="home_wrapper" v-for="post in postList" v-bind:key="post">
       <div class="home_titleHeader" v-if="post.userId === loginUserUid">
-        <a href="/myAccountPage">
-          <img v-bind:src="post.icon" alt="icon" class="home_iconImg" />
+        <a href="/myAccountPage/post">
+          <img
+            src="/noIcon.png"
+            alt="noIcon"
+            class="home_iconImg"
+            v-if="post.icon === ''"
+          />
+          <img v-bind:src="post.icon" alt="icon" class="home_iconImg" v-else />
         </a>
-        <a href="/myAccountPage">
+        <a href="/myAccountPage/post">
           <p class="home_userName">{{ post.userName }}</p>
         </a>
         <Date v-bind:date="post.timestamp" />
       </div>
       <div class="home_titleHeader" v-else>
         <a v-bind:href="`/accountPage/${post.userId}`">
-          <img v-bind:src="post.icon" alt="icon" class="home_iconImg" />
+          <img
+            src="/noIcon.png"
+            alt="noIcon"
+            class="home_iconImg"
+            v-if="post.icon === ''"
+          />
+          <img v-bind:src="post.icon" alt="icon" class="home_iconImg" v-else />
         </a>
         <a v-bind:href="`/accountPage/${post.userId}`">
           <p class="home_userName">{{ post.userName }}</p>
@@ -149,7 +159,7 @@ console.log(postList.value);
 
       <div class="home_postContent">
         <p class="home_postUserName" v-if="post.userId === loginUserUid">
-          <a href="/myAccountPage">{{ post.userName }}</a>
+          <a href="/myAccountPage/post">{{ post.userName }}</a>
         </p>
         <p class="home_postUserName" v-else>
           <a v-bind:href="`/accountPage/${post.userId}`">{{ post.userName }}</a>
