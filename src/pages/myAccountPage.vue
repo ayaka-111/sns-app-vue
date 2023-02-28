@@ -5,7 +5,7 @@ import { onMounted, ref as vueref } from "vue";
 import { auth, db } from "../../firebase";
 import { useRoute, useRouter } from "vue-router";
 import UserPostsList from "../components/organisms/UserPostsList.vue";
-import Header from "../components/organisms/header.vue";
+import CustomHeader from "../components/organisms/header.vue";
 import KeepList from "../components/organisms/keepsList.vue";
 import type { Ref } from "vue";
 import type { Router, RouteLocationNormalizedLoaded } from "vue-router";
@@ -66,9 +66,9 @@ const onClickSaved: () => void = () => {
 </script>
 
 <template>
-  <Header
+  <!-- <CustomHeader
     @displaySwitchFalse="(ReceivedValue) => (displaySwitch = ReceivedValue)"
-  />
+  /> -->
   <div class="header_area">
     <div v-if="!isLoading" class="myPage_wrapper">
       <div class="user_info flex">
