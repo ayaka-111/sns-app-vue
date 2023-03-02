@@ -1,122 +1,715 @@
 <script setup lang="ts">
-import { ref, watch } from "vue";
+import { onMounted, reactive, ref, watch } from "vue";
 import {
   arrayUnion,
   collection,
-  CollectionReference,
   doc,
-  Firestore,
   getDoc,
-  getFirestore,
+  getDocs,
   updateDoc,
 } from "firebase/firestore";
+import type { DocumentData } from "firebase/firestore";
 import { auth, db } from "../../firebase";
 import { onAuthStateChanged } from "@firebase/auth";
+import { useRoute, useRouter } from "vue-router";
+import CustomHeader from "../components/organisms/header.vue";
+import KeepBtn from "../components/atoms/button/keepBtn.vue";
+import DeletePost from "../components/atoms/button/DeletePost.vue";
+import PostFavorite from "../components/atoms/button/PostFavorite.vue";
+import type { Post, User } from "../../types/types";
+import type { Ref } from "vue";
+import UserIcon from "../components/icons/UserIcon.vue";
+import CommentUserName from "../components/atoms/CommentUserName.vue";
+
+interface CommentType {
+  comment: string;
+  userName: string;
+  icon: string;
+  userId: string;
+}
+
+//postIdを受け取る
+const route = useRoute();
+const postId: any = route.params.postId;
+
+//編集ボタン
+const router = useRouter();
+const changeButton = () => {
+  router.push({ path: `/postChange/${postId}` });
+};
 
 // ログインユーザーのuid
-const loginUser = ref("");
+const loginUserUid = ref("");
+
+// ログインユーザーの情報
+const loginUser: Ref<User | DocumentData | undefined> = ref();
+
+// ログインユーザーのfavoritePostsにpostIdが含まれているかどうか
+const favorite: Ref<boolean> = ref(false);
+const noFavorite: Ref<boolean> = ref(false);
+
+// ユーザーコレクション
+const userCollection: Ref<DocumentData | undefined> = ref();
+
+// ログインユーザーのドキュメント
+const loginUserDoc: Ref<DocumentData | undefined> = ref();
+
+const postDoc: any = ref("");
 //postデータ
-const postData: any = ref("");
+const postData: Ref<Post | DocumentData | undefined> = ref();
+const commentData: Ref<CommentType[]> = ref([]);
+const commentLength: any = ref();
+const postFavoriteLength: Ref<number | undefined> = ref(0);
 
-onAuthStateChanged(auth, (currentUser: any) => {
-  if (currentUser) {
-    loginUser.value = currentUser.uid;
-  }
+//timestampの表記変更
+const dateToDate = reactive({
+  year: "",
+  month: "",
+  date: "",
+  hour: "",
+  min: "",
 });
-console.log(loginUser);
 
-// //コレクションへの参照を取得
-const postCollectionRef = collection(db, "posts");
+// 取得を待つ
+const loading = ref(true);
 
-// //上記を元にドキュメントへの参照を取得(クリックされた投稿のpostIdを指定する)
-const postDocRefId = doc(postCollectionRef, "nxvBjxNsshrRKcsXot7j");
+const postDocumentIdArray: Ref<string[]> = ref([]);
 
-// //上記を元にドキュメントのデータを取得
-getDoc(postDocRefId).then((data) => {
-  postData.value = data.data();
+const referrer = ref();
+
+// iconの大きさ
+const iconStyle: Ref<string> = ref("35px");
+
+onMounted(() => {
+  referrer.value = document.referrer;
+  console.log(referrer.value);
+  //ログイン認証、uid取得
+  onAuthStateChanged(auth, (currentUser) => {
+    if (!currentUser) {
+      router.push("/login");
+    } else {
+      loginUserUid.value = currentUser.uid;
+
+      loading.value = false;
+      const loginUserCollectionRef = collection(db, "users");
+      userCollection.value = loginUserCollectionRef;
+      const loginUserDocRefId = doc(loginUserCollectionRef, currentUser.uid);
+      loginUserDoc.value = loginUserDocRefId;
+
+      getDoc(loginUserDocRefId).then((data) => {
+        const userData = data.data();
+        loginUser.value = userData;
+        if (userData?.favoritePosts.includes(postId)) {
+          favorite.value = true;
+        } else {
+          noFavorite.value = false;
+        }
+      });
+    }
+  });
+
+  // postsコレクションへの参照を取得
+  const postCollectionRef = collection(db, "posts");
+
+  // postsのドキュメントId全件取得
+  getDocs(postCollectionRef).then((querySnapshot) => {
+    querySnapshot.forEach((doc) => {
+      postDocumentIdArray.value.push(doc.id);
+    });
+  });
+  // console.log(postDocumentIdArray.value);
+
+  // 上記を元にドキュメントへの参照を取得(クリックされた投稿のpostIdを指定する)
+  const postDocRefId = doc(postCollectionRef, postId);
+  postDoc.value = postDocRefId;
+
+  // //上記を元にドキュメントのデータを取得
+  getDoc(postDocRefId).then((data) => {
+    postData.value = data.data();
+    commentData.value = data.data()?.comments;
+    postFavoriteLength.value = data.data()?.favorites.length;
+    commentLength.value = data.data()?.comments.length;
+    // comment.value = true;
+    //timestamp取得
+    const dataList = data.data();
+    const timestamp = dataList?.timestamp.toDate();
+    dateToDate.year = timestamp.getFullYear();
+    dateToDate.month = timestamp.getMonth() + 1;
+    dateToDate.date = timestamp.getDate();
+    dateToDate.hour = timestamp.getHours();
+    dateToDate.min = timestamp.getMinutes();
+  });
+});
+
+// 投稿ボタン押された時に監視する
+watch(commentLength, () => {
+  // console.log(commentLength.value);
+  addComment().then(() => {
+    getDoc(postDoc.value).then((data) => {
+      const post: any = data.data();
+      postData.value = post;
+      commentData.value = post.comments;
+      console.log(post.comments);
+    });
+  });
 });
 
 //コメント機能(postsのcommentsに追加)
+// inputに入力された情報を管理
 const inputComment = ref("");
 
 const addComment = async () => {
-  await updateDoc(postDocRefId, {
+  await updateDoc(postDoc.value, {
     comments: arrayUnion({
-      // id: +1,
-      userName: postData.value.userName,
-      icon: postData.value.icon,
+      // userName: loginUser.value?.userName,
+      // icon: loginUser.value?.icon,
       comment: inputComment.value,
+      userId: loginUser.value?.userId,
+      // timestamp: serverTimestamp(),
     }),
   });
   inputComment.value = "";
 };
+// ボタンが押されたら1足して情報が変化していることをwatchに伝える
+const onClickAddComment = () => {
+  commentLength.value = commentLength.value + 1;
+};
+
+// コメントアイコンボタン
+const onClickComment = () => {
+  const input = document.getElementById("inputComment");
+  input?.focus();
+};
+
+// menuの表示切り替え
+const show = ref(false);
+// モーダル開く
+const open = () => {
+  show.value = true;
+};
+// モーダル閉じる
+const close = () => {
+  show.value = false;
+};
+// 削除再確認モーダル
+const deleteShow = ref(false);
+const deleteOpen = () => {
+  deleteShow.value = true;
+};
+const deleteClose = () => {
+  deleteShow.value = false;
+};
 </script>
 
 <template>
-  <!-- <Suspense> -->
-  <!-- <template #default> -->
-  <section>
-    <div>
-      <img v-bind:src="postData.imageUrl" alt="投稿写真" />
-    </div>
-  </section>
-  <section>
-    <div>
-      <a href="/profile">
-        <img v-bind:src="postData.icon" alt="icon" class="iconImg" />
-      </a>
-      <a href="/profile">
-        <p>{{ postData.userName }}</p>
-      </a>
-    </div>
-    <div>
-      <a href="/profile">
-        <img v-bind:src="postData.icon" alt="icon" class="iconImg" />
-      </a>
-      <a href="/profile">
-        <p>{{ postData.userName }}</p>
-      </a>
-      <div>{{ postData.caption }}</div>
+  <CustomHeader />
+  <section class="post">
+    <section v-if="!loading">
+      <section v-if="postDocumentIdArray.includes(postId)" class="post_wrapper">
+        <section>
+          <div class="post_postImg">
+            <img v-bind:src="postData?.imageUrl" alt="投稿写真" />
+          </div>
+        </section>
+        <section class="post_content">
+          <div class="post_title">
+            <div class="post_profile" v-if="postData?.userId === loginUserUid">
+              <a href="/myAccountPage/post">
+                <UserIcon
+                  v-bind:userId="postData?.userId"
+                  v-bind:iconStyle="iconStyle"
+                />
+              </a>
+              <a href="/myAccountPage/post">
+                <p class="post_userName">{{ postData.userName }}</p>
+              </a>
+              <p
+                class="post_editedText"
+                v-if="
+                  referrer === `http://127.0.0.1:5173/postChange/${postId}` ||
+                  `http://localhost:5173/postChange/${postId}`
+                "
+              >
+                編集済み
+              </p>
+            </div>
+            <div class="post_profile" v-else>
+              <a v-bind:href="`/accountPage/${postData?.userId}`">
+                <img
+                  src="/noIcon.png"
+                  alt="noIcon"
+                  class="post_iconImg"
+                  v-if="postData?.icon === ''"
+                />
+                <img
+                  v-bind:src="postData?.icon"
+                  alt="icon"
+                  class="post_iconImg"
+                  v-else
+                />
+              </a>
+              <a v-bind:href="`/accountPage/${postData?.userId}`">
+                <p class="post_userName">{{ postData?.userName }}</p>
+              </a>
+            </div>
 
-      <div v-for="commentData in postData.comments" v-bind:key="commentData.id">
-        <div>
-          <img v-bind:src="commentData.icon" alt="iconImg" class="iconImg" />
-        </div>
-        <div>
-          <p>{{ commentData.userName }}</p>
-          <p>{{ commentData.comment }}</p>
-        </div>
-      </div>
-    </div>
-    <div>
-      <button>♡</button>
-      <button>📝</button>
-      <button>🏷</button>
-    </div>
-    <div>
-      <span class="favoriteLength">{{ postData.favorites.length }}人</span>が「いいね!」しました
-    </div>
-    <div>
-      <input type="text" v-model="inputComment" />
-      <button @click="addComment">投稿する</button>
-    </div>
+            <div
+              id="postNav"
+              class="postNav"
+              v-if="postData?.userId === loginUserUid"
+            >
+              <!--  クリック要素  -->
+              <span @click="open" class="modal_open_btn"
+                ><font-awesome-icon
+                  :icon="['fas', 'ellipsis']"
+                  class="post_menu"
+              /></span>
+
+              <!--  モーダルウィンドウ  -->
+              <div v-show="show" class="modal_contents">
+                <!-- モーダルウィンドウの背景 -->
+                <div @click="close" class="modal_contents_bg"></div>
+
+                <!--   モーダルウィンドウの中身   -->
+                <div class="modal_contents_wrap">
+                  <!-- <button @click="deleteButton" class="deleteBtn">削除</button> -->
+                  <button @click="deleteOpen" class="deleteBtn">削除</button>
+
+                  <!--  削除再確認モーダルウィンドウ  -->
+                  <div v-show="deleteShow" class="modal_contents">
+                    <!-- 削除再確認モーダルウィンドウの背景 -->
+                    <div @click="deleteClose" class="modal_contents_bg"></div>
+                    <!-- 削除再確認モーダルの中身 -->
+                    <div class="deleteModal_contents_wrap">
+                      <div class="deleteModal_title">
+                        <h1>投稿を削除しますか？</h1>
+                        <p class="deleteText">この投稿を削除しますか？</p>
+                      </div>
+                      <DeletePost
+                        v-bind:postId="postId"
+                        v-bind:loginUserUid="loginUserUid"
+                        v-bind:loginUserDoc="loginUserDoc"
+                        v-bind:userCollection="userCollection"
+                      />
+                      <button
+                        @click="deleteClose"
+                        class="deleteModal_close_btn"
+                      >
+                        キャンセル
+                      </button>
+                    </div>
+                  </div>
+
+                  <button @click="changeButton" class="updateBtn">編集</button>
+                  <!--   モーダルウィンドウを閉じる   -->
+                  <button @click="close" class="modal_close_btn">
+                    キャンセル
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="post_captionContent">
+            <div
+              class="post_commentList"
+              v-if="postData?.userId === loginUserUid"
+            >
+              <a href="/myAccountPage/post">
+                <UserIcon
+                  v-bind:userId="postData.userId"
+                  v-bind:iconStyle="iconStyle"
+                />
+              </a>
+              <a href="/myAccountPage/post">
+                <p class="post_userName">{{ postData.userName }}</p>
+              </a>
+              <div class="post_caption">{{ postData.caption }}</div>
+            </div>
+            <div class="post_commentList" v-else>
+              <a v-bind:href="`/accountPage/${postData?.userId}`">
+                <img
+                  src="/noIcon.png"
+                  alt="noIcon"
+                  class="post_iconImg"
+                  v-if="postData?.icon === ''"
+                />
+                <img
+                  v-bind:src="postData?.icon"
+                  alt="icon"
+                  class="post_iconImg"
+                  v-else
+                />
+              </a>
+              <a v-bind:href="`/accountPage/${postData?.userId}`">
+                <p class="post_userName">{{ postData?.userName }}</p>
+              </a>
+              <div class="post_caption">{{ postData?.caption }}</div>
+            </div>
+
+            <div
+              v-for="(comment, index) in commentData"
+              v-bind:key="index"
+              class="post_commentList"
+            >
+              <div
+                v-if="comment.userId === loginUserUid"
+                class="post_commentIconImg"
+              >
+                <a href="/myAccountPage/post">
+                  <UserIcon
+                    v-bind:userId="comment.userId"
+                    v-bind:iconStyle="iconStyle"
+                  />
+                </a>
+              </div>
+              <div v-else class="post_commentIconImg">
+                <a v-bind:href="`/accountPage/${comment.userId}`">
+                  <UserIcon
+                    v-bind:userId="comment.userId"
+                    v-bind:iconStyle="iconStyle"
+                  />
+                </a>
+              </div>
+              <div class="post_commentContent">
+                <p
+                  v-if="comment.userId === loginUserUid"
+                  class="post_commentName"
+                >
+                  <a href="/myAccountPage/post">
+                    <!-- {{ comment.userName }} -->
+                    <CommentUserName v-bind:userId="comment.userId" />
+                  </a>
+                </p>
+                <p v-else class="post_commentName">
+                  <a v-bind:href="`/accountPage/${comment.userId}`">
+                    <!-- {{ comment.userName }} -->
+                    <CommentUserName v-bind:userId="comment.userId" />
+                  </a>
+                </p>
+                <p>{{ comment.comment }}</p>
+              </div>
+            </div>
+          </div>
+          <div class="post_buttons">
+            <div class="post_favCom">
+              <PostFavorite
+                v-bind:favorite="favorite"
+                v-bind:loginUserDoc="loginUserDoc"
+                v-bind:loginUser="loginUser"
+                v-bind:postDoc="postDoc"
+                v-bind:postData="postData"
+                v-bind:loginUserUid="loginUserUid"
+                v-bind:postId="postId"
+                @response="(length) => (postFavoriteLength = length)"
+              />
+              <button @click="onClickComment">
+                <font-awesome-icon
+                  :icon="['far', 'comment']"
+                  class="post_comment"
+                />
+              </button>
+            </div>
+            <KeepBtn v-bind:postId="postId" />
+          </div>
+          <div class="post_favorite">
+            いいね
+            <span class="post_favoriteLength">{{ postFavoriteLength }} </span>
+            件
+          </div>
+          <div class="post_date">
+            {{ dateToDate.month }}月 {{ dateToDate.date }},
+            {{ dateToDate.year }}
+          </div>
+          <div class="post_addCommentContent">
+            <textarea
+              v-model="inputComment"
+              class="post_commentTextarea"
+              placeholder="コメントを追加..."
+              id="inputComment"
+              maxlength="2200"
+            />
+            <button
+              @click="onClickAddComment"
+              class="post_focusCommentBtn"
+              v-if="inputComment.length > 0"
+            >
+              投稿する
+            </button>
+            <button class="post_commentBtn" v-else>投稿する</button>
+          </div>
+        </section>
+      </section>
+      <section class="post_wrapper" v-else>
+        <p class="post_noPostText">投稿が存在しません</p>
+      </section>
+    </section>
+    <p v-else class="loading_text">loading...</p>
   </section>
-  <!-- </template> -->
-  <!-- <template #fallback>
-      <div>
-        Loading...
-      </div>
-    </template>
-  </Suspense> -->
 </template>
 
-<style>
-.iconImg {
-  width: 100px;
-  height: 100px;
-  border-radius: 50%;
+<style scoped>
+.post {
+  overflow: hidden;
 }
-.favoriteLength {
+.post_wrapper {
+  display: flex;
+  height: 600px;
+  width: 1050px;
+  margin-left: 330px;
+  margin-top: 45px;
+  background-color: #ffff;
+  position: relative;
+}
+.post_postImg {
+  height: 600px;
+  width: 600px;
+}
+.post_postImg img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.post_content {
+  width: 500px;
+}
+.post_title {
+  display: flex;
+  justify-content: space-between;
+  border-bottom: 1px solid lightgray;
+  padding: 3% 0;
+  padding-left: 3.5%;
+  align-items: center;
+}
+.post_profile {
+  display: flex;
+  align-items: center;
+  gap: 11%;
+  width: 200px;
+}
+.post_iconImg {
+  width: 35px;
+  height: 35px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1px solid lightgray;
+  background-color: #ffff;
+}
+.post_userName {
+  font-weight: bold;
+}
+.post_editedText {
+  width: fit-content;
+  white-space: nowrap;
+  color: gray;
+  font-size: 1.1rem;
+}
+.post_captionContent {
+  overflow-y: scroll;
+  overflow-x: none;
+  height: 400px;
+  border-bottom: 1px solid lightgray;
+}
+.post_caption {
+  width: 270px;
+  white-space: normal;
+  word-wrap: break-word;
+}
+.post_commentList {
+  display: flex;
+  /* align-items: center; */
+  gap: 5%;
+  margin-top: 3%;
+  margin-left: 3.5%;
+}
+.post_commentIconImg {
+  width: 35px;
+  height: 35px;
+}
+.post_commentIconImg img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1px solid lightgray;
+  background-color: #ffff;
+}
+.post_commentName {
+  font-weight: bold;
+}
+.post_commentContent {
+  display: flex;
+  align-items: center;
+  gap: 3%;
+  width: 85%;
+}
+.post_redHeart {
+  color: red;
+}
+.post_buttons {
+  margin: 2% 2%;
+  display: flex;
+  justify-content: space-between;
+}
+.post_favCom {
+  display: flex;
+  gap: 5%;
+}
+.post_heart {
+  width: 23px;
+  height: auto;
+}
+.post_comment {
+  width: 23px;
+  height: auto;
+}
+.post_bookmark {
+  width: 17px;
+  height: auto;
+}
+.post_favorite {
+  margin-left: 2%;
+}
+.post_favoriteLength {
+  font-weight: bold;
+}
+.post_date {
+  color: #a6a6a6;
+  font-size: 0.8rem;
+  margin-left: 2%;
+}
+.post_addCommentContent {
+  /* position: relative; */
+  border-top: 1px solid lightgray;
+  margin-top: 2%;
+  display: flex;
+}
+.post_commentTextarea {
+  border: none;
+  width: 85%;
+  height: 40px;
+  resize: none;
+}
+.post_commentTextarea:focus {
+  outline: none;
+}
+.post_focusCommentBtn {
+  /* position: absolute; */
+  /* top: 25%; */
+  /* left: 85%; */
+  font-weight: bold;
+  color: #1596f7;
+}
+.post_commentBtn {
+  /* position: absolute; */
+  /* top: 25%; */
+  /* left: 85%; */
+  font-weight: bold;
+  color: #67b6fa;
+}
+button {
+  cursor: pointer;
+}
+.postNav {
+  padding-right: 4%;
+}
+/* モーダルウィンドウを開く要素 */
+.modal_open_btn {
+  cursor: pointer;
+}
+/* モーダルウィンドウ要素 */
+.modal_contents {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 100;
+  width: 100%;
+  height: 100%;
+  width: 100%;
+}
+/* モーダルウィンドウの背景要素 */
+.modal_contents_bg {
+  background: rgba(0, 0, 0, 0.8);
+  width: 100%;
+  height: 100%;
+}
+/* モーダルウィンドウの中身*/
+.modal_contents_wrap {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  background-color: #fff;
+  width: 25%;
+  height: 30%;
+  margin: auto;
+  transform: translate(-50%, -50%);
+  border-radius: 5%;
+  display: flex;
+  flex-direction: column;
+  text-align: center;
+}
+.deleteBtn {
+  height: 33%;
+  color: red;
+  font-weight: bold;
+}
+.deleteModal_contents_wrap {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  background-color: #fff;
+  width: 100%;
+  height: 100%;
+  margin: auto;
+  transform: translate(-50%, -50%);
+  border-radius: 5%;
+  display: flex;
+  flex-direction: column;
+  text-align: center;
+}
+.deleteModal_title {
+  height: 50%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.deleteText {
+  color: gray;
+}
+.deleteModal_deleteBtn {
+  border-top: 1px solid lightgray;
+  border-bottom: 1px solid lightgray;
+  color: red;
+  font-weight: bold;
+  height: 25%;
+}
+.deleteModal_close_btn {
+  cursor: pointer;
+  height: 25%;
+}
+.updateBtn {
+  border-top: 1px solid lightgray;
+  border-bottom: 1px solid lightgray;
+  height: 33%;
+}
+/* モーダルウィンドウを閉じる要素 */
+.modal_close_btn {
+  cursor: pointer;
+  height: 33%;
+}
+.post_noPostText {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  font-weight: bold;
+  font-size: 2rem;
+  color: gray;
+  transform: translate(-50%, -50%);
+}
+.loading_text {
+  text-align: center;
+  margin-top: 200px;
+  font-size: 16px;
   font-weight: bold;
 }
 </style>

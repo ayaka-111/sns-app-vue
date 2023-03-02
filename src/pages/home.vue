@@ -1,156 +1,278 @@
 <script setup lang="ts">
-import { ref, watch } from "vue";
+import { onMounted, ref } from "vue";
 import {
-  arrayUnion,
   collection,
-  CollectionReference,
   doc,
-  Firestore,
   getDoc,
-  getFirestore,
-  updateDoc,
+  getDocs,
+  query,
+  where,
 } from "firebase/firestore";
 import { auth, db } from "../../firebase";
 import { onAuthStateChanged } from "@firebase/auth";
+import { useRouter } from "vue-router";
+import CommentButton from "@/components/atoms/button/CommentButton.vue";
+import Comment from "../components/molecules/Comment.vue";
+import AllComments from "../components/atoms/button/AllComments.vue";
+import FavoriteButton from "@/components/atoms/button/FavoriteButton.vue";
+import CustomHeader from "../components/organisms/header.vue";
+import Date from "../components/molecules/Date.vue";
+import KeepBtn from "../components/atoms/button/keepBtn.vue";
+import UserIcon from "../components/icons/UserIcon.vue";
+import type { Ref } from "vue";
 
 // ログインユーザーのuid
-const loginUser = ref("");
+const loginUserUid: any = ref("");
 
-onAuthStateChanged(auth, (currentUser: any) => {
-  if (currentUser) {
-    loginUser.value = currentUser.uid;
-  }
-});
+// ログインユーザーデータ
+const loginUser: any = ref("");
 
-//usersからログインユーザーのfollow配列取得
+const loginUserDoc: any = ref("");
 
-//自分とfollowしているユーザーのpostデータ取得
-const postData: any = ref("");
+//mapで回す取得したpost全データ
+const postList: any = ref([]);
 
-// //コレクションへの参照を取得
-const postCollectionRef = collection(db, "posts");
+const loading = ref(true);
 
-// //上記を元にドキュメントへの参照を取得(クリックされた投稿のpostIdを指定する)
-const postDocRefId = doc(postCollectionRef, "nxvBjxNsshrRKcsXot7j");
+const router = useRouter();
 
-// //上記を元にドキュメントのデータを取得
-getDoc(postDocRefId).then((data) => {
-  postData.value = data.data();
-});
+const iconStyle: Ref<string> = ref("40px");
 
-//コメント機能(postsのcommentsに追加)
-const inputComment = ref("");
+onMounted(() => {
+  //ログイン認証、一覧で表示するデータ取得
+  onAuthStateChanged(auth, (currentUser: any) => {
+    if (!currentUser) {
+      router.push("/login");
+    } else {
+      console.log(currentUser.uid);
+      loginUserUid.value = currentUser.uid;
+      //usersからログインユーザーの情報取得
+      const userCollectionRef = collection(db, "users");
 
-const addComment = async () => {
-  await updateDoc(postDocRefId, {
-    comments: arrayUnion({
-      userName: postData.value.userName,
-      icon: postData.value.icon,
-      comment: inputComment.value,
-    }),
+      const userDocRefId = doc(userCollectionRef, currentUser.uid);
+
+      loginUserDoc.value = userDocRefId;
+
+      loading.value = false;
+
+      //自分とfollowしているユーザーのuserId配列
+      const userList: any[] = [currentUser.uid];
+
+      // watch([loginUser, postList], async () => {
+      // const getData = async () => {
+      getDoc(userDocRefId).then((user) => {
+        //data()の形で取得
+        const userData = user.data();
+        loginUser.value = userData;
+
+        //followのみ取得し、上記配列に格納
+        const follow = userData?.follow;
+        follow.map((id: string) => userList.push(id));
+
+        //もし上記getDocの外で以下記述した場合userIdがpushされる前に処理されてしまう
+        // userIdが入っている配列をmapで回し、postsからuserIdと等しいデータを取得
+        userList.map((userId) => {
+          const postsCollectionRef = query(
+            collection(db, "posts"),
+            where("userId", "==", userId)
+          );
+
+          //data()の形で取得し、順番にpostListにpushする
+          getDocs(postsCollectionRef).then((post: any) => {
+            post.forEach((doc: any) => {
+              postList.value.push(doc.data());
+              // 日付順に並び替え
+              postList.value.sort((a: any, b: any) => {
+                return a.timestamp.toDate() > b.timestamp.toDate() ? -1 : 1;
+              });
+            });
+          });
+        });
+      });
+    }
   });
-  inputComment.value = "";
+});
+
+// ボタンクリックでbooleanを管理
+const readMore = ref(true);
+// 続きを読むボタン
+const onRead = () => {
+  // ボタンクリックでbooleanを反転
+  readMore.value = !readMore.value;
+  console.log(readMore.value);
+  // 続きを読むボタンを取得
+  const button = document.getElementsByClassName("home_captionReadMore");
+  // ボタンにid(display:none;スタイリングがついている)を付与
+  button[0].setAttribute("id", "home_captionId");
 };
+console.log(readMore.value);
 </script>
 
 <template>
-  <section class="wrapper">
-    <div class="titleHeader">
-      <a href="/profile">
-        <img v-bind:src="postData.icon" alt="icon" class="iconImg" />
-      </a>
-      <a href="/profile">
-        <p>{{ postData.userName }}</p>
-      </a>
-    </div>
+  <CustomHeader />
+  <section v-if="postList.length > 0" class="home">
+    <div class="home_wrapper" v-for="post in postList" v-bind:key="post">
+      <div class="home_titleHeader" v-if="post.userId === loginUserUid">
+        <a href="/myAccountPage/post">
+          <UserIcon v-bind:userId="post.userId" v-bind:iconStyle="iconStyle" />
+        </a>
+        <a href="/myAccountPage/post">
+          <p class="home_userName">{{ post.userName }}</p>
+        </a>
+        <Date v-bind:date="post.timestamp" />
+      </div>
+      <div class="home_titleHeader" v-else>
+        <a v-bind:href="`/accountPage/${post.userId}`">
+          <UserIcon v-bind:userId="post.userId" v-bind:iconStyle="iconStyle" />
+        </a>
+        <a v-bind:href="`/accountPage/${post.userId}`">
+          <p class="home_userName">{{ post.userName }}</p>
+        </a>
+        <Date v-bind:date="post.timestamp" />
+      </div>
 
-    <div class="postImg">
-      <img v-bind:src="postData.imageUrl" alt="投稿写真" />
-    </div>
+      <div class="home_postImg">
+        <img v-bind:src="post.imageUrl" alt="投稿写真" />
+      </div>
 
-    <div>
-      <button>♡</button>
-      <button>📝</button>
-      <button>🏷</button>
-    </div>
+      <div class="home_buttons">
+        <div class="home_favCom">
+          <FavoriteButton
+            v-bind:postId="post.postId"
+            v-bind:loginUserDoc="loginUserDoc"
+            v-bind:loginUser="loginUser"
+            v-bind:loginUserUid="loginUserUid"
+          />
 
-    <div>
-      <span class="favoriteLength">いいね{{ postData.favorites.length }}件</span
-      >
-    </div>
+          <CommentButton v-bind:postId="post.postId" />
+        </div>
+        <KeepBtn v-bind:postId="post.postId" />
+      </div>
 
-    <div class="postContent">
-      <a href="/profile">
-        <p class="postUserName">{{ postData.userName }}</p>
-      </a>
-      <div>{{ postData.caption }}</div>
-    </div>
+      <div class="home_postContent">
+        <p class="home_postUserName" v-if="post.userId === loginUserUid">
+          <a href="/myAccountPage/post">{{ post.userName }}</a>
+        </p>
+        <p class="home_postUserName" v-else>
+          <a v-bind:href="`/accountPage/${post.userId}`">{{ post.userName }}</a>
+        </p>
+        <div class="home_caption">
+          <p class="home_captionHidden" id="home_captionRemove" v-if="readMore">
+            {{ post.caption }}
+          </p>
+          <p v-else>{{ post.caption }}</p>
+          <button
+            @click="onRead"
+            class="home_captionReadMore"
+            v-if="post.caption.length > 30"
+          >
+            続きを読む
+          </button>
+        </div>
+      </div>
 
-    <div>
-      <!-- あとでモーダルにする -->
-      <a href="/post">
-        <p class="commentLink">コメントをすべて見る</p>
-      </a>
-    </div>
+      <AllComments v-bind:postId="post.postId" />
 
-    <div>
-      <input
-        type="text"
-        v-model="inputComment"
-        class="input"
-        placeholder="コメントを追加..."
-      />
-      <!-- inputに入力されてから表示する -->
-      <button @click="addComment">投稿する</button>
+      <Comment v-bind:postId="post.postId" v-bind:loginUser="loginUser" />
     </div>
+  </section>
+  <section v-else class="home_noPostSection">
+    <div class="home_noPost">投稿がありません</div>
   </section>
 </template>
 
-<style>
-.wrapper {
-  border-bottom: 1px solid lightgray;
+<style scoped>
+.home {
+  padding-left: 500px;
+  background-color: #ffff;
 }
-.titleHeader {
+.home_wrapper {
+  border-bottom: 1px solid lightgray;
+  width: 500px;
+}
+.home_titleHeader {
   display: flex;
   gap: 5%;
   align-items: center;
-  height: 100px;
+  height: 60px;
 }
-.iconImg {
-  width: 50px;
-  height: 50px;
+.home_iconImg {
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
+  object-fit: cover;
+  border: 1px solid lightgray;
+  background-color: #ffff;
 }
-.smallIconImg {
+.home_userName {
+  font-weight: bold;
+}
+.home_caption {
+  white-space: normal;
+  width: 410px;
+  word-wrap: break-word;
+}
+.home_captionHidden {
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 1;
+}
+.home_captionReadMore {
+  color: #757575;
+}
+#home_captionId {
+  display: none;
+}
+.home_smallIconImg {
   width: 20px;
   height: 20px;
   border-radius: 50%;
 }
-.postImg {
+.home_postImg {
   width: 500px;
   height: 500px;
 }
-.postImg img {
+.home_postImg img {
   width: 100%;
   height: 100%;
+  object-fit: cover;
 }
-.favoriteLength {
+.home_buttons {
+  display: flex;
+  justify-content: space-between;
+  margin: 2% 0;
+  align-items: flex-start;
+}
+.home_favCom {
+  display: flex;
+  align-items: flex-start;
+  gap: 5%;
+}
+
+.home_favoriteLength {
   font-weight: bold;
 }
-.postContent {
+.home_postContent {
   display: flex;
   gap: 3%;
 }
-.postUserName {
+.home_postUserName {
   font-weight: bold;
 }
-.commentLink {
+.home_commentLink {
   color: #757575;
 }
-.input {
-  border: none;
+.home_noPostSection {
+  overflow: hidden;
 }
-.input:focus {
-  outline: none;
+.home_noPost {
+  font-weight: bold;
+  font-size: 1.6rem;
+  margin-top: 100px;
+  margin-left: 50%;
+}
+button {
+  cursor: pointer;
 }
 </style>
