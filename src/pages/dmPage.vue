@@ -293,11 +293,16 @@ console.log(messageList.value);
 }
 .inputButton {
   text-align: center;
-  width: 100%;
+  width: 70%;
+    position: fixed;
+    right: 100px;
+    top: 270px;
+  
 }
 
 .input {
-  width: 85%;
+  /* margin-left:250px; */
+  width: 50%;
   margin-bottom: 20px;
   margin-top: 350px;
 }
