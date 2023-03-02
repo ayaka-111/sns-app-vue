@@ -301,7 +301,8 @@ console.log(messageList.value);
 }
 
 .input {
-  width: 85%;
+  /* margin-left:250px; */
+  width: 50%;
   margin-bottom: 20px;
   margin-top: 350px;
 }
